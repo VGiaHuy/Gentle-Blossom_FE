@@ -1,0 +1,53 @@
+﻿@{
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4>Đăng nhập</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form id="loginForm" asp-action="Login" asp-controller="Auth" method="post" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold"></label>
+                            <input class="form-control" placeholder="Nhập email">
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold"></label>
+                            <input class="form-control" placeholder="Nhập mật khẩu">
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">Đăng nhập</button>
+                        </div>
+                        <div class="text-center">
+                            <p>Chưa có tài khoản? <a href="javascript:void(0)" data-view="Auth/Register">Đăng ký</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    $("#loginForm").on("submit", function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            $.ajax({
+                url: $(this).attr("action"),
+                method: $(this).attr("method"),
+                data: $(this).serialize(),
+                beforeSend: () => $("#main-content").html('<div class="text-center p-3"><i class="bi bi-arrow-repeat fs-3"></i> Đang xử lý...</div>'),
+                success: (response) => $("#main-content").html(response),
+                error: (xhr) => $("#main-content").html(`<div class="alert alert-danger p-3">Lỗi: ${xhr.responseText || 'Đăng nhập thất bại!'}</div>`)
+            });
+        }
+    });
+</script>

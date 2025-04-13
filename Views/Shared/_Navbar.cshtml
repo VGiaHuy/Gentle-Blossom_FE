@@ -1,0 +1,81 @@
+﻿<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-3 py-2">
+    <div class="container d-flex justify-content-between align-items-center" style="max-width: 1140px;">
+        <!-- Bên trái: Logo + Tìm kiếm -->
+        <div class="d-flex align-items-center ps-3">
+            <a class="nav-link-custom fw-bold text-primary mb-0 me-3" style="font-size: 1.5rem; text-decoration: none;" data-view="Home">Gentle Blossom</a>
+            <form class="d-none d-md-block" role="search">
+                <input class="form-control rounded-pill" type="search" placeholder="Tìm kiếm..." aria-label="Search" style="min-width: 200px;">
+            </form>
+        </div>
+
+        <!-- Ở giữa: Các icon chức năng -->
+        <div class="d-flex align-items-center justify-content-center gap-4 mx-auto">
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" data-view="Home" title="Trang chủ">
+                <i class="bi bi-house-heart fs-5 text-primary"></i>
+            </a>
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" data-view="Friends" title="Kết nối">
+                <i class="bi bi-person-hearts fs-5 text-success"></i>
+            </a>
+            <div class="dropdown">
+                <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Chăm sóc sức khỏe">
+                    <i class="bi bi-heart-pulse fs-5 text-danger"></i>
+                </a>
+                <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
+                    <li>
+                        <a class="dropdown-item rounded-1 py-2" data-view="PregnancyCare/Health">
+                            <i class="bi bi-hospital fs-5 text-primary me-2"></i> Sức khỏe thai sản
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item rounded-1 py-2" data-view="PregnancyCare/Psychology">
+                            <i class="bi bi-emoji-smile fs-5 text-success me-2"></i> Tâm lý thai sản
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Công cụ sức khỏe">
+                    <i class="bi bi-heart-half fs-5 text-info"></i>
+                </a>
+                <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
+                    <li>
+                        <a class="dropdown-item rounded-1 py-2" data-view="HealthTools/DueDate">
+                            <i class="bi bi-calendar3 fs-5 text-primary me-2"></i> Tính ngày dự sinh
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item rounded-1 py-2" data-view="HealthTools/Ovulation">
+                            <i class="bi bi-calculator fs-5 text-success me-2"></i> Tính ngày rụng trứng
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item rounded-1 py-2" data-view="HealthTools/PregnancyWeight">
+                            <i class="bi bi-bar-chart fs-5 text-warning me-2"></i> Tính cân nặng khi mang thai
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bên phải: Nhắn tin, Thông báo, Dropdown -->
+        <div class="d-flex align-items-center gap-4">
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" data-view="Message" title="Trò chuyện">
+                <i class="bi bi-chat-heart fs-5 text-info"></i>
+            </a>
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" data-view="Notifications" title="Thông báo">
+                <i class="bi bi-bell-fill fs-5 text-warning"></i>
+            </a>
+            <div class="dropdown">
+                <a class="nav-link d-flex align-items-center text-dark" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="" alt="avatar" class="rounded-circle" width="36" height="36">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-0" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" data-view="UserProfile">Trang cá nhân</a></li>
+                    <li><a class="dropdown-item" data-view="Settings">Cài đặt</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" asp-controller="Auth" asp-action="Login">Đăng xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

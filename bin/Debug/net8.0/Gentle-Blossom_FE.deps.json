@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Gentle-Blossom_FE/1.0.0": {
+        "runtime": {
+          "Gentle-Blossom_FE.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Gentle-Blossom_FE/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
