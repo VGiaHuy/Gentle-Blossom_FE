@@ -1,0 +1,171 @@
+﻿<div class="container my-5">
+    <!-- Header Section -->
+    <div class="header-section text-center mb-4">
+        <h2 class="fw-bold text-primary">Chăm sóc thai kỳ</h2>
+        <p class="text-muted">Hành trình đồng hành cùng bạn và bé yêu</p>
+    </div>
+
+    <div class="row">
+        <!-- Health Journey Section -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light-pink fw-bold">
+                    Thông tin thai kỳ
+                </div>
+                <div class="card-body">
+                    <p><strong>Ngày dự sinh:</strong> <span id="dueDate">15/08/2025</span></p>
+                    <p><strong>Giới tính thai:</strong> <span id="gender">Chưa xác định</span></p>
+                    <p><strong>Tuần thai:</strong> 24 tuần</p>
+                    <div class="due-date-countdown text-primary fs-5 fw-bold">
+                        Còn 125 ngày nữa
+                    </div>
+                    <button class="btn btn-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#updateHealthJourneyModal">
+                        Cập nhật thông tin
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Periodic Health Update -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light-pink fw-bold">
+                    Sức khỏe định kỳ
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>Tuần 24:</strong> Cân nặng 60kg, huyết áp ổn định
+                            <br><small class="text-muted">10/04/2025</small>
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Tuần 23:</strong> Siêu âm bình thường
+                            <br><small class="text-muted">03/04/2025</small>
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Tuần 22:</strong> Thiếu sắt nhẹ
+                            <br><small class="text-muted">27/03/2025</small>
+                        </li>
+                    </ul>
+                    <a href="/periodic-health/add" class="btn btn-outline-primary mt-3 w-100">Thêm cập nhật mới</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment Reminder -->
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light-pink fw-bold">
+                    Lịch khám định kỳ
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        <strong>Lịch khám tiếp theo:</strong> 13/04/2025, 9:00 AM
+                    </div>
+                    <p class="text-muted">Hệ thống sẽ gửi email nhắc nhở trước 1 ngày.</p>
+                    <a href="/appointments" class="btn btn-outline-primary w-100">Xem tất cả lịch khám</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Knowledge Posts Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light-pink fw-bold">
+            Kiến thức thai kỳ
+        </div>
+        <div class="card-body">
+            <!-- Post 1 -->
+            <div class="post-item mb-4">
+                <div class="d-flex align-items-start">
+                    <img src="" alt="Post Image" class="img-fluid rounded me-3" style="max-width: 100px;">
+                    <div>
+                        <h5 class="fw-bold">Dinh dưỡng trong tam cá nguyệt thứ hai</h5>
+                        <p class="text-muted">Bs. Nguyễn Thị Lan - 10/04/2025</p>
+                        <p>Cung cấp đầy đủ dưỡng chất là yếu tố quan trọng để thai nhi phát triển khỏe mạnh...</p>
+                        <div class="d-flex">
+                            <a href="/post/1" class="btn btn-sm btn-outline-primary me-2">Đọc thêm</a>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#commentPost1">
+                                Bình luận (3)
+                            </button>
+                        </div>
+                        <!-- Comment Section -->
+                        <div class="collapse mt-3" id="commentPost1">
+                            <div class="card card-body">
+                                <div class="mb-3">
+                                    <p><strong>Mai Hương:</strong> Bài viết rất hữu ích, cảm ơn bác sĩ!</p>
+                                    <small class="text-muted">10/04/2025</small>
+                                </div>
+                                <form asp-action="AddComment" method="post">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Viết bình luận..." name="commentContent">
+                                        <button class="btn btn-primary" type="submit">Gửi</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Post 2 -->
+            <div class="post-item mb-4">
+                <div class="d-flex align-items-start">
+                    <img src="" alt="Post Image" class="img-fluid rounded me-3" style="max-width: 100px;">
+                    <div>
+                        <h5 class="fw-bold">Tập yoga cho bà bầu</h5>
+                        <p class="text-muted">Bs. Trần Minh Anh - 08/04/2025</p>
+                        <p>Yoga giúp giảm căng thẳng và cải thiện sức khỏe trong thai kỳ...</p>
+                        <div class="d-flex">
+                            <a href="/post/2" class="btn btn-sm btn-outline-primary me-2">Đọc thêm</a>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#commentPost2">
+                                Bình luận (1)
+                            </button>
+                        </div>
+                        <!-- Comment Section -->
+                        <div class="collapse mt-3" id="commentPost2">
+                            <div class="card card-body">
+                                <form asp-action="AddComment" method="post">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Viết bình luận..." name="commentContent">
+                                        <button class="btn btn-primary" type="submit">Gửi</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="/posts" class="btn btn-primary w-100">Xem tất cả bài viết</a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Updating Health Journey -->
+<div class="modal fade" id="updateHealthJourneyModal" tabindex="-1" aria-labelledby="updateHealthJourneyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateHealthJourneyModalLabel">Cập nhật thông tin thai kỳ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="UpdateHealthJourney" method="post">
+                    <div class="mb-3">
+                        <label for="dueDate" class="form-label">Ngày dự sinh</label>
+                        <input type="date" class="form-control" id="dueDate" name="dueDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Giới tính thai</label>
+                        <select class="form-select" id="gender" name="gender">
+                            <option value="">Chưa xác định</option>
+                            <option value="Male">Bé trai</option>
+                            <option value="Female">Bé gái</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Lưu thay đổi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
