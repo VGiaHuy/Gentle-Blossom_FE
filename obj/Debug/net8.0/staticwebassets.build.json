@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "JQ/q/ZYwuVZfSiCWN9m7Y8abz1OiHNySqUSdep03vIc=",
+  "Hash": "VpUnE3+Qsp1+RMr8fdDdsMtHiIFWvuVZ3Zo3CNtOQ10=",
   "Source": "Gentle-Blossom_FE",
   "BasePath": "_content/Gentle-Blossom_FE",
   "Mode": "Default",
@@ -509,6 +509,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\main.js"
+    },
+    {
+      "Identity": "D:\\Code\\.NET\\Gentle-Blossom_FE\\wwwroot\\js\\modal.js",
+      "SourceId": "Gentle-Blossom_FE",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Code\\.NET\\Gentle-Blossom_FE\\wwwroot\\",
+      "BasePath": "_content/Gentle-Blossom_FE",
+      "RelativePath": "js/modal.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\modal.js"
     },
     {
       "Identity": "D:\\Code\\.NET\\Gentle-Blossom_FE\\wwwroot\\js\\site.js",

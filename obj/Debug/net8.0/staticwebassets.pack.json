@@ -101,6 +101,10 @@
       "PackagePath": "staticwebassets\\js\\main.js"
     },
     {
+      "Id": "D:\\Code\\.NET\\Gentle-Blossom_FE\\wwwroot\\js\\modal.js",
+      "PackagePath": "staticwebassets\\js\\modal.js"
+    },
+    {
       "Id": "D:\\Code\\.NET\\Gentle-Blossom_FE\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },

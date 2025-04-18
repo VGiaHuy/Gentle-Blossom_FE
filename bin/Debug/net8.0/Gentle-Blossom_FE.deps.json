@@ -7,8 +7,28 @@
   "targets": {
     ".NETCoreApp,Version=v8.0": {
       "Gentle-Blossom_FE/1.0.0": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Authentication.Google": "8.0.15",
+          "Newtonsoft.Json": "13.0.3"
+        },
         "runtime": {
           "Gentle-Blossom_FE.dll": {}
+        }
+      },
+      "Microsoft.AspNetCore.Authentication.Google/8.0.15": {
+        "runtime": {
+          "lib/net8.0/Microsoft.AspNetCore.Authentication.Google.dll": {
+            "assemblyVersion": "8.0.15.0",
+            "fileVersion": "8.0.1525.16505"
+          }
+        }
+      },
+      "Newtonsoft.Json/13.0.3": {
+        "runtime": {
+          "lib/net6.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "13.0.0.0",
+            "fileVersion": "13.0.3.27908"
+          }
         }
       }
     }
@@ -18,6 +38,20 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "Microsoft.AspNetCore.Authentication.Google/8.0.15": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AjlL4AAfH7UZ1L4wYxUABd50aD2E1svyqa02fpsjMcjX3utqvHXwBceIyrI4X9ulfzRytE/BcbV2QTzn73/93w==",
+      "path": "microsoft.aspnetcore.authentication.google/8.0.15",
+      "hashPath": "microsoft.aspnetcore.authentication.google.8.0.15.nupkg.sha512"
+    },
+    "Newtonsoft.Json/13.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ==",
+      "path": "newtonsoft.json/13.0.3",
+      "hashPath": "newtonsoft.json.13.0.3.nupkg.sha512"
     }
   }
 }
