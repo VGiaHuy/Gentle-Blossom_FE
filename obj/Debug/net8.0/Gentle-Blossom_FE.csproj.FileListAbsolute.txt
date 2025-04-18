@@ -28,3 +28,8 @@ D:\Code\.NET\Gentle-Blossom_FE\obj\Debug\net8.0\refint\Gentle-Blossom_FE.dll
 D:\Code\.NET\Gentle-Blossom_FE\obj\Debug\net8.0\Gentle-Blossom_FE.pdb
 D:\Code\.NET\Gentle-Blossom_FE\obj\Debug\net8.0\Gentle-Blossom_FE.genruntimeconfig.cache
 D:\Code\.NET\Gentle-Blossom_FE\obj\Debug\net8.0\ref\Gentle-Blossom_FE.dll
+D:\Code\.NET\Gentle-Blossom_FE\obj\Debug\net8.0\Gentle-Blossom_FE.sourcelink.json
+D:\Code\.NET\Gentle-Blossom_FE\bin\Debug\net8.0\Newtonsoft.Json.dll
+D:\Code\.NET\Gentle-Blossom_FE\obj\Debug\net8.0\Gentle-Blossom_FE.csproj.AssemblyReference.cache
+D:\Code\.NET\Gentle-Blossom_FE\obj\Debug\net8.0\Gentle-B.FF15DF8F.Up2Date
+D:\Code\.NET\Gentle-Blossom_FE\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll

@@ -32,3 +32,21 @@ body {
 .navbar {
     box-sizing: border-box;
 }
+
+.custom-modal {
+    z-index: 1055;
+    min-width: 300px;
+    animation: slideDownFade 0.4s ease-in-out;
+}
+
+@keyframes slideDownFade {
+    0% {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
