@@ -45,7 +45,7 @@
                         </div>
                         <div class="d-grid mb-3">
                             <button id="btnLogin" type="button" class="btn btn-primary btn-lg rounded-3 py-2"
-                                    style="background-color: #0dcaf0; border-color: #0dcaf0;">
+                                    style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
                             </button>
                         </div>
@@ -64,7 +64,7 @@
     </div>
 </div>
 
-@await Html.PartialAsync("~/Views/Shared/_Modal.cshtml")
+@await Html.PartialAsync("~/Views/Shared/Component/Modal.cshtml")
 
 @section Scripts {
     <script src="~/js/modal.js"></script>

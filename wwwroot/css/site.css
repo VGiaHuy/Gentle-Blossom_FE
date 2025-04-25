@@ -50,3 +50,13 @@ body {
         opacity: 1;
     }
 }
+
+button:focus,button:active:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.btn:focus, .btn:active:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}

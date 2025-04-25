@@ -17,7 +17,7 @@ namespace Gentle_Blossom_FE.Controllers
         {
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("Index");
+                return PartialView("PsychologyDiary");
             }
             return View();
         }

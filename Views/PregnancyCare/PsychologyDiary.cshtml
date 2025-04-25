@@ -1,76 +1,82 @@
 ﻿<div class="container my-5">
     <!-- Header Section -->
     <div class="header-section text-center mb-5">
-        <h2 class="fw-bold text-primary" style="color: #0dcaf0;"><i class="bi bi-heart-pulse-fill me-2"></i>Chăm sóc thai kỳ</h2>
-        <p class="text-muted fs-5">Hành trình đồng hành cùng bạn và bé yêu</p>
+        <h2 class="fw-bold text-primary" style="color: #0dcaf0;"><i class="bi bi-emoji-smile-fill me-2"></i>Tâm lý thai sản</h2>
+        <p class="text-muted fs-5">Ghi lại cảm xúc và tâm trạng để đồng hành cùng bạn trong hành trình làm mẹ</p>
     </div>
 
     <div class="row g-4">
-        <!-- Health Journey Section -->
+        <!-- Diary Entry Section -->
         <div class="col-lg-4 col-md-6">
             <div class="card border-0 shadow-lg rounded-4">
                 <div class="card-header bg-success text-white fw-bold py-3 rounded-top-4" style="background-color: #198754;">
-                    <i class="bi bi-clipboard-heart me-2"></i>Thông tin thai kỳ
+                    <i class="bi bi-journal-plus me-2"></i>Thêm nhật ký tâm lý
                 </div>
                 <div class="card-body p-4">
-                    <p class="mb-3"><strong>Ngày dự sinh:</strong> <span id="dueDate">15/08/2025</span></p>
-                    <p class="mb-3"><strong>Giới tính thai:</strong> <span id="gender">Chưa xác định</span></p>
-                    <p class="mb-3"><strong>Tuần thai:</strong> 24 tuần</p>
-                    <div class="due-date-countdown text-primary fs-4 fw-bold mb-3" style="color: #0dcaf0;">
-                        <i class="bi bi-hourglass-split me-2"></i>Còn 125 ngày nữa
-                    </div>
+                    <p class="text-muted mb-3">Chia sẻ cảm xúc hôm nay của bạn. Chỉ bạn và các chuyên gia được kết nối có thể xem.</p>
                     <button class="btn btn-primary w-100 rounded-3" data-bs-toggle="modal"
-                            data-bs-target="#updateHealthJourneyModal" style="background-color: #0dcaf0; border-color: #0dcaf0;">
-                        <i class="bi bi-pencil-square me-2"></i>Cập nhật thông tin
+                            data-bs-target="#addDiaryEntryModal" style="background-color: #0dcaf0; border-color: #0dcaf0;">
+                        <i class="bi bi-pencil-square me-2"></i>Viết nhật ký mới
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Periodic Health Update -->
+        <!-- Diary History Section -->
         <div class="col-lg-4 col-md-6">
             <div class="card border-0 shadow-lg rounded-4">
                 <div class="card-header bg-warning text-white fw-bold py-3 rounded-top-4" style="background-color: #ffc107;">
-                    <i class="bi bi-heartbeat me-2"></i>Sức khỏe định kỳ
+                    <i class="bi bi-journal-text me-2"></i>Lịch sử nhật ký
                 </div>
                 <div class="card-body p-4">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item py-3">
-                            <strong>Tuần 24:</strong> Cân nặng 60kg, huyết áp ổn định
-                            <br><small class="text-muted">10/04/2025</small>
+                            <strong>12/04/2025:</strong> <span class="text-success"><i class="bi bi-emoji-smile me-1"></i>Vui vẻ</span>
+                            <br><small class="text-muted">Hôm nay cảm thấy tràn đầy năng lượng...</small>
                         </li>
                         <li class="list-group-item py-3">
-                            <strong>Tuần 23:</strong> Siêu âm bình thường
-                            <br><small class="text-muted">03/04/2025</small>
+                            <strong>10/04/2025:</strong> <span class="text-warning"><i class="bi bi-emoji-neutral me-1"></i>Bình thường</span>
+                            <br><small class="text-muted">Cảm thấy hơi lo lắng về lịch khám...</small>
                         </li>
                         <li class="list-group-item py-3">
-                            <strong>Tuần 22:</strong> Thiếu sắt nhẹ
-                            <br><small class="text-muted">27/03/2025</small>
+                            <strong>08/04/2025:</strong> <span class="text-danger"><i class="bi bi-emoji-frown me-1"></i>Buồn</span>
+                            <br><small class="text-muted">Cảm thấy mệt mỏi và căng thẳng...</small>
                         </li>
                     </ul>
-                    <a href="/periodic-health/add" class="btn btn-outline-primary w-100 mt-3 rounded-3"
-                       style="border-color: #0dcaf0; color: #0dcaf0;">
-                        <i class="bi bi-plus-circle me-2"></i>Thêm cập nhật mới
+                    <a href="/psychology-diary/history" class="btn btn-outline-soft w-100 mt-3 rounded-3"
+                       style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                        <i class="bi bi-arrow-right-circle me-2"></i>Xem tất cả nhật ký
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Appointment Reminder -->
+        <!-- Connected Experts Section -->
         <div class="col-lg-4 col-md-12">
             <div class="card border-0 shadow-lg rounded-4">
                 <div class="card-header bg-info text-white fw-bold py-3 rounded-top-4" style="background-color: #0dcaf0;">
-                    <i class="bi bi-calendar-check me-2"></i>Lịch khám định kỳ
+                    <i class="bi bi-person-heart me-2"></i>Chuyên gia được kết nối
                 </div>
                 <div class="card-body p-4">
-                    <div class="alert alert-info rounded-3" role="alert" style="background-color: #e6faff;">
-                        <i class="bi bi-calendar-check-fill me-2"></i>
-                        <strong>Lịch khám tiếp theo:</strong> 13/04/2025, 9:00 AM
-                    </div>
-                    <p class="text-muted mb-3">Hệ thống sẽ gửi email nhắc nhở trước 1 ngày.</p>
-                    <a href="/appointments" class="btn btn-outline-primary w-100 rounded-3"
-                       style="border-color: #198754; color: #198754;">
-                        <i class="bi bi-list-check me-2"></i>Xem tất cả lịch khám
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex align-items-center py-3">
+                            <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 40px; height: 40px;">
+                            <div>
+                                <strong>Bs. Nguyễn Thị Lan</strong>
+                                <p class="text-muted mb-0 small">Sản khoa</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center py-3">
+                            <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 40px; height: 40px;">
+                            <div>
+                                <strong>Chuyên gia Trần Minh Anh</strong>
+                                <p class="text-muted mb-0 small">Tâm lý thai kỳ</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="/psychology-diary/manage-experts" class="btn btn-outline-soft w-100 mt-3 rounded-3"
+                       style="--btn-color: #198754; --btn-hover: #d4edda;">
+                        <i class="bi bi-person-plus me-2"></i>Quản lý chuyên gia
                     </a>
                 </div>
             </div>
@@ -80,7 +86,7 @@
     <!-- Knowledge Posts Section -->
     <div class="card border-0 shadow-lg rounded-4 mt-5">
         <div class="card-header bg-primary text-white fw-bold py-3 rounded-top-4" style="background-color: #0dcaf0;">
-            <i class="bi bi-book-half me-2"></i>Kiến thức thai kỳ
+            <i class="bi bi-book-half me-2"></i>Kiến thức tâm lý thai kỳ
         </div>
         <div class="card-body p-4">
             <!-- Post 1 -->
@@ -88,19 +94,20 @@
                 <div class="d-flex align-items-start">
                     <img src="" alt="Post Image" class="img-fluid rounded-3 me-4" style="max-width: 120px;">
                     <div class="flex-grow-1">
-                        <h5 class="fw-bold text-primary" style="color: #0dcaf0;">Dinh dưỡng trong tam cá nguyệt thứ hai</h5>
-                        <p class="text-muted mb-2">Bs. Nguyễn Thị Lan - 10/04/2025</p>
-                        <p class="mb-3">Cung cấp đầy đủ dưỡng chất là yếu tố quan trọng để thai nhi phát triển khỏe mạnh...</p>
+                        <h5 class="fw-bold text-primary" style="color: #0dcaf0;">Giảm căng thẳng khi mang thai</h5>
+                        <p class="text-muted mb-2">Chuyên gia Trần Minh Anh - 12/04/2025</p>
+                        <p class="mb-3">Thiền và các bài tập thở có thể giúp mẹ bầu thư giãn và cải thiện tâm trạng...</p>
                         <div class="d-flex gap-2">
                             <a href="/post/1" class="btn btn-primary btn-sm rounded-3"
                                style="background-color: #0dcaf0; border-color: #0dcaf0;">
                                 <i class="bi bi-book-half me-1"></i>Đọc thêm
                             </a>
-                            <button class="btn btn-outline-secondary btn-sm rounded-3" data-bs-toggle="collapse"
-                                    data-bs-target="#commentPost1" style="border-color: #6c757d; color: #6c757d;">
-                                <i class="bi bi-chat-text me-1"></i>Bình luận (3)
+                            <button class="btn btn-outline-soft btn-sm rounded-3" data-bs-toggle="collapse"
+                                    data-bs-target="#commentPost1" style="--btn-color: #6c757d; --btn-hover: #e2e6ea;">
+                                <i class="bi bi-chat-text me-1"></i>Bình luận (2)
                             </button>
-                            <button class="btn btn-outline-danger btn-sm rounded-3" style="border-color: #dc3545; color: #dc3545;">
+                            <button class="btn btn-outline-soft btn-sm rounded-3"
+                                    style="--btn-color: #dc3545; --btn-hover: #f8d7da;">
                                 <i class="bi bi-heart-fill me-1"></i>Thích
                             </button>
                         </div>
@@ -108,8 +115,8 @@
                         <div class="collapse mt-3" id="commentPost1">
                             <div class="card card-body rounded-3">
                                 <div class="mb-3">
-                                    <p><strong>Mai Hương:</strong> Bài viết rất hữu ích, cảm ơn bác sĩ!</p>
-                                    <small class="text-muted">10/04/2025</small>
+                                    <p><strong>Mai Hương:</strong> Bài viết rất hữu ích, mình sẽ thử thiền!</p>
+                                    <small class="text-muted">12/04/2025</small>
                                 </div>
                                 <form asp-action="AddComment" method="post">
                                     <div class="input-group">
@@ -135,19 +142,20 @@
                 <div class="d-flex align-items-start">
                     <img src="" alt="Post Image" class="img-fluid rounded-3 me-4" style="max-width: 120px;">
                     <div class="flex-grow-1">
-                        <h5 class="fw-bold text-primary" style="color: #0dcaf0;">Tập yoga cho bà bầu</h5>
-                        <p class="text-muted mb-2">Bs. Trần Minh Anh - 08/04/2025</p>
-                        <p class="mb-3">Yoga giúp giảm căng thẳng và cải thiện sức khỏe trong thai kỳ...</p>
+                        <h5 class="fw-bold text-primary" style="color: #0dcaf0;">Tầm quan trọng của giấc ngủ</h5>
+                        <p class="text-muted mb-2">Bs. Nguyễn Thị Lan - 10/04/2025</p>
+                        <p class="mb-3">Giấc ngủ đủ và chất lượng giúp mẹ bầu duy trì tâm trạng tích cực...</p>
                         <div class="d-flex gap-2">
                             <a href="/post/2" class="btn btn-primary btn-sm rounded-3"
                                style="background-color: #0dcaf0; border-color: #0dcaf0;">
                                 <i class="bi bi-book-half me-1"></i>Đọc thêm
                             </a>
-                            <button class="btn btn-outline-secondary btn-sm rounded-3" data-bs-toggle="collapse"
-                                    data-bs-target="#commentPost2" style="border-color: #6c757d; color: #6c757d;">
+                            <button class="btn btn-outline-soft btn-sm rounded-3" data-bs-toggle="collapse"
+                                    data-bs-target="#commentPost2" style="--btn-color: #6c757d; --btn-hover: #e2e6ea;">
                                 <i class="bi bi-chat-text me-1"></i>Bình luận (1)
                             </button>
-                            <button class="btn btn-outline-danger btn-sm rounded-3" style="border-color: #dc3545; color: #dc3545;">
+                            <button class="btn btn-outline-soft btn-sm rounded-3"
+                                    style="--btn-color: #dc3545; --btn-hover: #f8d7da;">
                                 <i class="bi bi-heart-fill me-1"></i>Thích
                             </button>
                         </div>
@@ -173,7 +181,7 @@
                     </div>
                 </div>
             </div>
-            <a href="/posts" class="btn btn-primary w-100 rounded-3"
+            <a href="/psychology-posts" class="btn btn-primary w-100 rounded-3"
                style="background-color: #0dcaf0; border-color: #0dcaf0;">
                 <i class="bi bi-arrow-right-circle me-2"></i>Xem tất cả bài viết
             </a>
@@ -181,38 +189,41 @@
     </div>
 </div>
 
-<!-- Modal for Updating Health Journey -->
-<div class="modal fade" id="updateHealthJourneyModal" tabindex="-1" aria-labelledby="updateHealthJourneyModalLabel" aria-hidden="true">
+<!-- Modal for Adding Diary Entry -->
+<div class="modal fade" id="addDiaryEntryModal" tabindex="-1" aria-labelledby="addDiaryEntryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content rounded-4">
             <div class="modal-header bg-primary text-white rounded-top-4" style="background-color: #0dcaf0;">
-                <h5 class="modal-title" id="updateHealthJourneyModalLabel">
-                    <i class="bi bi-clipboard-heart me-2"></i>Cập nhật thông tin thai kỳ
+                <h5 class="modal-title" id="addDiaryEntryModalLabel">
+                    <i class="bi bi-journal-plus me-2"></i>Thêm nhật ký tâm lý
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <form asp-action="UpdateHealthJourney" method="post">
+                <form asp-action="AddDiaryEntry" method="post">
                     <div class="mb-4">
-                        <label for="dueDate" class="form-label fw-bold">
-                            <i class="bi bi-calendar-event me-2 text-primary"></i>Ngày dự sinh
+                        <label for="mood" class="form-label fw-bold">
+                            <i class="bi bi-emoji-smile me-2 text-primary"></i>Tâm trạng
                         </label>
-                        <input type="date" class="form-control rounded-3" id="dueDate" name="dueDate"
-                               style="border-color: #0dcaf0;">
+                        <select class="form-select rounded-3" id="mood" name="mood" style="border-color: #0dcaf0;" required>
+                            <option value="">Chọn tâm trạng</option>
+                            <option value="Happy">Vui vẻ</option>
+                            <option value="Neutral">Bình thường</option>
+                            <option value="Sad">Buồn</option>
+                            <option value="Anxiety">Lo lắng</option>
+                            <option value="Stressed">Căng thẳng</option>
+                        </select>
                     </div>
                     <div class="mb-4">
-                        <label for="gender" class="form-label fw-bold">
-                            <i class="bi bi-gender-ambiguous me-2 text-primary"></i>Giới tính thai
+                        <label for="content" class="form-label fw-bold">
+                            <i class="bi bi-journal-text me-2 text-primary"></i>Ghi chú
                         </label>
-                        <select class="form-select rounded-3" id="gender" name="gender" style="border-color: #0dcaf0;">
-                            <option value="">Chưa xác định</option>
-                            <option value="Male">Bé trai</option>
-                            <option value="Female">Bé gái</option>
-                        </select>
+                        <textarea class="form-control rounded-3" id="content" name="content" rows="5"
+                                  placeholder="Chia sẻ cảm xúc hoặc suy nghĩ của bạn..." style="border-color: #0dcaf0;" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 rounded-3"
                             style="background-color: #0dcaf0; border-color: #0dcaf0;">
-                        <i class="bi bi-save me-2"></i>Lưu thay đổi
+                        <i class="bi bi-save me-2"></i>Lưu nhật ký
                     </button>
                 </form>
             </div>
