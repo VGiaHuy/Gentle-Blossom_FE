@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "VpUnE3+Qsp1+RMr8fdDdsMtHiIFWvuVZ3Zo3CNtOQ10=",
+  "Hash": "N+gxu25aUD2/Hfim2MM9cq2fGAA0Iaj6n6j5wGs7/+0=",
   "Source": "Gentle-Blossom_FE",
   "BasePath": "_content/Gentle-Blossom_FE",
   "Mode": "Default",
@@ -490,6 +490,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\app.js"
+    },
+    {
+      "Identity": "D:\\Code\\.NET\\Gentle-Blossom_FE\\wwwroot\\js\\createPost.js",
+      "SourceId": "Gentle-Blossom_FE",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Code\\.NET\\Gentle-Blossom_FE\\wwwroot\\",
+      "BasePath": "_content/Gentle-Blossom_FE",
+      "RelativePath": "js/createPost.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\createPost.js"
     },
     {
       "Identity": "D:\\Code\\.NET\\Gentle-Blossom_FE\\wwwroot\\js\\main.js",

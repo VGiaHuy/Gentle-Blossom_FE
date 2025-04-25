@@ -1,10 +1,19 @@
 ﻿<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-3 py-2">
     <div class="container d-flex justify-content-between align-items-center" style="max-width: 1140px;">
 
+        <!-- Brand and Search -->
         <div class="d-flex align-items-center ps-3">
-            <a class="nav-link-custom fw-bold text-primary mb-0 me-3" style="font-size: 1.5rem; text-decoration: none;" data-view="Home">Gentle Blossom</a>
-            <form class="d-none d-md-block" role="search">
-                <input class="form-control rounded-pill" type="search" placeholder="Tìm kiếm..." aria-label="Search" style="min-width: 200px;">
+            <a class="nav-link-custom fw-bold text-primary mb-0 me-4" href="" style="font-size: 1.5rem; text-decoration: none; color: #0dcaf0;" data-view="Home">
+                <i class="bi bi-flower1 me-2"></i>Gentle Blossom
+            </a>
+            <form class="d-none d-md-block">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="border-color: #0dcaf0;">
+                        <i class="bi bi-search text-primary"></i>
+                    </span>
+                    <input class="form-control border-start-0 rounded-end-pill" type="search" placeholder="Tìm kiếm..."
+                           aria-label="Search" style="min-width: 200px; border-color: #0dcaf0;">
+                </div>
             </form>
         </div>
 
@@ -21,12 +30,12 @@
                 </a>
                 <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" data-view="PregnancyCare/HealthJourney">
+                        <a class="dropdown-item rounded-1 py-2" href="" data-view="PregnancyCare/HealthJourney">
                             <i class="bi bi-hospital fs-5 text-primary me-2"></i> Sức khỏe thai sản
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" data-view="PregnancyCare/PsychologyDiary">
+                        <a class="dropdown-item rounded-1 py-2" href="" data-view="PregnancyCare/PsychologyDiary">
                             <i class="bi bi-emoji-smile fs-5 text-success me-2"></i> Tâm lý thai sản
                         </a>
                     </li>
@@ -38,17 +47,17 @@
                 </a>
                 <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" data-view="HealthTools/DueDate">
+                        <a class="dropdown-item rounded-1 py-2" href="" data-view="HealthTools/DueDate">
                             <i class="bi bi-calendar3 fs-5 text-primary me-2"></i> Tính ngày dự sinh
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" data-view="HealthTools/Ovulation">
+                        <a class="dropdown-item rounded-1 py-2" href="" data-view="HealthTools/Ovulation">
                             <i class="bi bi-calculator fs-5 text-success me-2"></i> Tính ngày rụng trứng
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" data-view="HealthTools/PregnancyWeight">
+                        <a class="dropdown-item rounded-1 py-2" href="" data-view="HealthTools/PregnancyWeight">
                             <i class="bi bi-bar-chart fs-5 text-warning me-2"></i> Tính cân nặng khi mang thai
                         </a>
                     </li>
@@ -70,10 +79,10 @@
                     <a class="nav-link d-flex align-items-center text-dark" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="" alt="avatar" class="rounded-circle" width="36" height="36">
                     </a>
-                    <p>Chào @User.Identity.Name</p>
+                    <p>@User.Identity.Name</p>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-0" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" data-view="UserProfile">Trang cá nhân</a></li>
-                        <li><a class="dropdown-item" data-view="Settings">Cài đặt</a></li>
+                        <li><a class="dropdown-item" href="" data-view="UserProfile">Trang cá nhân</a></li>
+                        <li><a class="dropdown-item" href="" data-view="Settings">Cài đặt</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" asp-controller="Auth" asp-action="Logout">Đăng xuất</a></li>
                     </ul>
@@ -81,7 +90,8 @@
             }
             else
             {
-                <a class="nav-link d-flex align-items-center justify-content-center text-dark" title="Đăng nhập ngay!" 
+                <a class="nav-link justify-content-center btn-outline-soft rounded-4" title="Đăng nhập ngay!"
+                   style="--btn-color: #198754; --btn-hover: #d1e7dd;"
                     asp-controller="Auth" asp-action="Login">
                     Đăng nhập
                 </a>
@@ -89,3 +99,20 @@
         </div>
     </div>
 </nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add hover effects for nav links
+        const navLinks = document.querySelectorAll('.nav-link-custom');
+        navLinks.forEach(link => {
+            link.addEventListener('mouseenter', function () {
+                this.style.transform = 'scale(1.1)';
+                this.style.opacity = '0.8';
+            });
+            link.addEventListener('mouseleave', function () {
+                this.style.transform = 'scale(1)';
+                this.style.opacity = '1';
+            });
+        });
+    });
+</script>

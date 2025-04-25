@@ -1,4 +1,7 @@
-﻿<div class="container-fluid my-5">
+﻿@using Gentle_Blossom_FE.Data.DTOs
+@model List<PostDTO>
+
+<div class="container-fluid my-5">
     <div class="row">
         <!-- Bên trái: Danh sách bác sĩ/chuyên gia -->
         <div class="col-lg-3 col-md-4 mb-4">
@@ -13,8 +16,8 @@
                             <div>
                                 <strong class="d-block">Bs. Nguyễn Thị Lan</strong>
                                 <p class="text-muted mb-1 small">Sản khoa, 10 năm kinh nghiệm</p>
-                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary rounded-3"
-                                   data-view="Message" data-expert-id="1" style="border-color: #0dcaf0; color: #0dcaf0;">
+                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3"
+                                   data-view="Message" data-expert-id="1" style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
                                     <i class="bi bi-chat-dots me-1"></i>Nhắn tin
                                 </a>
                             </div>
@@ -24,8 +27,8 @@
                             <div>
                                 <strong class="d-block">Chuyên gia Trần Minh Anh</strong>
                                 <p class="text-muted mb-1 small">Tâm lý thai kỳ</p>
-                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary rounded-3"
-                                   data-view="Message" data-expert-id="2" style="border-color: #0dcaf0; color: #0dcaf0;">
+                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3"
+                                   data-view="Message" data-expert-id="2" style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
                                     <i class="bi bi-chat-dots me-1"></i>Nhắn tin
                                 </a>
                             </div>
@@ -35,16 +38,16 @@
                             <div>
                                 <strong class="d-block">Bs. Lê Văn Hùng</strong>
                                 <p class="text-muted mb-1 small">Dinh dưỡng bà bầu</p>
-                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary rounded-3"
-                                   data-view="Message" data-expert-id="3" style="border-color: #0dcaf0; color: #0dcaf0;">
+                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3"
+                                   data-view="Message" data-expert-id="3" style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
                                     <i class="bi bi-chat-dots me-1"></i>Nhắn tin
                                 </a>
                             </div>
                         </li>
                     </ul>
                     <div class="card-footer text-center py-3">
-                        <a href="javascript:void(0)" class="btn btn-outline-primary w-100 rounded-3"
-                           data-view="Experts" style="border-color: #198754; color: #198754;">
+                        <a href="javascript:void(0)" class="btn btn-outline-soft w-100 rounded-3"
+                           data-view="Experts" style="--btn-color: #198754; --btn-hover: #d1e7dd;">
                             <i class="bi bi-arrow-right-circle me-2"></i>Xem tất cả
                         </a>
                     </div>
@@ -54,49 +57,144 @@
 
         <!-- Ở giữa: Danh sách bài viết từ chuyên gia -->
         <div class="col-lg-6 col-md-8 mb-4">
-            <div class="card border-0 shadow-lg rounded-4">
+            <div class="card border-0 shadow-lg rounded-4 d-flex align-items-center gap-2 gap-md-3 p-2 p-md-3">
+                <img src="" alt="Avatar" class="rounded-circle" style="width: 40px; height: 40px;">
+                <button class="btn btn-outline-soft rounded-4 flex-grow-1 text-start fs-6" data-bs-toggle="modal" data-bs-target="#createPostModal" style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                    <i class="bi bi-pencil-square me-2"></i>Bạn đang nghĩ gì thế?
+                </button>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 mt-3">
                 <div class="card-body p-4">
-                    <div class="mb-5">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 45px; height: 45px;">
-                            <div>
-                                <strong class="d-block">Bs. Nguyễn Thị Lan</strong>
-                                <p class="text-muted mb-0 small">12/04/2025, 09:00</p>
+                    @foreach (var post in Model)
+                    {
+                        <div class="mb-5">
+                            <!-- Post Header -->
+
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 50px; height: 50px;">
+                                <div class="flex-grow-1">
+                                    @if (post.AcademicTitle != null)
+                                    {
+                                        <strong class="d-block" style="color: #198754;">@post.AcademicTitle</strong>
+                                    }
+                                    <strong class="d-block text-primary fw-bold" style="color: #0dcaf0;">@post.PosterName</strong>
+                                    <p class="text-muted mb-0 small">@post.CreatedDate</p>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
+                                    <ul class="dropdown-menu rounded-3">
+                                        <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-bookmark me-2"></i>Lưu bài viết</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-bell-slash me-2"></i>Tắt thông báo</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0)"><i class="bi bi-flag me-2"></i>Báo cáo bài viết</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Post Content -->
+                            <p class="text-muted mb-3">@post.Content</p>
+                            <img src="" alt="Post Image" class="img-fluid rounded-3 mb-3">
+                            <!-- Post Stats -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex gap-2 align-items-center">
+                                    <i class="bi bi-heart-fill text-danger"></i>
+                                    <span class="text-muted small" id="post-like-count-@post.PostId">@post.NumberOfLike lượt thích</span>
+                                </div>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <span class="text-muted small">@post.NumberOfComment bình luận</span>
+                                    <span class="text-muted small">10 lượt chia sẻ</span>
+                                </div>
+                            </div>
+
+                            <!-- Post Actions -->
+                            <div class="d-flex gap-2 border-top pt-3 mb-3">
+                                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft like-button"
+                                        data-post-id="@post.PostId" data-liked="false"
+                                        style="--btn-color: #dc3545; --btn-hover: #f8d7da;" onclick="toggleLike(this, 'post', @post.PostId)">
+                                    <i class="bi bi-heart me-1"></i> Thích
+                                </button>
+                                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft"
+                                        data-bs-toggle="collapse" data-bs-target="#commentsPost-@post.PostId"
+                                        style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                                    <i class="bi bi-chat-text me-1"></i> Bình luận
+                                </button>
+                                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft"
+                                        style="--btn-color: #198754; --btn-hover: #d1e7dd;">
+                                    <i class="bi bi-share me-1"></i> Chia sẻ
+                                </button>
+                                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft"
+                                        style="--btn-color: #ffc107; --btn-hover: #fff8e3;">
+                                    <i class="bi bi-bookmark-fill me-1"></i> Yêu thích
+                                </button>
+
+                            </div>
+
+                            <!-- Comments Section -->
+                            <div class="collapse mt-3" id="commentsPost-@post.PostId">
+                                <div class="card card-body rounded-3">
+                                    <!-- Existing Comments -->
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-start">
+                                            <img src="" alt="Avatar" class="rounded-circle me-2" style="width: 35px; height: 35px;">
+                                            <div class="flex-grow-1">
+                                                <p class="mb-0"><strong>Mai Hương:</strong> Bài viết rất hữu ích, cảm ơn bác sĩ!</p>
+                                                <small class="text-muted">12/04/2025, 09:15</small>
+                                                <div class="d-flex gap-2 mt-1">
+                                                    <button class="btn btn-white p-0 text-muted small like-button"
+                                                            data-comment-id="1" data-liked="false"
+                                                            onclick="toggleLike(this, 'comment', 1)"
+                                                            style="text-decoration: none; background-color: white; border: none;">
+                                                        <i class="bi bi-heart me-1" style="color: #dc3545;"></i>Thích (<span id="comment-like-count-1">5</span>)
+                                                    </button>
+
+                                                    <button class="btn btn-link p-0 text-muted small" style="text-decoration: none;">
+                                                        <i class="bi bi-reply me-1"></i>Trả lời
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-start">
+                                            <img src="" alt="Avatar" class="rounded-circle me-2" style="width: 35px; height: 35px;">
+                                            <div class="flex-grow-1">
+                                                <p class="mb-0"><strong>Trần Văn Nam:</strong> Có thực đơn mẫu nào không bác sĩ?</p>
+                                                <small class="text-muted">12/04/2025, 09:30</small>
+                                                <div class="d-flex gap-2 mt-1">
+                                                    <button class="btn btn-white p-0 text-muted small like-button"
+                                                            data-comment-id="2" data-liked="false"
+                                                            onclick="toggleLike(this, 'comment', 2)"
+                                                            style="text-decoration: none; background-color: white; border: none;">
+                                                        <i class="bi bi-heart me-1" style="color: #dc3545;"></i>Thích (<span id="comment-like-count-2">5</span>)
+                                                    </button>
+                                                    <button class="btn btn-link p-0 text-muted small" style="text-decoration: none;">
+                                                        <i class="bi bi-reply me-1"></i>Trả lời
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Comment Input -->
+                                    <form asp-action="AddComment" method="post">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 rounded-start-3"
+                                                  style="border-color: #0dcaf0;">
+                                                <i class="bi bi-chat-text text-primary"></i>
+                                            </span>
+                                            <input type="text" class="form-control border-start-0 rounded-end-3"
+                                                   placeholder="Viết bình luận..." name="commentContent" style="border-color: #0dcaf0;">
+                                            <button class="btn btn-primary rounded-3" type="submit"
+                                                    style="background-color: #0dcaf0; border-color: #0dcaf0;">
+                                                <i class="bi bi-send-fill"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                        <h5 class="fw-bold text-primary">Cách chăm sóc sức khỏe trong tam cá nguyệt thứ hai</h5>
-                        <p class="text-muted mb-3">Trong giai đoạn này, mẹ bầu cần chú ý bổ sung dinh dưỡng và nghỉ ngơi hợp lý...</p>
-                        <img src="" alt="Post Image" class="img-fluid rounded-3 mb-3">
-                        <div class="d-flex gap-2">
-                            <a href="javascript:void(0)" class="btn btn-primary btn-sm rounded-3"
-                               data-view="Post" data-post-id="1" style="background-color: #0dcaf0; border-color: #0dcaf0;">
-                                <i class="bi bi-book-half me-1"></i>Đọc thêm
-                            </a>
-                            <button class="btn btn-outline-danger btn-sm rounded-3" style="border-color: #dc3545; color: #dc3545;">
-                                <i class="bi bi-heart-fill me-1"></i>Thích
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mb-5">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 45px; height: 45px;">
-                            <div>
-                                <strong class="d-block">Chuyên gia Trần Minh Anh</strong>
-                                <p class="text-muted mb-0 small">11/04/2025, 14:30</p>
-                            </div>
-                        </div>
-                        <h5 class="fw-bold text-primary">Giảm căng thẳng khi mang thai</h5>
-                        <p class="text-muted mb-3">Thiền và các bài tập thở có thể giúp mẹ bầu thư giãn...</p>
-                        <div class="d-flex gap-2">
-                            <a href="javascript:void(0)" class="btn btn-primary btn-sm rounded-3"
-                               data-view="Post" data-post-id="2" style="background-color: #0dcaf0; border-color: #0dcaf0;">
-                                <i class="bi bi-book-half me-1"></i>Đọc thêm
-                            </a>
-                            <button class="btn btn-outline-danger btn-sm rounded-3" style="border-color: #dc3545; color: #dc3545;">
-                                <i class="bi bi-heart-fill me-1"></i>Thích
-                            </button>
-                        </div>
-                    </div>
+                    }
+
                 </div>
             </div>
         </div>
@@ -112,8 +210,8 @@
                         <img src="" alt="Ad Image" class="img-fluid rounded-3 mb-3">
                         <h6 class="fw-bold text-primary">Khóa học tiền sản miễn phí</h6>
                         <p class="text-muted small mb-3">Tham gia ngay để chuẩn bị tốt nhất cho hành trình làm mẹ!</p>
-                        <a href="javascript:void(0)" class="btn btn-sm btn-outline-info rounded-3 w-100"
-                           style="border-color: #ffc107; color: #ffc107;">
+                        <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3 w-100"
+                           style="--btn-color: #ffc107; --btn-hover: #fff8e3;">
                             <i class="bi bi-arrow-right-circle me-1"></i>Tìm hiểu thêm
                         </a>
                     </div>
@@ -121,8 +219,8 @@
                         <img src="" alt="Ad Image" class="img-fluid rounded-3 mb-3">
                         <h6 class="fw-bold text-primary">Sản phẩm dinh dưỡng cho bà bầu</h6>
                         <p class="text-muted small mb-3">Bổ sung vitamin và khoáng chất cần thiết.</p>
-                        <a href="javascript:void(0)" class="btn btn-sm btn-outline-info rounded-3 w-100"
-                           style="border-color: #ffc107; color: #ffc107;">
+                        <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3 w-100"
+                           style="--btn-color: #ffc107; --btn-hover: #fff8e3;">
                             <i class="bi bi-arrow-right-circle me-1"></i>Xem chi tiết
                         </a>
                     </div>
@@ -131,3 +229,42 @@
         </div>
     </div>
 </div>
+
+@await Html.PartialAsync("Component/PostModal")
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.body.addEventListener("click", function (e) {
+                const button = e.target.closest(".like-button");
+                if (!button) return;
+
+                const isPost = button.hasAttribute("data-post-id");
+                const id = isPost ? button.dataset.postId : button.dataset.commentId;
+                const type = isPost ? "post" : "comment";
+                const likeCountElement = document.getElementById(`${type}-like-count-${id}`);
+                const icon = button.querySelector("i");
+
+                let currentLikes = parseInt(likeCountElement.textContent) || 0;
+                const isLiked = button.dataset.liked === "true";
+
+                if (isLiked) {
+                    // Đã like => unlike
+                    button.dataset.liked = "false";
+                    icon.classList.remove("bi-heart-fill");
+                    icon.classList.add("bi-heart");
+                    currentLikes = Math.max(0, currentLikes - 1);
+                } else {
+                    // Chưa like => like
+                    button.dataset.liked = "true";
+                    icon.classList.remove("bi-heart");
+                    icon.classList.add("bi-heart-fill");
+                    currentLikes += 1;
+                }
+
+                likeCountElement.textContent = currentLikes;
+            });
+        });
+    </script>
+
+}
