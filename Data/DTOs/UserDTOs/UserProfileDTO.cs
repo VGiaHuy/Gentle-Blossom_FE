@@ -1,4 +1,4 @@
-﻿namespace GentleBlossom_FE.Data.DTOs
+﻿namespace Gentle_Blossom_FE.Data.DTOs.UserDTOs
 {
     public class UserProfileDTO
     {

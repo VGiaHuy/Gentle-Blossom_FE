@@ -1,86 +1,91 @@
-﻿document.addEventListener('DOMContentLoaded', function () {
-    // Khởi tạo Quill editor
-    var quill = new Quill('#editor', {
-        theme: 'snow',
-        placeholder: 'Bạn đang nghĩ gì?',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ]
-        }
-    });
+﻿var initCreatePostModal = function () {
+    if (document.getElementById('editor') == null) return;
+
+    // Dọn dẹp trước khi khởi tạo lại
+    cleanupCreatePostModal();
+
+    // Khởi tạo Quill
+    if (!window.quill) {
+        window.quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Bạn đang nghĩ gì?',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ]
+            }
+        });
+    }
 
     // Tích hợp Emoji Mart
-    const emojiPickerBtn = document.getElementById('emojiPickerBtn');
-    const emojiPicker = document.createElement('div');
-    emojiPicker.id = 'emojiPicker';
-    emojiPicker.style.display = 'none';
-    emojiPicker.style.position = 'absolute';
-    emojiPicker.style.zIndex = '1060';
-    emojiPicker.style.backgroundColor = '#fff';
-    emojiPicker.style.border = '1px solid #0dcaf0';
-    emojiPicker.style.borderRadius = '8px';
-    emojiPicker.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-    document.body.appendChild(emojiPicker);
+    if (!document.getElementById('emojiPicker')) {
+        const emojiPickerBtn = document.getElementById('emojiPickerBtn');
+        const emojiPicker = document.createElement('div');
+        emojiPicker.id = 'emojiPicker';
+        emojiPicker.classList.add('emoji-picker');
 
-    // Khởi tạo Emoji Mart
-    const picker = new EmojiMart.Picker({
-        data: async () => {
-            const response = await fetch('https://cdn.jsdelivr.net/npm/@emoji-mart/data@latest');
-            return response.json();
-        },
-        onEmojiSelect: (emoji) => {
-            const range = quill.getSelection(true);
-            quill.insertText(range.index, emoji.native);
-            emojiPicker.style.display = 'none';
-        },
-        perLine: 6
-    });
-    emojiPicker.appendChild(picker);
+        emojiPicker.style.display = 'none';
+        emojiPicker.style.position = 'absolute';
+        emojiPicker.style.zIndex = '1060';
+        emojiPicker.style.backgroundColor = '#fff';
+        emojiPicker.style.border = '1px solid #0dcaf0';
+        emojiPicker.style.borderRadius = '8px';
+        emojiPicker.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+        document.body.appendChild(emojiPicker);
 
-    // Xử lý sự kiện click nút Emoji
-    emojiPickerBtn.addEventListener('click', (e) => {
-        const rect = emojiPickerBtn.getBoundingClientRect();
-        const pickerHeight = emojiPicker.offsetHeight || 330;
-        const pickerWidth = emojiPicker.offsetWidth || 400;
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
+        const picker = new EmojiMart.Picker({
+            data: async () => {
+                const response = await fetch('https://cdn.jsdelivr.net/npm/@emoji-mart/data@latest');
+                return response.json();
+            },
+            onEmojiSelect: (emoji) => {
+                const range = window.quill.getSelection(true);
+                window.quill.insertText(range.index, emoji.native);
+                emojiPicker.style.display = 'none';
+            },
+            perLine: 6
+        });
+        emojiPicker.appendChild(picker);
 
-        // Tính vị trí top (phía trên nút)
-        let top = rect.top - pickerHeight + window.scrollY;
-        // Tính vị trí left
-        let left = rect.left + window.scrollX;
-        // Đảm bảo không tràn ra ngoài màn hình
-        if (top < 0) {
-            top = rect.bottom + window.scrollY; // Hiển thị phía dưới nếu tràn lên trên
-        }
-        if (left + pickerWidth > windowWidth) {
-            left = windowWidth - pickerWidth - 10; // Đẩy sang trái nếu tràn phải
-        }
-        if (left < 0) {
-            left = 10; // Đảm bảo không tràn trái
-        }
+        emojiPickerBtn.addEventListener('click', (e) => {
+            const rect = emojiPickerBtn.getBoundingClientRect();
+            const pickerHeight = emojiPicker.offsetHeight || 330;
+            const pickerWidth = emojiPicker.offsetWidth || 400;
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
 
-        emojiPicker.style.top = `${top}px`;
-        emojiPicker.style.left = `${left}px`;
-        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
-    });
+            let top = rect.top - pickerHeight + window.scrollY;
+            let left = rect.left + window.scrollX;
+            if (top < 0) {
+                top = rect.bottom + window.scrollY;
+            }
+            if (left + pickerWidth > windowWidth) {
+                left = windowWidth - pickerWidth - 10;
+            }
+            if (left < 0) {
+                left = 10;
+            }
 
-    // Đóng emoji picker khi click ra ngoài
-    document.addEventListener('click', (e) => {
-        if (!emojiPicker.contains(e.target) && e.target !== emojiPickerBtn) {
-            emojiPicker.style.display = 'none';
-        }
-    });
+            emojiPicker.style.top = `${top}px`;
+            emojiPicker.style.left = `${left}px`;
+            emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!emojiPicker.contains(e.target) && e.target !== emojiPickerBtn) {
+                emojiPicker.style.display = 'none';
+            }
+        });
+    }
 
     // Xử lý xem trước media
     const mediaInput = document.getElementById('mediaFiles');
     const mediaPreview = document.getElementById('mediaPreview');
 
     mediaInput.addEventListener('change', function () {
-        mediaPreview.innerHTML = ''; // Xóa preview cũ
+        mediaPreview.innerHTML = '';
         const files = this.files;
 
         for (let file of files) {
@@ -120,35 +125,62 @@
         e.preventDefault();
 
         const formData = new FormData(this);
-        formData.set('Content', quill.root.innerHTML); // Lấy nội dung từ Quill
+        const createPostModal = document.getElementById('createPostModal');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        formData.set('Content', quill.root.innerHTML);
 
-        fetch('/Post/Create', {
+        fetch('/Post/CreatePost', {
             method: 'POST',
             body: formData
         })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    // Hiển thị thông báo thành công
-                    document.getElementById('successMessage').textContent = 'Bài viết đã được đăng thành công!';
-                    document.getElementById('successModal').classList.remove('d-none');
-                    setTimeout(() => document.getElementById('successModal').classList.add('d-none'), 3000);
+                if (loadingSpinner) loadingSpinner.classList.add('d-none');
 
-                    // Đóng modal và làm mới trang
-                    bootstrap.Modal.getInstance(document.getElementById('createPostModal')).hide();
-                    location.reload(); // Có thể thay bằng AJAX để thêm bài viết động
+                if (data.success) {
+                    showSuccessModal(data.message, 3000);
                 } else {
-                    // Hiển thị thông báo lỗi
-                    document.getElementById('errorMessage').textContent = data.message || 'Đã có lỗi xảy ra khi đăng bài!';
-                    document.getElementById('errorModal').classList.remove('d-none');
-                    setTimeout(() => document.getElementById('errorModal').classList.add('d-none'), 3000);
+                    showErrorModal(data.message, 3000);
+                }
+
+                // Đóng modal với hiệu ứng
+                if (createPostModal && bootstrap?.Modal) {
+                    const modalInstance = bootstrap.Modal.getInstance(createPostModal);
+                    if (modalInstance) {
+                        createPostModal.classList.add('hide');
+                        setTimeout(() => {
+                            modalInstance.hide();
+                            createPostModal.classList.remove('hide');
+                        }, 300);
+                    }
                 }
             })
             .catch(error => {
-                // Hiển thị thông báo lỗi
-                document.getElementById('errorMessage').textContent = 'Lỗi kết nối, vui lòng thử lại!';
-                document.getElementById('errorModal').classList.remove('d-none');
-                setTimeout(() => document.getElementById('errorModal').classList.add('d-none'), 3000);
+                showErrorModal('Lỗi kết nối, vui lòng thử lại!', 3000);
             });
     });
+};
+
+var cleanupCreatePostModal = function () {
+    // Xóa emojiPicker nếu tồn tại
+    const emojiPicker = document.getElementById('emojiPicker');
+    if (emojiPicker) {
+        emojiPicker.remove(); // Loại bỏ emojiPicker khỏi DOM
+    }
+
+    // Xóa sự kiện click của emojiPickerBtn
+    const emojiPickerBtn = document.getElementById('emojiPickerBtn');
+    if (emojiPickerBtn) {
+        emojiPickerBtn.replaceWith(emojiPickerBtn.cloneNode(true)); // Tạo lại nút để xóa sự kiện cũ
+    }
+
+    // Xóa Quill instance nếu cần
+    if (window.quill) {
+        window.quill = null; // Đặt lại Quill để tránh xung đột
+    }
+};
+
+// Khi load lần đầu vẫn cần init
+document.addEventListener('DOMContentLoaded', function () {
+    initCreatePostModal();
 });
