@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Code\\.NET\\Gentle-Blossom_FE\\Gentle-Blossom_FE.csproj": {}
+    "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\Gentle-Blossom_FE.csproj": {}
   },
   "projects": {
-    "D:\\Code\\.NET\\Gentle-Blossom_FE\\Gentle-Blossom_FE.csproj": {
+    "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\Gentle-Blossom_FE.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code\\.NET\\Gentle-Blossom_FE\\Gentle-Blossom_FE.csproj",
+        "projectUniqueName": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\Gentle-Blossom_FE.csproj",
         "projectName": "Gentle-Blossom_FE",
-        "projectPath": "D:\\Code\\.NET\\Gentle-Blossom_FE\\Gentle-Blossom_FE.csproj",
+        "projectPath": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\Gentle-Blossom_FE.csproj",
         "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-        "outputPath": "D:\\Code\\.NET\\Gentle-Blossom_FE\\obj\\",
+        "outputPath": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",

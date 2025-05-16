@@ -1,97 +1,298 @@
-﻿<div class="container my-5">
+﻿@using System.Security.Claims
+@using Gentle_Blossom_FE.Data.DTOs.UserDTOs
+@model UserProfileViewModel
+
+<div class="container-fluid my-5">
     <!-- Profile Header -->
-    <div class="card border-0 shadow mb-4">
-        <div class="card-body text-center">
-            <img src="" alt="Avatar" class="rounded-circle mb-3" style="width: 150px; height: 150px;">
-            <h3 class="fw-bold">Nguyễn Mai Hương</h3>
-            <p class="text-muted">maihuong@example.com</p>
-            <div class="row justify-content-center g-3">
-                <div class="col-md-4">
-                    <p class="mb-1"><strong>Ngày dự sinh:</strong> 15/08/2025</p>
-                    <p class="mb-1"><strong>Tuần thai:</strong> 24 tuần</p>
-                </div>
-                <div class="col-md-4">
-                    <p class="mb-1"><strong>Địa chỉ:</strong> Hà Nội, Việt Nam</p>
-                    <p class="mb-1"><strong>Ngày tham gia:</strong> 01/01/2025</p>
-                </div>
+    <div class="card border-0 shadow-lg rounded-4 mb-5">
+        <div class="card-body text-center p-3">
+            <img src="" alt="Avatar"
+                 class="rounded-circle mb-4" style="width: 180px; height: 180px; object-fit: cover;">
+            <h3 class="fw-bold text-primary" style="color: #0dcaf0; font-size: 2rem;">
+                @Model.UserProfile.FullName
+            </h3>
+            <p class="text-muted mb-4" style="font-size: 1.1rem;">@Model.UserProfile.Email</p>
+            @*             <div class="row justify-content-center g-4">
+            <div class="col-md-4">
+            <p class="mb-2" style="font-size: 1.1rem;"><strong><i class="bi bi-calendar-heart me-2"></i>Ngày dự sinh:</strong> 15/08/2025</p>
+            <p class="mb-2" style="font-size: 1.1rem;"><strong><i class="bi bi-clock me-2"></i>Tuần thai:</strong> 24 tuần</p>
             </div>
-            <a href="/profile/edit" class="btn btn-primary mt-3">Chỉnh sửa hồ sơ</a>
+            <div class="col-md-4">
+            <p class="mb-2" style="font-size: 1.1rem;"><strong><i class="bi bi-geo-alt me-2"></i>Địa chỉ:</strong> Hà Nội, Việt Nam</p>
+            <p class="mb-2" style="font-size: 1.1rem;"><strong><i class="bi bi-person-plus me-2"></i>Ngày tham gia:</strong> 01/01/2025</p>
+            </div>
+            </div> *@
+            <a href="" class="btn btn-primary rounded-3 mt-4"
+               style="background-color: #0dcaf0; border-color: #0dcaf0; font-size: 1rem; padding: 10px 20px;">
+                <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa hồ sơ
+            </a>
         </div>
     </div>
 
     <!-- Profile Content -->
-    <div class="row">
+    <div class="row g-4">
         <!-- Left: Periodic Health -->
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-light bg-gradient fw-bold">
-                    Sức khỏe hàng tuần
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
+                    <i class="bi bi-heart-pulse me-2"></i>Sức khỏe thai sản
                 </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <strong>Tuần 24:</strong> Cân nặng 60kg, huyết áp ổn định
-                            <br><small class="text-muted">10/04/2025</small>
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Tuần 23:</strong> Siêu âm bình thường
-                            <br><small class="text-muted">03/04/2025</small>
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Tuần 22:</strong> Thiếu sắt nhẹ
-                            <br><small class="text-muted">27/03/2025</small>
-                        </li>
-                    </ul>
-                    <a href="/periodic-health" class="btn btn-outline-primary mt-3 w-100">Xem tất cả</a>
+                <div class="card-body p-4">
+
+                    @if (@Model.PeriodicHealths.Count != 0)
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var group in Model.PeriodicHealths.GroupBy(x => x.JourneyId))
+                            {
+                                var periodic = group.First();
+
+                                <li class="list-group-item py-3">
+                                    <input hidden value="@periodic.JourneyId" />
+                                    <strong>Hành trình của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
+                                    <p class="mb-0">Ngày bắt đầu: @periodic.StartDate</p>
+                                    <p class="mb-0">Ngày dự sinh: @periodic.DueDate</p>
+                                    <p class="mb-0">Ngày kết thúc: @(periodic.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
+                                </li>
+                            }
+
+                        </ul>
+                        <a href="/periodic-health" class="btn btn-outline-primary rounded-3 mt-3 w-100"
+                           style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                            <i class="bi bi-list-ul me-2"></i>Xem tất cả
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="mt-2" style="font-style: italic; text-align: center">Không có lịch sử theo dõi</p>
+                    }
+
                 </div>
             </div>
         </div>
 
         <!-- Center: User Posts -->
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-light bg-gradient fw-bold">
-                    Bài viết đã đăng
+        <div class="col-lg-6 col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 p-3 p-md-3 mb-3">
+                <div class="d-flex align-items-center gap-2 gap-md-3">
+                    <img src="" alt="Avatar" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+
+                    <button class="btn btn-outline-soft rounded-4 flex-grow-1 text-start fs-6"
+                            data-bs-toggle="modal" data-bs-target="#createPostModal"
+                            style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                        <i class="bi bi-pencil-square me-2"></i>Bạn đang nghĩ gì thế?
+                    </button>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h6 class="fw-bold">Cảm nhận tuần 24</h6>
-                        <p class="text-muted small">10/04/2025</p>
-                        <p>Mình thấy bé yêu bắt đầu đạp nhiều hơn, thật hạnh phúc!</p>
-                        <img src="" alt="Post Image" class="img-fluid rounded mb-2">
-                        <a href="/post/1" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
-                    </div>
-                    <div class="mb-3">
-                        <h6 class="fw-bold">Hỏi về dinh dưỡng</h6>
-                        <p class="text-muted small">08/04/2025</p>
-                        <p>Mọi người có gợi ý món ăn nào tốt cho bà bầu không?</p>
-                        <a href="/post/2" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
-                    </div>
-                    <a href="/posts" class="btn btn-outline-primary w-100">Xem tất cả</a>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
+                    <i class="bi bi-chat-square-text me-2"></i>Bài viết đã đăng
                 </div>
+
+                <div class="card-body p-4" id="post-container" data-user-id="@Model.UserProfile.UserId"></div>
+            </div>
+
+            <!-- Loader -->
+            <div id="loading" style="display: none; text-align: center; padding: 20px;">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="ms-2">Loading more posts...</span>
             </div>
         </div>
 
+
+
         <!-- Right: Psychology Diary -->
-        <div class="col-lg-4 col-md-12 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-light bg-gradient fw-bold">
-                    Nhật ký tâm lý
+        <div class="col-lg-3 col-md-12">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
+                    <i class="bi bi-journal-text me-2"></i>Nhật ký tâm lý
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h6 class="fw-bold">Ngày 10/04/2025</h6>
-                        <p class="text-muted small">Tâm trạng: Vui vẻ</p>
-                        <p>Hôm nay mình cảm thấy rất lạc quan, bé đạp nhiều làm mình hạnh phúc.</p>
+
+                @if (@Model.PsychologyDiaries.Count != 0)
+                {
+                    <div class="card-body p-4">
+
+                        @foreach (var group in @Model.PsychologyDiaries.GroupBy(x => x.JourneyId))
+                        {
+                            var diary = group.First();
+
+                            <div class="mb-4">
+                                <input hidden value="@diary.JourneyId" />
+                                <strong>Nhật ký của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
+                                <p class="mb-0">Ngày bắt đầu: @diary.StartDate</p>
+                                <p class="mb-0">Ngày kết thúc: @(diary.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
+                            </div>
+                        }
+
+                        <a href="/psychology-diary" class="btn btn-outline-primary rounded-3 w-100"
+                           style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                            <i class="bi bi-list-ul me-2"></i>Xem tất cả
+                        </a>
                     </div>
-                    <div class="mb-3">
-                        <h6 class="fw-bold">Ngày 07/04/2025</h6>
-                        <p class="text-muted small">Tâm trạng: Lo lắng</p>
-                        <p>Có chút căng thẳng vì công việc, cần thư giãn nhiều hơn.</p>
-                    </div>
-                    <a href="/psychology-diary" class="btn btn-outline-primary w-100">Xem tất cả</a>
-                </div>
+                }
+                else
+                {
+                    <p class="mt-2" style="font-style: italic; text-align: center">Không có lịch sử theo dõi</p>
+                }
+
             </div>
         </div>
     </div>
 </div>
+
+@await Html.PartialAsync("Component/PostModal")
+@await Html.PartialAsync("~/Views/Shared/Component/Modal.cshtml")
+
+@section Scripts {
+    <script src="~/js/modal.js"></script>
+    <script defer src="/js/createPost.js"></script>
+
+    <script>
+        function initView_CreatePost() {
+            initCreatePostModal();
+            initProfileView();
+        }
+
+        let currentPage = 1;
+        const pageSize = 5;
+        let isLoading = false;
+        let hasMorePosts = true;
+
+        // Hàm khởi tạo partial view trang cá nhân
+        function initProfileView() {
+            // Reset trạng thái
+            currentPage = 1;
+            hasMorePosts = true;
+            isLoading = false;
+            $("#loading").empty(); // Xóa nội dung loading cũ
+            $("#post-container").empty(); // Xóa bài viết cũ
+
+            // Tải trang đầu tiên
+            loadPosts(currentPage, false);
+        }
+
+        // Hàm tải bài viết
+        function loadPosts(page, append = false) {
+            if (isLoading || !hasMorePosts) {
+                if (!hasMorePosts) {
+                    $("#loading").html("<div class='text-center text-muted py-3'>Không còn bài viết nào!</div>");
+                }
+                return;
+            }
+
+            isLoading = true;
+            $("#loading").html("<div class='text-center py-3'><i class='bi bi-spinner spinner-border'></i> Loading...</div>").show();
+
+            const userId = $("#post-container").data("user-id");
+            if (!userId) {
+                console.error("Error: userId is null or undefined");
+                $("#loading").html("<div class='text-center text-danger py-3'>User not authenticated.</div>");
+                isLoading = false;
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetPostsOfUserById", "Post")',
+                method: "GET",
+                data: {
+                    userId: userId,
+                    page: page,
+                    pageSize: pageSize
+                },
+                timeout: 5000,
+                success: function (data, textStatus, xhr) {
+                    // Kiểm tra nếu không còn bài viết
+                    if (data.includes("Không còn bài viết nào!") || xhr.status === 204) {
+                        hasMorePosts = false;
+                        $("#loading").html("<div class='text-center text-muted py-3'>Không còn bài viết nào!</div>");
+                        isLoading = false;
+                        return;
+                    }
+
+                    // Kiểm tra lỗi từ server
+                    if (data.includes("Error")) {
+                        $("#loading").html(`<div class='text-center text-danger py-3'>${data}</div>`);
+                        isLoading = false;
+                        return;
+                    }
+
+                    // Thêm nội dung vào container
+                    const $content = $(data);
+                    if (append) {
+                        $content.hide().appendTo("#post-container").fadeIn(500);
+                    } else {
+                        $("#post-container").html($content);
+                    }
+
+                    // Khởi tạo lazy loading cho iframe
+                    initializeLazyIframes(document.getElementById("post-container"));
+
+                    currentPage++;
+                    isLoading = false;
+                    $("#loading").hide();
+                },
+                error: function (xhr, status, error) {
+                    // Xử lý lỗi HTTP2 hoặc status 0
+                    if (xhr.status === 0 || status === "error") {
+                        hasMorePosts = false; // Ngăn gọi tiếp
+                        $("#loading").html("<div class='text-center text-muted py-3'>Không còn bài viết nào!</div>");
+                        isLoading = false;
+                        return;
+                    }
+
+                    let errorMsg = "Error loading posts. Please try again.";
+                    if (xhr.status === 404) {
+                        errorMsg = "No posts found for this user.";
+                    } else if (xhr.status === 500) {
+                        errorMsg = xhr.responseText || "Server error. Please try again later.";
+                    }
+
+                    $("#loading").html(`<div class='text-center text-danger py-3'>${errorMsg}</div>`);
+                    isLoading = false;
+                }
+            });
+        }
+
+        // Hàm khởi tạo lazy loading cho iframe
+        function initializeLazyIframes(container) {
+            const iframes = container.querySelectorAll("iframe[data-src]");
+            if ("IntersectionObserver" in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const iframe = entry.target;
+                            if (iframe.dataset.src) {
+                                iframe.src = iframe.dataset.src;
+                                observer.unobserve(iframe);
+                            }
+                        }
+                    });
+                });
+
+                iframes.forEach((iframe) => observer.observe(iframe));
+            } else {
+                iframes.forEach((iframe) => {
+                    if (iframe.dataset.src) {
+                        iframe.src = iframe.dataset.src;
+                    }
+                });
+            }
+        }
+
+        // Gắn sự kiện scroll
+        $(window).off("scroll.profile").on("scroll.profile", _.debounce(function () {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                if (!isLoading && hasMorePosts) {
+                    loadPosts(currentPage, true);
+                }
+            }
+        }, 200));
+
+        // Tải trang đầu tiên khi document ready
+        $(document).ready(function () {
+            initProfileView();
+        });
+    </script>
+}

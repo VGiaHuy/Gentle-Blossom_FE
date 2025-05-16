@@ -1,22 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Reflection;
-using Newtonsoft.Json;
-using GentleBlossom_BE.Data.Responses;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
-using System.Data;
+﻿using Gentle_Blossom_FE.Data.DTOs.UserDTOs;
 using Gentle_Blossom_FE.Data.Settings;
-using GentleBlossom_FE.Data.DTOs;
+using Gentle_Blossom_FE.Data.Responses;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace Gentle_Blossom_FE.Controllers
 {
     public class AuthController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
+
         private readonly ApiSettings _apiSettings;
 
         public AuthController(IHttpClientFactory httpClientFactory, IOptions<ApiSettings> apiSettings)
@@ -45,9 +43,9 @@ namespace Gentle_Blossom_FE.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                        var claims = new List<Claim>
+                    var claims = new List<Claim>
                         {
-                            new Claim(ClaimTypes.Name, jsonData.Data.FullName),   
+                            new Claim(ClaimTypes.Name, jsonData.Data.FullName),
                             new Claim(ClaimTypes.NameIdentifier, jsonData.Data.UserId.ToString()),
                             new Claim(ClaimTypes.Role, (jsonData.Data.UserTypeId == 3 ? "User" : "Expert") ) // Gán vai trò: User, Expert hoặc Admin
                         };
