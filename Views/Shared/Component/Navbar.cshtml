@@ -3,7 +3,7 @@
 
         <!-- Brand and Search -->
         <div class="d-flex align-items-center ps-3">
-            <a class="nav-link-custom fw-bold text-primary mb-0 me-4" href="" style="font-size: 1.5rem; text-decoration: none; color: #0dcaf0;" data-view="Home">
+            <a class="nav-link-custom fw-bold text-primary mb-0 me-4" href="/" style="font-size: 1.5rem; text-decoration: none; color: #0dcaf0;" data-view="Home">
                 <i class="bi bi-flower1 me-2"></i>Gentle Blossom
             </a>
             <form class="d-none d-md-block">
@@ -18,10 +18,10 @@
         </div>
 
         <div class="d-flex align-items-center justify-content-center gap-4 mx-auto">
-            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" data-view="Home" title="Trang chủ">
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Home/Index" data-view="Home" title="Trang chủ">
                 <i class="bi bi-house-heart fs-5 text-primary"></i>
             </a>
-            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" data-view="Friends" title="Kết nối">
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
                 <i class="bi bi-person-hearts fs-5 text-success"></i>
             </a>
             <div class="dropdown">
@@ -30,12 +30,12 @@
                 </a>
                 <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" href="" data-view="PregnancyCare/HealthJourney">
+                        <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/HealthJourney" data-view="PregnancyCare/HealthJourney">
                             <i class="bi bi-hospital fs-5 text-primary me-2"></i> Sức khỏe thai sản
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" href="" data-view="PregnancyCare/PsychologyDiary">
+                        <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/PsychologyDiary" data-view="PregnancyCare/PsychologyDiary">
                             <i class="bi bi-emoji-smile fs-5 text-success me-2"></i> Tâm lý thai sản
                         </a>
                     </li>
@@ -47,17 +47,17 @@
                 </a>
                 <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" href="" data-view="HealthTools/DueDate">
+                        <a class="dropdown-item rounded-1 py-2" href="/HealthTools/DueDate" data-view="HealthTools/DueDate">
                             <i class="bi bi-calendar3 fs-5 text-primary me-2"></i> Tính ngày dự sinh
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" href="" data-view="HealthTools/Ovulation">
+                        <a class="dropdown-item rounded-1 py-2" href="/HealthTools/Ovulation" data-view="HealthTools/Ovulation">
                             <i class="bi bi-calculator fs-5 text-success me-2"></i> Tính ngày rụng trứng
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item rounded-1 py-2" href="" data-view="HealthTools/PregnancyWeight">
+                        <a class="dropdown-item rounded-1 py-2" href="/HealthTools/PregnancyWeight" data-view="HealthTools/PregnancyWeight">
                             <i class="bi bi-bar-chart fs-5 text-warning me-2"></i> Tính cân nặng khi mang thai
                         </a>
                     </li>
@@ -66,21 +66,21 @@
         </div>
 
         <div class="d-flex align-items-center gap-4">
-            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" data-view="Message" title="Trò chuyện">
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Message/Index" data-view="Message" title="Trò chuyện">
                 <i class="bi bi-chat-heart fs-5 text-info"></i>
             </a>
-            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" data-view="Notifications" title="Thông báo">
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Notifications/Index" data-view="Notifications" title="Thông báo">
                 <i class="bi bi-bell-fill fs-5 text-warning"></i>
             </a>
 
             @if (User.Identity.IsAuthenticated)
-            {
+            {   
                 <div class="dropdown">
                     <a class="nav-link d-flex align-items-center text-dark" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="" alt="avatar" class="rounded-circle" width="36" height="36">
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-0" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="" data-view="UserProfile">Trang cá nhân</a></li>
+                        <li><a class="dropdown-item" href="/UserProfile/Index" data-view="UserProfile">Trang cá nhân</a></li>
                         <li><a class="dropdown-item" href="" data-view="Settings">Cài đặt</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" asp-controller="Auth" asp-action="Logout">Đăng xuất</a></li>
