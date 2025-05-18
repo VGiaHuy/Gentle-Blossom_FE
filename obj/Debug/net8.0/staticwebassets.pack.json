@@ -41,6 +41,14 @@
       "PackagePath": "staticwebassets\\js\\site.js"
     },
     {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\view\\home.js",
+      "PackagePath": "staticwebassets\\js\\view\\home.js"
+    },
+    {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\view\\userProfile.js",
+      "PackagePath": "staticwebassets\\js\\view\\userProfile.js"
+    },
+    {
       "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\lib\\animate\\animate.css",
       "PackagePath": "staticwebassets\\lib\\animate\\animate.css"
     },

@@ -1,71 +1,84 @@
-﻿$(function () {
-    $(document).on("click", ".nav-link-custom, .dropdown-item[data-view], a[data-view]", function (e) {
-        e.preventDefault();
+﻿
+//$(function () {
+//    function loadScript(scriptUrl, callback) {
+//        $.getScript(scriptUrl)
+//            .done(function () {
+//                if (callback) callback();
+//            })
+//            .fail(function () {
+//                console.error(`Failed to load script: ${scriptUrl}`);
+//            });
+//    }
 
-        const viewName = $(this).data("view");
-        if (!viewName) {
-            console.log("Không tìm thấy data-view!");
-            return;
-        }
+//    $(document).on("click", ".nav-link-custom, .dropdown-item[data-view], a[data-view]", function (e) {
+//        e.preventDefault();
 
-        const url = viewName.includes("/") ? `/${viewName}` : `/${viewName}/Index`;
+//        const viewName = $(this).data("view");
+//        if (!viewName) {
+//            console.log("Không tìm thấy data-view!");
+//            return;
+//        }
 
-        $.ajax({
-            url: url,
-            method: "GET",
-            cache: true,
-            beforeSend: function () {
-                $("#main-content").html("<div class='text-center p-3'><i class='bi bi-spinner fs-3'></i> Đang tải...</div>");
-            },
-            success: function (html) {
-                $("#main-content").html(html);
-                window.scrollTo({ top: 0, behavior: 'smooth' }); // cuộn lên đầu
+//        const url = viewName.includes("/") ? `/${viewName}` : `/${viewName}/Index`;
 
-                // Cập nhật URL trên thanh địa chỉ
-                history.pushState(null, '', url);
+//        $.ajax({
+//            url: url,
+//            method: "GET",
+//            cache: true,
+//            beforeSend: function () {
+//                $("#main-content").html("<div class='text-center p-3'><i class='bi bi-spinner fs-3'></i> Đang tải...</div>");
+//                $("#main-content script").remove();
+//            },
+//            success: function (html) {
+//                $("#main-content").html(html);
+//                window.scrollTo({ top: 0, behavior: 'smooth' }); // cuộn lên đầu
 
-                // Dọn dẹp khi rời khỏi UserProfile
-                if (!url.includes("UserProfile") && typeof cleanupCreatePostModal === "function") {
-                    cleanupCreatePostModal();
-                }
-                // Gọi hàm initView_CreatePost nếu tồn tại
-                if (typeof initView_CreatePost === "function") {
-                    initView_CreatePost();
-                }
-                // Khởi chạy các script của partial view
-                if (url.includes("UserProfile")) {
-                    $(window).off("scroll.profile");
-                    if (typeof initProfileView === "function") {
-                        initProfileView();
-                    }
-                }
+//                // Cập nhật URL trên thanh địa chỉ
+//                history.pushState(null, '', url);
 
-            },
-            error: function (xhr, status, error) {
-                $("#main-content").html(`<div class='text-danger p-3'>Lỗi: ${xhr.status} - ${error}</div>`);
-            }
-        });
-    });
+//                // Tải script tương ứng với view
+//                if (viewName === "Home") {
+//                    loadScript("/wwwroot/js/view/home.js", function () {
+//                        initViewHome();
+//                    });
+//                } else if (viewName === "UserProfile") {
+//                    loadScript("/wwwroot/js/view/userProfile.js", function () {
+//                        initViewUserProfile();
+//                    });
+//                }
+//            },
+//            error: function (xhr, status, error) {
+//                $("#main-content").html(`<div class='text-danger p-3'>Lỗi: ${xhr.status} - ${error}</div>`);
+//            }
+//        });
+//    });
 
-    window.onpopstate = function () {
-        const url = location.pathname;
+//    window.onpopstate = function () {
+//        const url = location.pathname;
 
-        $.ajax({
-            url: url,
-            method: "GET",
-            beforeSend: function () {
-                $("#main-content").html("<div class='text-center p-3'><i class='bi bi-spinner fs-3'></i> Đang tải...</div>");
-            },
-            success: function (html) {
-                $("#main-content").html(html);
+//        $.ajax({
+//            url: url,
+//            method: "GET",
+//            beforeSend: function () {
+//                $("#main-content").html("<div class='text-center p-3'><i class='bi bi-spinner fs-3'></i> Đang tải...</div>");
+//            },
+//            success: function (html) {
+//                $("#main-content").html(html);
 
-                if (url.includes("UserProfile") && typeof initProfileView === "function") {
-                    initProfileView();
-                }
-            },
-            error: function (xhr) {
-                $("#main-content").html(`<div class='text-danger p-3'>Lỗi: ${xhr.status} - Không thể tải trang.</div>`);
-            }
-        });
-    };
-});
+//                // Tải script tương ứng với view
+//                if (viewName === "Home") {
+//                    loadScript("/js/view/home.js", function () {
+//                        initViewHome();
+//                    });
+//                } else if (viewName === "UserProfile") {
+//                    loadScript("/js/view/userProfile.js", function () {
+//                        initViewUserProfile();
+//                    });
+//                }
+//            },
+//            error: function (xhr) {
+//                $("#main-content").html(`<div class='text-danger p-3'>Lỗi: ${xhr.status} - Không thể tải trang.</div>`);
+//            }
+//        });
+//    };
+//});
