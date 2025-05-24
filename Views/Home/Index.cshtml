@@ -62,8 +62,6 @@
             </div>
         </div>
 
-
-
         <!-- Bên phải: Quảng cáo -->
         <div class="col-lg-3 col-md-12 mb-4">
             <div class="card border-0 shadow-lg rounded-4">
@@ -88,9 +86,9 @@
     </div>
 </div>
 
-@await Html.PartialAsync("Component/PostModal")
-@await Html.PartialAsync("~/Views/Shared/Component/Modal.cshtml")
+@await Html.PartialAsync("Component/CreatePostModal")
 
 @section Scripts {
     <script src="~/js/view/Home.js"></script>
+    <script defer src="~/js/view/detailPost.js"></script>
 }

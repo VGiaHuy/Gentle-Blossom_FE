@@ -508,6 +508,8 @@ body {
     overflow-x: hidden;
 }
 
+
+/*QL toolbar*/
 .ql-toolbar.ql-snow {
     border-color: #0dcaf0 !important;
     border-radius: 8px 8px 0 0;
@@ -589,4 +591,15 @@ body {
     #emojiPicker::before {
         left: 10px;
     }
+}
+
+#commentEditor .ql-editor {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px;
+    min-height: 38px;
+}
+
+.comment-input-section {
+    margin-top: 8px;
 }
