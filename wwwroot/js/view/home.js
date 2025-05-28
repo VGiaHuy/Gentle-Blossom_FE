@@ -1,4 +1,8 @@
-﻿function initViewHome() {
+﻿$(document).ready(function () {
+    initProfileView();
+});
+
+function initViewHome() {
     //initCreatePostModal();
     initProfileView();
 }
@@ -21,6 +25,120 @@ function initProfileView() {
     loadPosts(currentPage, false);
 }
 
+// Hàm gắn sự kiện click cho nút bình luận
+function attachCommentButtonEvents() {
+    document.querySelectorAll('button.comment-button').forEach(button => {
+        button.removeEventListener('click', handleCommentButtonClick);
+        button.addEventListener('click', handleCommentButtonClick);
+    });
+}
+
+// Hàm xử lý click nút bình luận
+function handleCommentButtonClick(event) {
+    event.preventDefault();
+    const button = event.target.closest('button.comment-button');
+    const postId = button.getAttribute('data-post-id');
+    const postElement = button.closest('.mb-4.border');
+
+    if (!postElement) {
+        console.error('Không tìm thấy phần tử bài viết');
+        return;
+    }
+
+    const contentElement = postElement.querySelector('div.text-muted.mb-3');
+    const content = contentElement?.innerHTML || ''; // Lấy toàn bộ nội dung HTML
+
+    const postData = {
+        postId: postId,
+        avatar: postElement.querySelector('img.rounded-circle')?.src || '/images/default-avatar.jpg',
+        academicTitle: postElement.querySelector('.accademictitle')?.textContent || '',
+        posterName: postElement.querySelector('.text-primary.fw-bold')?.textContent || 'Unknown',
+        createdDate: postElement.querySelector('.text-muted.mb-0.small')?.textContent || '',
+        content: content, // Gán nội dung HTML vào đây
+        mediaList: Array.from(postElement.querySelectorAll('.media-gallery .col-6')).map(div => {
+            const img = div.querySelector('img');
+            const iframe = div.querySelector('iframe');
+            let mediaUrl = '';
+            if (img) {
+                const urlMatch = img.src.match(/url=(.+)$/);
+                mediaUrl = urlMatch ? decodeURIComponent(urlMatch[1]) : '';
+            } else if (iframe) {
+                mediaUrl = iframe.src;
+            }
+            return {
+                mediaType: img ? 'Image' : 'Video',
+                mediaUrl: mediaUrl,
+                fileName: img ? img.alt : ''
+            };
+        }),
+        numberOfLike: parseInt(postElement.querySelector('.text-muted.small[id*="post-like-count"]')?.textContent.match(/\d+/)[0]) || 0,
+        numberOfComment: parseInt(postElement.querySelector('.text-muted.small.comment-count')?.textContent.match(/\d+/)[0]) || 0,
+        numberOfShare: parseInt(postElement.querySelector('.text-muted.small.share-count')?.textContent.match(/\d+/)[0]) || 0
+    };
+
+    if (typeof window.openPostModal === 'function') {
+        window.openPostModal(postData);
+    } else {
+        console.error('window.openPostModal is not defined. Ensure detailPost.js is loaded correctly.');
+    }
+}
+
+// Hàm xử lý click nút thích
+window.toggleLike = function (button, type, postId) {
+    const icon = button.querySelector('i');
+    const isLiked = button.getAttribute('data-liked') === 'true';
+
+    // Đổi icon ngay lập tức để có UX tốt
+    if (isLiked) {
+        icon.classList.remove('bi-heart-fill', 'text-danger');
+        icon.classList.add('bi-heart');
+    } else {
+        icon.classList.remove('bi-heart');
+        icon.classList.add('bi-heart-fill', 'text-danger');
+    }
+
+    // Gửi yêu cầu Toggle Like lên server
+    //$.ajax({
+    //    url: '/Post/ToggleLike',
+    //    type: 'POST',
+    //    contentType: 'application/json',
+    //    data: JSON.stringify({ postId: postId }),
+    //    success: function (data) {
+    //        if (data.success) {
+    //            // Cập nhật số lượt thích
+    //            const countElement = document.getElementById(`postLikeCount_${postId}`);
+    //            if (countElement) {
+    //                let count = parseInt(countElement.textContent.match(/\d+/)[0]);
+    //                count = isLiked ? count - 1 : count + 1;
+    //                countElement.textContent = `${count} lượt thích`;
+    //            }
+
+    //            // Cập nhật trạng thái mới
+    //            button.setAttribute('data-liked', (!isLiked).toString());
+    //        } else {
+    //            alert("Không thể thực hiện thao tác: " + data.message);
+    //            restoreIcon(icon, isLiked);
+    //        }
+    //    },
+    //    error: function () {
+    //        console.error('Lỗi khi gửi Like/Unlike');
+    //        restoreIcon(icon, isLiked);
+    //    }
+    //});
+};
+
+// Hàm phục hồi icon nếu bị lỗi
+function restoreIcon(icon, wasLiked) {
+    if (wasLiked) {
+        icon.classList.remove('bi-heart');
+        icon.classList.add('bi-heart-fill', 'text-danger');
+    } else {
+        icon.classList.remove('bi-heart-fill', 'text-danger');
+        icon.classList.add('bi-heart');
+    }
+}
+
+
 // Hàm tải bài viết
 function loadPosts(page, append = false) {
     if (isLoading || !hasMorePosts) {
@@ -42,7 +160,6 @@ function loadPosts(page, append = false) {
         },
         timeout: 5000,
         success: function (data, textStatus, xhr) {
-            // Kiểm tra nếu không còn bài viết
             if (data.includes("Không còn bài viết nào!") || xhr.status === 204) {
                 hasMorePosts = false;
                 $("#loading").html("<div class='text-center text-muted py-3'>Không còn bài viết nào!</div>");
@@ -50,14 +167,12 @@ function loadPosts(page, append = false) {
                 return;
             }
 
-            // Kiểm tra lỗi từ server
             if (data.includes("Error")) {
                 $("#loading").html(`<div class='text-center text-danger py-3'>${data}</div>`);
                 isLoading = false;
                 return;
             }
 
-            // Thêm nội dung vào container
             const $content = $(data);
             if (append) {
                 $content.hide().appendTo("#post-container").fadeIn(500);
@@ -65,17 +180,16 @@ function loadPosts(page, append = false) {
                 $("#post-container").html($content);
             }
 
-            // Khởi tạo lazy loading cho iframe
             initializeLazyIframes(document.getElementById("post-container"));
+            attachCommentButtonEvents();
 
             currentPage++;
             isLoading = false;
             $("#loading").hide();
         },
         error: function (xhr, status, error) {
-            // Xử lý lỗi HTTP2 hoặc status 0
             if (xhr.status === 0 || status === "error") {
-                hasMorePosts = false; // Ngăn gọi tiếp
+                hasMorePosts = false;
                 $("#loading").html("<div class='text-center text-muted py-3'>Không còn bài viết nào!</div>");
                 isLoading = false;
                 return;
@@ -128,8 +242,3 @@ $(window).off("scroll.profile").on("scroll.profile", _.debounce(function () {
         }
     }
 }, 200));
-
-// Tải trang đầu tiên khi document ready
-$(document).ready(function () {
-    initProfileView();
-});

@@ -37,17 +37,20 @@
 
         <!-- Ở giữa: Danh sách bài viết từ chuyên gia -->
         <div class="col-lg-6 col-md-8 mb-4">
-            <div class="card border-0 shadow-lg rounded-4 p-3 p-md-3 mb-3">
-                <div class="d-flex align-items-center gap-2 gap-md-3">
-                    <img src="" alt="Avatar" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="card border-0 shadow-lg rounded-4 p-3 p-md-3 mb-3">
+                    <div class="d-flex align-items-center gap-2 gap-md-3">
+                        <img src="" alt="Avatar" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
 
-                    <button class="btn btn-outline-soft rounded-4 flex-grow-1 text-start fs-6"
-                            data-bs-toggle="modal" data-bs-target="#createPostModal"
-                            style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
-                        <i class="bi bi-pencil-square me-2"></i>Bạn đang nghĩ gì thế?
-                    </button>
+                        <button class="btn btn-outline-soft rounded-4 flex-grow-1 text-start fs-6"
+                                data-bs-toggle="modal" data-bs-target="#createPostModal"
+                                style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                            <i class="bi bi-pencil-square me-2"></i>Bạn đang nghĩ gì thế?
+                        </button>
+                    </div>
                 </div>
-            </div>
+            }
 
             <div class="card border-0 shadow-lg rounded-4 mt-3">
                 <div class="card-body p-4" id="post-container"></div>
@@ -61,8 +64,6 @@
                 <span class="ms-2">Loading more posts...</span>
             </div>
         </div>
-
-
 
         <!-- Bên phải: Quảng cáo -->
         <div class="col-lg-3 col-md-12 mb-4">
@@ -88,9 +89,10 @@
     </div>
 </div>
 
-@await Html.PartialAsync("Component/PostModal")
-@await Html.PartialAsync("~/Views/Shared/Component/Modal.cshtml")
+@await Html.PartialAsync("Component/CreatePostModal")
+@await Html.PartialAsync("Component/DetailPostModal", new List<CommentPostDTOs>())
 
 @section Scripts {
-    <script src="~/js/view/Home.js"></script>
+    <script src="~/js/view/detailPost.js"></script>
+    <script src="~/js/view/home.js"></script>
 }

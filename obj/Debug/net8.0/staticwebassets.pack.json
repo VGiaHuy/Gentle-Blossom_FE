@@ -25,10 +25,6 @@
       "PackagePath": "staticwebassets\\js\\app.js"
     },
     {
-      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\createPost.js",
-      "PackagePath": "staticwebassets\\js\\createPost.js"
-    },
-    {
       "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\main.js",
       "PackagePath": "staticwebassets\\js\\main.js"
     },
@@ -39,6 +35,14 @@
     {
       "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\view\\createPost.js",
+      "PackagePath": "staticwebassets\\js\\view\\createPost.js"
+    },
+    {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\view\\detailPost.js",
+      "PackagePath": "staticwebassets\\js\\view\\detailPost.js"
     },
     {
       "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\view\\home.js",
