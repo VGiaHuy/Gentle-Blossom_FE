@@ -143,7 +143,9 @@
 </div>
 
 @await Html.PartialAsync("Component/CreatePostModal")
+@await Html.PartialAsync("Component/DetailPostModal", new List<CommentPostDTOs>())
 
 @section Scripts {
+    <script src="~/js/view/detailPost.js"></script>
     <script src="~/js/view/userProfile.js"></script>
 }

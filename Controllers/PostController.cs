@@ -7,6 +7,8 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
 
 namespace Gentle_Blossom_FE.Controllers
 {
@@ -96,6 +98,48 @@ namespace Gentle_Blossom_FE.Controllers
             // Nếu lỗi
             var error = await response.Content.ReadAsStringAsync();
             return Json(new { success = false, message = "Đăng bài không thành công! Lỗi: " + error });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateComment([FromForm] CreateCommentDTOs model)
+        {
+            using var httpClient = new HttpClient();
+            using var formData = new MultipartFormDataContent();
+
+            // Thêm các trường text vào form-data
+            formData.Add(new StringContent(model.PostId.ToString()), "PostId");
+            formData.Add(new StringContent(model.PosterId.ToString()), "PosterId");
+            if (model.ParentCommentId.HasValue)
+            {
+                formData.Add(new StringContent(model.ParentCommentId.Value.ToString()), "ParentCommentId");
+            }
+            formData.Add(new StringContent(model.Content), "Content");
+
+            // Thêm file nếu có
+            if (model.MediaFile != null && model.MediaFile.Length > 0)
+            {
+                // Kiểm tra định dạng file
+                var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/gif", "video/mp4", "video/webm" };
+                if (!allowedContentTypes.Contains(model.MediaFile.ContentType))
+                {
+                    return Json(new { success = false, message = "File không hợp lệ. Chỉ chấp nhận hình ảnh (JPEG, PNG, GIF) hoặc video (MP4, WebM)." });
+                }
+
+                var fileContent = new StreamContent(model.MediaFile.OpenReadStream());
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(model.MediaFile.ContentType);
+                formData.Add(fileContent, "MediaFile", model.MediaFile.FileName);
+            }
+
+            // Gửi yêu cầu đến backend API
+            var response = await httpClient.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/CreateComment", formData);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Json(new { success = true, message = "Đăng bình luận thành công!" });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Đăng bình luận không thành công! Lỗi: " + error });
         }
 
         [HttpGet]

@@ -1,61 +1,235 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
-    console.log('detailPost.js loaded'); // Debug: Xác nhận script tải
-
-    // Khởi tạo Quill editor
-    let quill = new Quill('#commentEditor', {
-        theme: 'snow',
-        modules: {
-            toolbar: [['emoji'], ['image']],
-            'emoji-toolbar': true,
-            'emoji-textarea': false,
-            'emoji-shortname': true
-        },
-        placeholder: 'Viết bình luận...'
-    });
-
-    // Khởi tạo emoji-mart picker
-    const pickerOptions = {
-        onEmojiSelect: (emoji) => {
-            const range = quill.getSelection();
-            if (range) {
-                quill.insertText(range.index, emoji.native);
-            }
+    // Khởi tạo Quill Editor
+    let quill = null;
+    const commentEditor = document.querySelector('#commentEditor');
+    if (commentEditor) {
+        try {
+            quill = new Quill('#commentEditor', {
+                theme: 'snow',
+                placeholder: 'Viết bình luận...',
+                modules: {
+                    toolbar: false
+                }
+            });
+            console.log('✅ Quill editor initialized');
+        } catch (error) {
+            console.error('❌ Lỗi khi khởi tạo Quill:', error);
         }
-    };
-    const picker = new EmojiMart.Picker(pickerOptions);
-    const emojiButton = document.querySelector('.ql-emoji');
-    if (emojiButton) {
-        emojiButton.appendChild(picker);
     } else {
-        console.warn('Không tìm thấy nút emoji trong toolbar');
+        console.warn('⚠ Không tìm thấy #commentEditor');
     }
 
-    // Giới hạn chỉ một ảnh
+    // Tích hợp EmojiMart
+    if (!document.querySelector('#emojiPicker')) {
+        const emojiPickerBtn = document.querySelector('#emojiPickerCmtBtn');
+        const emojiPicker = document.createElement('div');
+        emojiPicker.id = 'emojiPicker';
+        emojiPicker.className = 'emoji-picker';
+        emojiPicker.style.display = 'none';
+        emojiPicker.style.position = 'absolute';
+        emojiPicker.style.zIndex = '5000';
+        emojiPicker.style.backgroundColor = '#fff';
+        emojiPicker.style.border = '1px solid #0dcaf0';
+        emojiPicker.style.borderRadius = '8px';
+        emojiPicker.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+        emojiPicker.style.padding = '8px';
+        emojiPicker.style.width = '300px';
+        emojiPicker.style.maxHeight = '330px';
+        document.body.appendChild(emojiPicker);
+
+        try {
+            const picker = new EmojiMart.Picker({
+                data: async () => {
+                    try {
+                        const response = await fetch('https://cdn.jsdelivr.net/npm/@emoji-mart/data@latest');
+                        if (!response.ok) throw new Error(`Failed to fetch emoji data: ${response.status}`);
+                        const data = await response.json();
+                        console.log('✅ Emoji data loaded successfully');
+                        if (!data || typeof data !== 'object') throw new Error('Invalid emoji data');
+                        return data;
+                    } catch (error) {
+                        console.error('❌ Lỗi khi tải dữ liệu emoji:', error);
+                        return {};
+                    }
+                },
+                onEmojiSelect: (emoji) => {
+                    console.log('✅ Emoji selected:', emoji);
+                    if (quill) {
+                        quill.focus();
+                        const emojiText = emoji?.native || '';
+                        if (emojiText) {
+                            const range = quill.getSelection(true);
+                            if (range) {
+                                quill.insertText(range.index, emojiText);
+                                quill.setSelection(range.index + emojiText.length);
+                            } else {
+                                const length = quill.getLength();
+                                quill.insertText(length, emojiText);
+                                quill.setSelection(length + emojiText.length);
+                            }
+                            console.log('✅ Emoji inserted:', emojiText);
+                            emojiPicker.style.display = 'none';
+                        } else {
+                            console.warn('⚠ Emoji native không hợp lệ:', emoji);
+                        }
+                    } else {
+                        console.warn('⚠ Quill không được khởi tạo');
+                    }
+                },
+                perLine: 6,
+                previewPosition: 'none'
+            });
+            emojiPicker.appendChild(picker);
+            console.log('✅ EmojiMart picker initialized');
+
+            if (emojiPickerBtn) {
+                emojiPickerBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopImmediatePropagation(); // Ngăn sự kiện lan truyền
+
+                    const rect = emojiPickerBtn.getBoundingClientRect();
+                    const pickerHeight = emojiPicker.offsetHeight || 330;
+                    const pickerWidth = emojiPicker.offsetWidth || 300;
+                    const windowWidth = window.innerWidth;
+                    const windowHeight = window.innerHeight;
+
+                    let top = rect.bottom + window.scrollY;
+                    let left = rect.left + window.scrollX;
+
+                    if (top + pickerHeight > windowHeight + window.scrollY) {
+                        top = rect.top - pickerHeight + window.scrollY;
+                    }
+                    if (left + pickerWidth > windowWidth) {
+                        left = windowWidth - pickerWidth - 10;
+                    }
+                    if (left < 0) {
+                        left = 10;
+                    }
+
+                    emojiPicker.style.top = `${top}px`;
+                    emojiPicker.style.left = `${left}px`;
+                    emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+                    console.log('✅ Emoji picker toggled, display:', emojiPicker.style.display);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!emojiPicker.contains(e.target) && e.target !== emojiPickerBtn) {
+                        emojiPicker.style.display = 'none';
+                        console.log('✅ Emoji picker hidden');
+                    }
+                });
+            } else {
+                console.warn('⚠ Không tìm thấy #emojiPickerBtn');
+            }
+        } catch (error) {
+            console.error('❌ Lỗi khi khởi tạo EmojiMart:', error);
+        }
+    }
+
+    // Xử lý ảnh bình luận
     let commentImage = null;
     const commentImageInput = document.getElementById('commentImage');
-    if (commentImageInput) {
-        commentImageInput.addEventListener('change', function (e) {
-            if (e.target.files.length > 0) {
-                commentImage = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    const range = quill.getSelection();
-                    if (range) {
-                        quill.insertEmbed(range.index, 'image', event.target.result);
-                    }
+    const commentImagePreview = document.getElementById('commentImagePreview');
+    if (commentImageInput && commentImagePreview) {
+        commentImageInput.addEventListener('change', function () {
+            commentImagePreview.innerHTML = '';
+            const file = this.files[0];
+            if (file) {
+                const fileType = file.type.split('/')[0];
+                if (fileType !== 'image') {
+                    console.warn('Chỉ hỗ trợ ảnh cho bình luận');
+                    this.value = '';
+                    return;
+                }
+                commentImage = file;
+                const url = URL.createObjectURL(file);
+                const col = document.createElement('div');
+                col.className = 'col-4 position-relative';
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'img-fluid rounded-3';
+                img.style.maxHeight = '100px';
+                col.appendChild(img);
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0';
+                removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+                removeBtn.onclick = () => {
+                    col.remove();
+                    commentImage = null;
+                    commentImageInput.value = '';
                 };
-                reader.readAsDataURL(commentImage);
+                col.appendChild(removeBtn);
+                commentImagePreview.appendChild(col);
             }
         });
+    } else {
+        console.warn('Không tìm thấy #commentImage hoặc #commentImagePreview.');
     }
 
-    // Lưu dữ liệu bài viết hiện tại
+    // Gửi bình luận
+    document.getElementById('submitComment')?.addEventListener('click', function () {
+        if (!quill) {
+            console.error('Quill editor không được khởi tạo, không thể gửi bình luận');
+            return;
+        }
+        const content = quill.root.innerHTML;
+        if (content.trim() === '<p><br></p>' && !commentImage) {
+            console.warn('Nội dung bình luận trống và không có ảnh.');
+            return;
+        }
+
+        // Thu thập dữ liệu từ form
+        const formData = new FormData();
+        const posterId = document.getElementById('userCmtId').value;
+
+        formData.append('PostId', currentPost?.postId || 0); // ID bài viết
+        formData.append('PosterId', posterId || ''); // ID người đăng (giả sử bạn có `currentUser`)
+        formData.append('ParentCommentId', null); // ID bình luận cha (nếu là trả lời)
+        formData.append('Content', content); // Nội dung bình luận
+        if (commentImage) {
+            // Kiểm tra định dạng file (hình ảnh hoặc video)
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm'];
+            if (!allowedTypes.includes(commentImage.type)) {
+                showErrorModal('Chỉ chấp nhận hình ảnh hoặc video!', 3000);
+                return;
+            }
+            formData.append('MediaFile', commentImage); // Chỉ gửi một file
+        }
+        formData.append('CommentDate', new Date().toISOString().split('T')[0]); // Ngày bình luận
+
+        // Gửi dữ liệu qua AJAX
+        $.ajax({
+            url: '/Post/CreateComment',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.success) {
+                    quill.setContents([]);
+                    document.getElementById('commentImage').value = '';
+                    commentImage = null;
+                    if (commentImagePreview) {
+                        commentImagePreview.innerHTML = '';
+                    }
+                    fetchComments(currentPost?.postId);
+                    updateCommentCount(currentPost?.postId, 1);
+                    showSuccessModal(data.message, 3000);
+                } else {
+                    showErrorModal(data.message, 3000);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Lỗi khi gửi bình luận:', error);
+                showErrorModal('Lỗi khi gửi bình luận', 3000);
+            }
+        });
+    });
+
     let currentPost = null;
 
-    // Mở modal và điền dữ liệu
-    function openPostModal(postData) {
-        console.log('openPostModal called with postData:', postData);
-
+    // Định nghĩa window.openPostModal
+    window.openPostModal = function (postData) {
         currentPost = postData;
         const modalElement = document.getElementById('postDetailModal');
         if (!modalElement) {
@@ -64,7 +238,7 @@
         }
 
         try {
-            const modal = new bootstrap.Modal(modalElement, {
+            const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement, {
                 backdrop: true,
                 keyboard: true
             });
@@ -74,7 +248,13 @@
             document.getElementById('postAcademicTitle').style.display = postData.academicTitle ? 'block' : 'none';
             document.getElementById('postPosterName').textContent = postData.posterName || 'Unknown';
             document.getElementById('postCreatedDate').textContent = postData.createdDate || '';
-            document.getElementById('postTextContent').innerHTML = postData.content || '';
+            // Kiểm tra và render nội dung HTML
+            const postTextContent = document.getElementById('postTextContent');
+            if (postTextContent) {
+                postTextContent.innerHTML = postData.content && typeof postData.content === 'string' ? postData.content : '';
+            } else {
+                console.warn('Không tìm thấy #postTextContent');
+            }
             document.getElementById('postLikeCount').textContent = `${postData.numberOfLike || 0} lượt thích`;
             document.getElementById('postCommentCount').textContent = `${postData.numberOfComment || 0} bình luận`;
             document.getElementById('postShareCount').textContent = `${postData.numberOfShare || 0} lượt chia sẻ`;
@@ -87,33 +267,32 @@
                     div.className = 'col-6 col-md-4';
                     if (media.mediaType.toLowerCase() === 'image' && isValidUrl(media.mediaUrl)) {
                         div.innerHTML = `
-                            <img src="/Post/ProxyImage?url=${encodeURIComponent(media.mediaUrl)}"
-                                 alt="${media.fileName || ''}"
-                                 class="img-fluid rounded"
-                                 style="max-height: 200px; object-fit: cover;"
-                                 loading="lazy"
-                                 onerror="this.onerror=null; this.src='/images/fallback-image.jpg';" />
-                        `;
+                        <img src="/Post/ProxyImage?url=${encodeURIComponent(media.mediaUrl)}"
+                             alt="${media.fileName || ''}"
+                             class="img-fluid rounded"
+                             style="max-height: 200px; object-fit: cover;"
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='/images/fallback-image.jpg';" />
+                    `;
                     } else if (media.mediaType.toLowerCase() === 'video') {
                         div.innerHTML = `
-                            <iframe src="https://drive.google.com/file/d/${extractFileId(media.mediaUrl)}/preview?t=${Date.now()}"
-                                    class="img-fluid rounded"
-                                    style="max-height: 200px; width: 100%; border: 1px solid #dee2e6;"
-                                    allowfullscreen>
-                            </iframe>
-                        `;
+                        <iframe src="https://drive.google.com/file/d/${extractFileId(media.mediaUrl)}/preview?t=${Date.now()}"
+                                class="img-fluid rounded"
+                                style="max-height: 200px; width: 100%; border: 1px solid #dee2e6;"
+                                allowfullscreen>
+                        </iframe>
+                    `;
                     }
                     mediaGallery.appendChild(div);
                 });
             }
 
             fetchComments(postData.postId);
-            updateLikeButton(postData.postId);
             modal.show();
         } catch (error) {
             console.error('Lỗi khi khởi tạo modal:', error);
         }
-    }
+    };
 
     // Lấy bình luận qua AJAX
     function fetchComments(postId) {
@@ -162,182 +341,11 @@
         });
     }
 
-    // Gửi bình luận
-    document.getElementById('submitComment')?.addEventListener('click', function () {
-        const content = quill.root.innerHTML;
-        if (content.trim() === '<p><br></p>' && !commentImage) return;
-
-        const formData = new FormData();
-        formData.append('postId', currentPost.postId);
-        formData.append('commentContent', content);
-        if (commentImage) {
-            formData.append('commentImage', commentImage);
-        }
-
-        $.ajax({
-            url: '/Post/AddComment',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (data) {
-                if (data.success) {
-                    quill.setContents([]);
-                    document.getElementById('commentImage').value = '';
-                    commentImage = null;
-                    fetchComments(currentPost.postId);
-                    updateCommentCount(currentPost.postId, 1);
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Lỗi khi gửi bình luận:', error);
-            }
-        });
-    });
-
-    // Chuyển đổi trạng thái thích
-    window.toggleLike = function (button, type, id) {
-        const isLiked = button.getAttribute('data-liked') === 'true';
-        $.ajax({
-            url: '/Post/ToggleLike',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ postId: id }),
-            success: function (data) {
-                if (data.success) {
-                    const countElement = document.getElementById(`postLikeCount`);
-                    let count = parseInt(countElement.textContent.match(/\d+/)[0]);
-                    count = isLiked ? count - 1 : count + 1;
-                    countElement.textContent = `${count} lượt thích`;
-                    button.setAttribute('data-liked', (!isLiked).toString());
-                    button.querySelector('i').className = isLiked ? 'bi bi-heart me-1' : 'bi bi-heart-fill me-1';
-                    if (type === 'post') {
-                        currentPost.numberOfLike = count;
-                        updateLikeButton(id);
-                    }
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Lỗi khi thích:', error);
-            }
-        });
-    };
-
-    // Cập nhật trạng thái nút thích
-    function updateLikeButton(postId) {
-        const button = document.getElementById('likeButton');
-        $.ajax({
-            url: `/Post/IsLiked?postId=${postId}`,
-            type: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                button.setAttribute('data-liked', data.isLiked);
-                button.setAttribute('data-post-id', postId);
-                button.querySelector('i').className = data.isLiked ? 'bi bi-heart-fill me-1' : 'bi bi-heart me-1';
-            },
-            error: function (xhr, status, error) {
-                console.error('Lỗi khi kiểm tra trạng thái thích:', error);
-            }
-        });
-    }
-
-    // Chia sẻ bài viết
-    window.sharePost = function () {
-        $.ajax({
-            url: '/Post/Share',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ postId: currentPost.postId }),
-            success: function (data) {
-                if (data.success) {
-                    const shareCount = document.getElementById('postShareCount');
-                    let count = parseInt(shareCount.textContent.match(/\d+/)[0]);
-                    shareCount.textContent = `${count + 1} lượt chia sẻ`;
-                    currentPost.numberOfShare = count + 1;
-                    alert('Bài viết đã được chia sẻ!');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Lỗi khi chia sẻ:', error);
-            }
-        });
-    };
-
-    // Lưu vào yêu thích
-    window.bookmarkPost = function () {
-        $.ajax({
-            url: '/Post/Bookmark',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ postId: currentPost.postId }),
-            success: function (data) {
-                if (data.success) {
-                    alert('Bài viết đã được lưu vào yêu thích!');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Lỗi khi lưu yêu thích:', error);
-            }
-        });
-    };
-
-    // Lưu bài viết
-    window.savePost = function () {
-        $.ajax({
-            url: '/Post/Save',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ postId: currentPost.postId }),
-            success: function (data) {
-                if (data.success) {
-                    alert('Bài viết đã được lưu!');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Lỗi khi lưu bài viết:', error);
-            }
-        });
-    };
-
-    // Tắt thông báo
-    window.muteNotifications = function () {
-        $.ajax({
-            url: '/Post/MuteNotifications',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ postId: currentPost.postId }),
-            success: function (data) {
-                if (data.success) {
-                    alert('Đã tắt thông báo cho bài viết này!');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Lỗi khi tắt thông báo:', error);
-            }
-        });
-    };
-
-    // Báo cáo bài viết
-    window.reportPost = function () {
-        $.ajax({
-            url: '/Post/Report',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ postId: currentPost.postId }),
-            success: function (data) {
-                if (data.success) {
-                    alert('Bài viết đã được báo cáo!');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Lỗi khi báo cáo:', error);
-            }
-        });
-    };
-
     // Tập trung vào ô nhập bình luận
     window.focusCommentInput = function () {
-        quill.focus();
+        if (quill) {
+            quill.focus();
+        }
     };
 
     // Hàm tiện ích
@@ -362,74 +370,4 @@
         commentCount.textContent = `${count} bình luận`;
         currentPost.numberOfComment = count;
     }
-
-    // Gắn sự kiện click cho nút bình luận
-    document.addEventListener('click', function (event) {
-        const button = event.target.closest('button.comment-button');
-        if (!button) {
-            console.log('No comment-button found for click');
-            return;
-        }
-
-        console.log('Comment button clicked:', button);
-        event.preventDefault();
-
-        const postId = button.getAttribute('data-post-id');
-        const postElement = button.closest('.mb-4.border');
-        if (!postElement) {
-            console.error('Không tìm thấy phần tử bài viết');
-            return;
-        }
-
-        // Kiểm tra tất cả thẻ <p> trong bài viết
-        const contentElements = postElement.querySelectorAll('p');
-        contentElements.forEach((el, index) => {
-        });
-
-        // Lấy thẻ <p> thứ ba (chứa nội dung thực tế)
-        const contentElement = contentElements[2]; // Chọn thẻ chứa nội dung
-        let content = contentElement?.innerHTML || '';
-
-        // Kiểm tra nếu content rỗng, thử các thẻ <p> khác
-        if (!content && contentElements.length > 0) {
-            for (let i = 0; i < contentElements.length; i++) {
-                if (contentElements[i].innerHTML.trim() && !contentElements[i].classList.contains('mb-0')) {
-                    content = contentElements[i].innerHTML;
-                    break;
-                }
-            }
-        }
-
-        const postData = {
-            postId: postId,
-            avatar: postElement.querySelector('img.rounded-circle')?.src || '/images/default-avatar.jpg',
-            academicTitle: postElement.querySelector('.accademictitle')?.textContent || '',
-            posterName: postElement.querySelector('.text-primary.fw-bold')?.textContent || 'Unknown',
-            createdDate: postElement.querySelector('.text-muted.mb-0.small')?.textContent || '',
-            content: content,
-            mediaList: Array.from(postElement.querySelectorAll('.media-gallery .col-6')).map(div => {
-                const img = div.querySelector('img');
-                const iframe = div.querySelector('iframe');
-                let mediaUrl = '';
-                if (img) {
-                    // Lấy URL gốc bằng cách xóa phần proxy và giải mã
-                    const urlMatch = img.src.match(/url=(.+)$/);
-                    mediaUrl = urlMatch ? decodeURIComponent(urlMatch[1]) : '';
-                } else if (iframe) {
-                    mediaUrl = iframe.src;
-                }
-                return {
-                    mediaType: img ? 'Image' : 'Video',
-                    mediaUrl: mediaUrl,
-                    fileName: img ? img.alt : ''
-                };
-            }),
-            numberOfLike: parseInt(postElement.querySelector('.text-muted.small[id*="post-like-count"]')?.textContent.match(/\d+/)[0]) || 0,
-            numberOfComment: parseInt(postElement.querySelector('.text-muted.small.comment-count')?.textContent.match(/\d+/)[0]) || 0,
-            numberOfShare: parseInt(postElement.querySelector('.text-muted.small.share-count')?.textContent.match(/\d+/)[0]) || 0
-        };
-
-        console.log('Calling openPostModal with postData:', postData);
-        openPostModal(postData);
-    });
 });
