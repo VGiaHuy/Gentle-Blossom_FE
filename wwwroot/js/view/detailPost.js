@@ -300,10 +300,12 @@
             url: `/Post/GetComments?postId=${postId}`,
             type: 'GET',
             dataType: 'json',
+            data: postId,
             success: function (data) {
+                console.log(data)
                 const commentsList = document.getElementById('commentsList');
                 commentsList.innerHTML = '';
-                data.forEach(comment => {
+                data.data.forEach(comment => {
                     let commentHtml = `
                         <div class="d-flex align-items-start mb-2">
                             <img src="${comment.userAvatar || '/images/default-avatar.jpg'}" alt="Avatar" class="rounded-circle me-2" style="width: 35px; height: 35px;">

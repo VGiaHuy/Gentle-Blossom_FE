@@ -8,6 +8,10 @@
 
         public int PosterId { get; set; }
 
+        public string? PosterType { get; set; }
+
+        public string? PosterAvatar { get; set; }
+
         public string FullName { get; set; } = null!;
 
         public int? ParentCommentId { get; set; }
