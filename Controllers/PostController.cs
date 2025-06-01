@@ -106,7 +106,6 @@ namespace Gentle_Blossom_FE.Controllers
             using var httpClient = new HttpClient();
             using var formData = new MultipartFormDataContent();
 
-            // Thêm các trường text vào form-data
             formData.Add(new StringContent(model.PostId.ToString()), "PostId");
             formData.Add(new StringContent(model.PosterId.ToString()), "PosterId");
             if (model.ParentCommentId.HasValue)
@@ -140,6 +139,26 @@ namespace Gentle_Blossom_FE.Controllers
 
             var error = await response.Content.ReadAsStringAsync();
             return Json(new { success = false, message = "Đăng bình luận không thành công! Lỗi: " + error });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetComments(string postId)
+        {
+            int id = int.Parse(postId);
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Post/GetCommentsByPostId?postId={id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<List<CommentPostDTOs>>>(rawJson);
+
+                return Json(new { success = true, data = jsonData!.Data ,message = "Lấy bình luận thành công!" });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Lấy bình luận không thành công! Lỗi: " + error });
         }
 
         [HttpGet]
