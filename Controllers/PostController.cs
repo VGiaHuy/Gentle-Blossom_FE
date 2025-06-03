@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Security.Claims;
 
 namespace Gentle_Blossom_FE.Controllers
 {
@@ -26,8 +27,11 @@ namespace Gentle_Blossom_FE.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllPost(int page = 1, int pageSize = 5)
         {
+            int userId = 0;
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
+
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Post/GetAllPost?page={page}&pageSize={pageSize}");
+            var response = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Post/GetAllPost?userId={userId}&page={page}&pageSize={pageSize}");
 
             var rawJson = await response.Content.ReadAsStringAsync();
             var jsonData = JsonConvert.DeserializeObject<API_Response<List<PostDTO>>>(rawJson);
@@ -142,23 +146,60 @@ namespace Gentle_Blossom_FE.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetComments(string postId)
+        public async Task<IActionResult> GetComments(string postId, int page = 1, int pageSize = 10)
         {
             int id = int.Parse(postId);
 
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Post/GetCommentsByPostId?postId={id}");
+            var response = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Post/GetCommentsByPostId?postId={id}&page={page}&pageSize={pageSize}");
 
             if (response.IsSuccessStatusCode)
             {
                 var rawJson = await response.Content.ReadAsStringAsync();
-                var jsonData = JsonConvert.DeserializeObject<API_Response<List<CommentPostDTOs>>>(rawJson);
+                var jsonData = JsonConvert.DeserializeObject<API_Response<CommentPostResponseDTO>>(rawJson);
 
-                return Json(new { success = true, data = jsonData!.Data ,message = "Lấy bình luận thành công!" });
+                return Json(new
+                {
+                    success = true,
+                    data = jsonData!.Data.Comments, // Trả về danh sách bình luận
+                    hasMore = jsonData.Data.HasMore, // Trả về hasMore
+                    message = "Lấy bình luận thành công!"
+                });
             }
 
             var error = await response.Content.ReadAsStringAsync();
             return Json(new { success = false, message = "Lấy bình luận không thành công! Lỗi: " + error });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleLikePost(int postId, int userId)
+        {
+            ToggleLikePostDto data = new ToggleLikePostDto
+            {
+                PostId = postId,
+                UserId = userId
+            };
+
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/ToggleLikePost", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Like bài viết thành công!"
+                });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Like bài viết không thành công! Lỗi: " + error });
         }
 
         [HttpGet]

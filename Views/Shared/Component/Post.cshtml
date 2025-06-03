@@ -80,7 +80,7 @@
         </div>
         <div class="d-flex gap-2 border-top pt-3 mb-3">
             <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft like-button"
-                    data-post-id="@post.PostId" data-liked="false"
+                    data-post-id="@post.PostId" data-liked="@post.Liked.ToString().ToLower()"
                     style="--btn-color: #dc3545; --btn-hover: #f8d7da;"
                     onclick="toggleLike(this, 'post', @post.PostId)">
                 <i class="bi bi-heart me-1"></i> Thích
