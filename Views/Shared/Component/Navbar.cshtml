@@ -1,4 +1,6 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-3 py-2">
+﻿@using System.Security.Claims
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-3 py-2">
     <div class="container d-flex justify-content-between align-items-center" style="max-width: 1140px;">
 
         <!-- Brand and Search -->
@@ -76,6 +78,7 @@
             @if (User.Identity.IsAuthenticated)
             {   
                 <div class="dropdown">
+                    <input id="userId" hidden value="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" />
                     <a class="nav-link d-flex align-items-center text-dark" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="" alt="avatar" class="rounded-circle" width="36" height="36">
                     </a>

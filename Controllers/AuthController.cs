@@ -47,7 +47,7 @@ namespace Gentle_Blossom_FE.Controllers
                         {
                             new Claim(ClaimTypes.Name, jsonData.Data.FullName),
                             new Claim(ClaimTypes.NameIdentifier, jsonData.Data.UserId.ToString()),
-                            new Claim(ClaimTypes.Role, (jsonData.Data.UserTypeId == 3 ? "User" : "Expert") ) // Gán vai trò: User, Expert hoặc Admin
+                            new Claim(ClaimTypes.Role, (jsonData.Data.UserTypeId == 3 ? "User" : "Expert") )
                         };
 
                     var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

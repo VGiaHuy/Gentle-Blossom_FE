@@ -2,11 +2,6 @@
     initProfileView();
 });
 
-function initViewHome() {
-    //initCreatePostModal();
-    initProfileView();
-}
-
 let currentPage = 1;
 const pageSize = 5;
 let isLoading = false;
@@ -87,8 +82,9 @@ function handleCommentButtonClick(event) {
 window.toggleLike = function (button, type, postId) {
     const icon = button.querySelector('i');
     const isLiked = button.getAttribute('data-liked') === 'true';
+    const userId = document.getElementById('userId')?.value || '';
 
-    // Đổi icon ngay lập tức để có UX tốt
+    // Đổi icon ngay lập tức để cải thiện UX
     if (isLiked) {
         icon.classList.remove('bi-heart-fill', 'text-danger');
         icon.classList.add('bi-heart');
@@ -98,46 +94,59 @@ window.toggleLike = function (button, type, postId) {
     }
 
     // Gửi yêu cầu Toggle Like lên server
-    //$.ajax({
-    //    url: '/Post/ToggleLike',
-    //    type: 'POST',
-    //    contentType: 'application/json',
-    //    data: JSON.stringify({ postId: postId }),
-    //    success: function (data) {
-    //        if (data.success) {
-    //            // Cập nhật số lượt thích
-    //            const countElement = document.getElementById(`postLikeCount_${postId}`);
-    //            if (countElement) {
-    //                let count = parseInt(countElement.textContent.match(/\d+/)[0]);
-    //                count = isLiked ? count - 1 : count + 1;
-    //                countElement.textContent = `${count} lượt thích`;
-    //            }
+    $.ajax({
+        url: '/Post/ToggleLikePost',
+        type: 'POST',
+        data: {
+            postId: parseInt(postId),
+            userId: parseInt(userId)
+        },
+        success: function (data) {
+            if (data.success) {
+                // Cập nhật số lượt thích
+                const countElement = document.getElementById(`post-like-count-${postId}`);
+                if (countElement) {
+                    let count = parseInt(countElement.textContent.match(/\d+/)[0]);
+                    count = isLiked ? count - 1 : count + 1;
+                    countElement.textContent = `${count} lượt thích`;
+                }
 
-    //            // Cập nhật trạng thái mới
-    //            button.setAttribute('data-liked', (!isLiked).toString());
-    //        } else {
-    //            alert("Không thể thực hiện thao tác: " + data.message);
-    //            restoreIcon(icon, isLiked);
-    //        }
-    //    },
-    //    error: function () {
-    //        console.error('Lỗi khi gửi Like/Unlike');
-    //        restoreIcon(icon, isLiked);
-    //    }
-    //});
+                // Cập nhật trạng thái mới
+                button.setAttribute('data-liked', (!isLiked).toString());
+            } else {
+                alert("Không thể thực hiện thao tác: " + data.message);
+                restoreIcon(icon, isLiked);
+            }
+        },
+        error: function () {
+            console.error('Lỗi khi gửi Like/Unlike');
+            restoreIcon(icon, isLiked);
+        }
+    });
 };
 
 // Hàm phục hồi icon nếu bị lỗi
 function restoreIcon(icon, wasLiked) {
+    icon.classList.remove('bi-heart', 'bi-heart-fill', 'text-danger');
+    icon.classList.add(wasLiked ? 'bi-heart-fill' : 'bi-heart');
     if (wasLiked) {
-        icon.classList.remove('bi-heart');
-        icon.classList.add('bi-heart-fill', 'text-danger');
-    } else {
-        icon.classList.remove('bi-heart-fill', 'text-danger');
-        icon.classList.add('bi-heart');
+        icon.classList.add('text-danger');
     }
 }
 
+// Hàm cập nhật trạng thái biểu tượng Like sau khi nạp partial view
+function initializeLikeButtons(container) {
+    const likeButtons = container.querySelectorAll('.like-button');
+    likeButtons.forEach(button => {
+        const icon = button.querySelector('i');
+        const isLiked = button.getAttribute('data-liked') === 'true';
+        icon.classList.remove('bi-heart', 'bi-heart-fill', 'text-danger');
+        icon.classList.add(isLiked ? 'bi-heart-fill' : 'bi-heart');
+        if (isLiked) {
+            icon.classList.add('text-danger');
+        }
+    });
+}
 
 // Hàm tải bài viết
 function loadPosts(page, append = false) {
@@ -153,13 +162,12 @@ function loadPosts(page, append = false) {
 
     $.ajax({
         url: "/Post/GetAllPost",
-        method: "GET",
+        type: "GET",
         data: {
             page: page,
             pageSize: pageSize
         },
-        timeout: 5000,
-        success: function (data, textStatus, xhr) {
+        success: function (data, xhr) {
             if (data.includes("Không còn bài viết nào!") || xhr.status === 204) {
                 hasMorePosts = false;
                 $("#loading").html("<div class='text-center text-muted py-3'>Không còn bài viết nào!</div>");
@@ -182,6 +190,7 @@ function loadPosts(page, append = false) {
 
             initializeLazyIframes(document.getElementById("post-container"));
             attachCommentButtonEvents();
+            initializeLikeButtons(document.getElementById("post-container")); // Thêm dòng này
 
             currentPage++;
             isLoading = false;
