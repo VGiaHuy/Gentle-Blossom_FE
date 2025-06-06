@@ -42,6 +42,7 @@ function handleCommentButtonClick(event) {
 
     const contentElement = postElement.querySelector('div.text-muted.mb-3');
     const content = contentElement?.innerHTML || ''; // Lấy toàn bộ nội dung HTML
+    $("#commentsList").empty();
 
     const postData = {
         postId: postId,
@@ -84,7 +85,7 @@ window.toggleLike = function (button, type, postId) {
     const isLiked = button.getAttribute('data-liked') === 'true';
     const userId = document.getElementById('userId')?.value || '';
 
-    // Đổi icon ngay lập tức để có UX tốt
+    // Đổi icon ngay lập tức để cải thiện UX
     if (isLiked) {
         icon.classList.remove('bi-heart-fill', 'text-danger');
         icon.classList.add('bi-heart');
@@ -97,15 +98,14 @@ window.toggleLike = function (button, type, postId) {
     $.ajax({
         url: '/Post/ToggleLikePost',
         type: 'POST',
-        data:
-        {
+        data: {
             postId: parseInt(postId),
             userId: parseInt(userId)
         },
         success: function (data) {
             if (data.success) {
                 // Cập nhật số lượt thích
-                const countElement = document.getElementById(`postLikeCount_${postId}`);
+                const countElement = document.getElementById(`post-like-count-${postId}`);
                 if (countElement) {
                     let count = parseInt(countElement.textContent.match(/\d+/)[0]);
                     count = isLiked ? count - 1 : count + 1;
@@ -128,15 +128,26 @@ window.toggleLike = function (button, type, postId) {
 
 // Hàm phục hồi icon nếu bị lỗi
 function restoreIcon(icon, wasLiked) {
+    icon.classList.remove('bi-heart', 'bi-heart-fill', 'text-danger');
+    icon.classList.add(wasLiked ? 'bi-heart-fill' : 'bi-heart');
     if (wasLiked) {
-        icon.classList.remove('bi-heart');
-        icon.classList.add('bi-heart-fill', 'text-danger');
-    } else {
-        icon.classList.remove('bi-heart-fill', 'text-danger');
-        icon.classList.add('bi-heart');
+        icon.classList.add('text-danger');
     }
 }
 
+// Hàm cập nhật trạng thái biểu tượng Like sau khi nạp partial view
+function initializeLikeButtons(container) {
+    const likeButtons = container.querySelectorAll('.like-button');
+    likeButtons.forEach(button => {
+        const icon = button.querySelector('i');
+        const isLiked = button.getAttribute('data-liked') === 'true';
+        icon.classList.remove('bi-heart', 'bi-heart-fill', 'text-danger');
+        icon.classList.add(isLiked ? 'bi-heart-fill' : 'bi-heart');
+        if (isLiked) {
+            icon.classList.add('text-danger');
+        }
+    });
+}
 
 // Hàm tải bài viết
 function loadPosts(page, append = false) {
@@ -157,8 +168,6 @@ function loadPosts(page, append = false) {
 
     isLoading = true;
     $("#loading").html("<div class='text-center py-3'><i class='bi bi-spinner spinner-border'></i> Loading...</div>").show();
-
-    console.log("userId", userId);
 
     $.ajax({
         url: "/Post/GetPostsOfUserById",
@@ -192,6 +201,7 @@ function loadPosts(page, append = false) {
 
             initializeLazyIframes(document.getElementById("post-container"));
             attachCommentButtonEvents();
+            initializeLikeButtons(document.getElementById("post-container"));
 
             currentPage++;
             isLoading = false;
@@ -252,3 +262,69 @@ $(window).off("scroll.profile").on("scroll.profile", _.debounce(function () {
         }
     }
 }, 200));
+
+
+// Thêm sự kiện cho nút editUserProfile
+$(document).ready(function () {
+    $('#editUserProfile').on('click', function () {
+        $('#editUserModal').modal('show');
+    });
+});
+
+function submitUserForm() {
+    // Kiểm tra form hợp lệ
+    const form = document.getElementById('editUserForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    // Tạo FormData để chứa dữ liệu form và file
+    const formData = new FormData();
+    formData.append('UserId', $('#userId').val());
+    formData.append('FullName', $('#fullName').val());
+    formData.append('BirthDate', $('#birthDate').val());
+    formData.append('PhoneNumber', $('#phoneNumber').val());
+    formData.append('Email', $('#email').val());
+    formData.append('Gender', $('input[name="gender"]:checked').val() === '1' ? 'true' : 'false'); // Đảm bảo gửi boolean dưới dạng chuỗi    
+    formData.append('UserTypeId', $('#userTypeId').val());
+
+    // Thêm file ảnh nếu có
+    const avatarInput = document.getElementById('avatar');
+    if (avatarInput.files.length > 0) {
+        formData.append('Avatar', avatarInput.files[0]);
+    }
+
+    // Gửi yêu cầu AJAX
+    $.ajax({
+        url: '/UserProfile/UpdateUserProfile',
+        type: 'POST',
+        data: formData,
+        processData: false, // Ngăn jQuery xử lý FormData
+        contentType: false, // Để trình duyệt tự đặt content type multipart/form-data
+        success: function (response) {
+            showSuccessModal('Cập nhật thông tin thành công!', 3000);
+            $('#editUserModal').modal('hide');
+            location.reload(true);
+        },
+        error: function (xhr, status, error) {
+            showErrorModal('Đã có lỗi xảy ra: ' + xhr.responseJSON?.message, 3000);
+        }
+    });
+}
+
+// Tùy chọn: Xem trước ảnh đại diện
+$(document).ready(function () {
+    $('#avatar').on('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#avatarPreview').attr('src', e.target.result).show();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#avatarPreview').hide();
+        }
+    });
+});

@@ -71,16 +71,36 @@
             <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Message/Index" data-view="Message" title="Trò chuyện">
                 <i class="bi bi-chat-heart fs-5 text-info"></i>
             </a>
-            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Notifications/Index" data-view="Notifications" title="Thông báo">
-                <i class="bi bi-bell-fill fs-5 text-warning"></i>
-            </a>
+            <div>
+                <button class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark p-1" id="notifications" title="Thông báo" type="button" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                    <i class="bi bi-bell-fill fs-5 text-warning"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        <span id="notification-count">0</span>
+                    </span>
+                </button>
+                <!-- Modal thông báo -->
+                <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="false" data-bs-keyboard="true">
+                    <div class="modal-dialog" style="position: absolute; top: 100%; right: 0; margin: 0;">
+                        <div class="modal-content shadow-sm border-0" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+                            <div class="modal-header border-0">
+                                <h5 class="modal-title" id="notificationModalLabel">Thông báo</h5>
+                            </div>
+                            <div class="modal-body p-0" id="notification-list">
+                                <!-- Danh sách thông báo sẽ được thêm động bằng JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             @if (User.Identity.IsAuthenticated)
             {   
                 <div class="dropdown">
                     <input id="userId" hidden value="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" />
                     <a class="nav-link d-flex align-items-center text-dark" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="" alt="avatar" class="rounded-circle" width="36" height="36">
+                        <img src="/Post/ProxyImage?url=@(string.IsNullOrEmpty(User.FindFirst("ProfileImageUrl")?.Value) ? "" : Uri.EscapeDataString(User.FindFirst("ProfileImageUrl").Value))"
+                             alt="avatar" class="rounded-circle" width="36" height="36">
+
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-0" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="/UserProfile/Index" data-view="UserProfile">Trang cá nhân</a></li>
@@ -102,6 +122,7 @@
     </div>
 </nav>
 
+<script src="~/js/notifications.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Add hover effects for nav links

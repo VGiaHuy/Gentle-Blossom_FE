@@ -19,7 +19,6 @@
                 });
                 // Xóa nội dung cũ khi mở modal
                 quill.setText('');
-                console.log('✅ Quill editor initialized for postDetailModal');
             } catch (error) {
                 console.error('❌ Lỗi khi khởi tạo Quill:', error);
             }
@@ -36,14 +35,12 @@
         const emojiPicker = document.querySelector('#emojiPickerComment');
         if (emojiPicker) {
             emojiPicker.remove();
-            console.log('✅ Removed emojiPickerComment');
         }
         // Xóa sự kiện click cũ trên modal-content
         const modalContent = document.querySelector('#postDetailModal .modal-content');
         if (modalContent && modalContentClickHandler) {
             modalContent.removeEventListener('click', modalContentClickHandler);
             modalContentClickHandler = null;
-            console.log('✅ Removed modal-content click handler');
         }
     });
 
@@ -99,7 +96,6 @@
                                     quill.setSelection(length + emojiText.length - 1);
                                 }
                                 emojiPicker.style.display = 'none';
-                                console.log('✅ Emoji inserted in postDetailModal:', emojiText);
                             }
                         } else {
                             console.warn('⚠ Quill không được khởi tạo');
@@ -109,7 +105,6 @@
                     previewPosition: 'none'
                 });
                 emojiPicker.appendChild(picker);
-                console.log('✅ EmojiMart picker initialized for postDetailModal');
             } catch (error) {
                 console.error('❌ Lỗi khi khởi tạo EmojiMart:', error);
                 return;
@@ -122,7 +117,6 @@
 
         // Gắn sự kiện click mới
         newEmojiPickerBtn.addEventListener('click', (e) => {
-            console.log('✅ Clicked emoji button in postDetailModal');
             e.preventDefault();
             e.stopImmediatePropagation();
             const rect = newEmojiPickerBtn.getBoundingClientRect();
@@ -152,7 +146,6 @@
             emojiPicker.style.top = `${top}px`;
             emojiPicker.style.left = `${left}px`;
             emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
-            console.log('✅ Emoji picker toggled in postDetailModal, display:', emojiPicker.style.display, 'top:', top, 'left:', left);
         });
 
         // Gắn sự kiện click để ẩn bảng Emoji
@@ -160,7 +153,6 @@
         modalContentClickHandler = (e) => {
             if (!emojiPicker.contains(e.target) && e.target !== newEmojiPickerBtn) {
                 emojiPicker.style.display = 'none';
-                console.log('✅ Emoji picker hidden in postDetailModal');
             }
         };
         modalContent.addEventListener('click', modalContentClickHandler);
@@ -230,7 +222,6 @@
     // Hàm lấy bình luận với phân trang
     function fetchComments(postId, page = 1, append = false) {
         if (isLoading || !hasMoreComments) {
-            console.log('🚫 Không tải thêm: isLoading=', isLoading, 'hasMoreComments=', hasMoreComments);
             return;
         }
 
@@ -264,7 +255,7 @@
                     data.data.forEach(comment => {
                         let commentHtml = `
                         <div class="d-flex align-items-start mb-2">
-                            <img src="${comment.posterAvatar || '/images/default-avatar.jpg'}" alt="Avatar" class="rounded-circle me-2" style="width: 35px; height: 35px;">
+                            <img src="/Post/ProxyImage?url=${encodeURIComponent(comment.posterAvatarUrl)}" alt="Avatar" class="rounded-circle me-2" style="width: 35px; height: 35px;">
                             <div class="flex-grow-1">
                                 <p class="mb-0"><strong>${comment.fullName}</strong> ${comment.content}</p>
                     `;
@@ -307,7 +298,6 @@
                     if (sentinel) {
                         commentsList.appendChild(sentinel);
                     } else {
-                        console.warn('⚠ Không tìm thấy #sentinel, tạo mới');
                         const newSentinel = document.createElement('div');
                         newSentinel.id = 'sentinel';
                         newSentinel.style.height = '20px';
@@ -315,7 +305,6 @@
                     }
                 } else {
                     hasMoreComments = false;
-                    console.log('🚫 Không có thêm bình luận hoặc dữ liệu trống');
                 }
 
                 isLoading = false;
@@ -419,7 +408,6 @@
 
             // Đợi modal hiển thị hoàn toàn trước khi khởi tạo observer
             modalElement.addEventListener('shown.bs.modal', function handler() {
-                console.log('✅ Modal đã hiển thị, khởi tạo scroll listener');
                 initCommentsObserver(postData.postId);
                 modalElement.removeEventListener('shown.bs.modal', handler);
             }, { once: true });
