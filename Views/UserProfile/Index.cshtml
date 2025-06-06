@@ -1,6 +1,7 @@
 ﻿@using System.Security.Claims
 @using Gentle_Blossom_FE.Data.DTOs.UserDTOs
 @model UserProfileViewModel
+@using Gentle_Blossom_FE.Data.Constants
 
 <div class="container-fluid my-5">
     <!-- Profile Header -->
@@ -12,20 +13,33 @@
                 @Model.UserProfile.FullName
             </h3>
             <p class="text-muted mb-4" style="font-size: 1.1rem;">@Model.UserProfile.Email</p>
-            @*             <div class="row justify-content-center g-4">
-            <div class="col-md-4">
-            <p class="mb-2" style="font-size: 1.1rem;"><strong><i class="bi bi-calendar-heart me-2"></i>Ngày dự sinh:</strong> 15/08/2025</p>
-            <p class="mb-2" style="font-size: 1.1rem;"><strong><i class="bi bi-clock me-2"></i>Tuần thai:</strong> 24 tuần</p>
-            </div>
-            <div class="col-md-4">
-            <p class="mb-2" style="font-size: 1.1rem;"><strong><i class="bi bi-geo-alt me-2"></i>Địa chỉ:</strong> Hà Nội, Việt Nam</p>
-            <p class="mb-2" style="font-size: 1.1rem;"><strong><i class="bi bi-person-plus me-2"></i>Ngày tham gia:</strong> 01/01/2025</p>
-            </div>
-            </div> *@
-            <a href="" class="btn btn-primary rounded-3 mt-4"
-               style="background-color: #0dcaf0; border-color: #0dcaf0; font-size: 1rem; padding: 10px 20px;">
+
+            @if (Model.UserProfile.UserTypeId == UserTypeName.Expert)
+            {
+                <div class="container mt-4">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-2" style="font-size: 1.1rem;"><strong>Học vị:</strong> <span class="text-muted">@Model.UserProfile.AcademicTitle</span></p>
+                                        <p class="mb-2" style="font-size: 1.1rem;"><strong>Chuyên khoa:</strong> <span class="text-muted">@Model.UserProfile.Specialization</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-2" style="font-size: 1.1rem;"><strong>Đơn vị công tác:</strong> <span class="text-muted">@Model.UserProfile.Organization</span></p>
+                                        <p class="mb-2" style="font-size: 1.1rem;"><strong>Chức vụ:</strong> <span class="text-muted">@Model.UserProfile.Position</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+            <button class="btn btn-primary rounded-5 mt-4" id="editUserProfile" type="button"
+                    style="background-color: #0dcaf0; border-color: #0dcaf0; font-size: 1rem; padding: 10px 20px;">
                 <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa hồ sơ
-            </a>
+            </button>
         </div>
     </div>
 
@@ -34,39 +48,42 @@
         <!-- Left: Periodic Health -->
         <div class="col-lg-3 col-md-6">
             <div class="card border-0 shadow-lg rounded-4">
-                <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
-                    <i class="bi bi-heart-pulse me-2"></i>Sức khỏe thai sản
-                </div>
-                <div class="card-body p-4">
+                @if(Model.UserProfile.UserTypeId == UserTypeName.User)
+                {
+                    <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
+                        <i class="bi bi-heart-pulse me-2"></i>Sức khỏe thai sản
+                    </div>
+                    <div class="card-body p-4">
 
-                    @if (@Model.PeriodicHealths.Count != 0)
-                    {
-                        <ul class="list-group list-group-flush">
-                            @foreach (var group in Model.PeriodicHealths.GroupBy(x => x.JourneyId))
-                            {
-                                var periodic = group.First();
+                        @if (@Model.PeriodicHealths.Count != 0)
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var group in Model.PeriodicHealths.GroupBy(x => x.JourneyId))
+                                {
+                                    var periodic = group.First();
 
-                                <li class="list-group-item py-3">
-                                    <input hidden value="@periodic.JourneyId" />
-                                    <strong>Hành trình của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
-                                    <p class="mb-0">Ngày bắt đầu: @periodic.StartDate</p>
-                                    <p class="mb-0">Ngày dự sinh: @periodic.DueDate</p>
-                                    <p class="mb-0">Ngày kết thúc: @(periodic.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
-                                </li>
-                            }
+                                    <li class="list-group-item py-3">
+                                        <input hidden value="@periodic.JourneyId" />
+                                        <strong>Hành trình của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
+                                        <p class="mb-0">Ngày bắt đầu: @periodic.StartDate</p>
+                                        <p class="mb-0">Ngày dự sinh: @periodic.DueDate</p>
+                                        <p class="mb-0">Ngày kết thúc: @(periodic.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
+                                    </li>
+                                }
 
-                        </ul>
-                        <a href="/periodic-health" class="btn btn-outline-primary rounded-3 mt-3 w-100"
-                           style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
-                            <i class="bi bi-list-ul me-2"></i>Xem tất cả
-                        </a>
-                    }
-                    else
-                    {
-                        <p class="mt-2" style="font-style: italic; text-align: center">Không có lịch sử theo dõi</p>
-                    }
+                            </ul>
+                            <a href="/periodic-health" class="btn btn-outline-primary rounded-3 mt-3 w-100"
+                               style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                                <i class="bi bi-list-ul me-2"></i>Xem tất cả
+                            </a>
+                        }
+                        else
+                        {
+                            <p class="mt-2" style="font-style: italic; text-align: center">Không có lịch sử theo dõi</p>
+                        }
 
-                </div>
+                    </div>
+                }
             </div>
         </div>
 
@@ -106,41 +123,155 @@
         <!-- Right: Psychology Diary -->
         <div class="col-lg-3 col-md-12">
             <div class="card border-0 shadow-lg rounded-4">
-                <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
-                    <i class="bi bi-journal-text me-2"></i>Nhật ký tâm lý
-                </div>
-
-                @if (@Model.PsychologyDiaries.Count != 0)
+                @if(Model.UserProfile.UserTypeId == UserTypeName.User)
                 {
-                    <div class="card-body p-4">
-
-                        @foreach (var group in @Model.PsychologyDiaries.GroupBy(x => x.JourneyId))
-                        {
-                            var diary = group.First();
-
-                            <div class="mb-4">
-                                <input hidden value="@diary.JourneyId" />
-                                <strong>Nhật ký của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
-                                <p class="mb-0">Ngày bắt đầu: @diary.StartDate</p>
-                                <p class="mb-0">Ngày kết thúc: @(diary.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
-                            </div>
-                        }
-
-                        <a href="/psychology-diary" class="btn btn-outline-primary rounded-3 w-100"
-                           style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
-                            <i class="bi bi-list-ul me-2"></i>Xem tất cả
-                        </a>
+                    <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
+                        <i class="bi bi-journal-text me-2"></i>Nhật ký tâm lý
                     </div>
-                }
-                else
-                {
-                    <p class="mt-2" style="font-style: italic; text-align: center">Không có lịch sử theo dõi</p>
-                }
 
+                    @if (@Model.PsychologyDiaries.Count != 0)
+                    {
+                        <div class="card-body p-4">
+
+                            @foreach (var group in @Model.PsychologyDiaries.GroupBy(x => x.JourneyId))
+                            {
+                                var diary = group.First();
+
+                                <div class="mb-4">
+                                    <input hidden value="@diary.JourneyId" />
+                                    <strong>Nhật ký của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
+                                    <p class="mb-0">Ngày bắt đầu: @diary.StartDate</p>
+                                    <p class="mb-0">Ngày kết thúc: @(diary.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
+                                </div>
+                            }
+
+                            <a href="/psychology-diary" class="btn btn-outline-primary rounded-3 w-100"
+                               style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                                <i class="bi bi-list-ul me-2"></i>Xem tất cả
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="mt-2" style="font-style: italic; text-align: center">Không có lịch sử theo dõi</p>
+                    }
+                }
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal edit info -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Chỉnh sửa thông tin người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <div class="row g-3">
+                        <!-- Cột trái -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fullName" class="form-label">Họ và tên</label>
+                                <input type="text" class="form-control" id="fullName" name="fullName" value="@Model.UserProfile.FullName" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="birthDate" class="form-label">Ngày sinh</label>
+                                <input type="date" class="form-control" id="birthDate" name="birthDate"
+                                       value="@Model.UserProfile.BirthDate.ToString("yyyy-MM-dd")" />
+
+                            </div>
+                            <div class="mb-3">
+                                <label for="phoneNumber" class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" pattern="[0-9]{10}" value="@Model.UserProfile.PhoneNumber" />
+                                <div class="form-text">Vui lòng nhập số điện thoại 10 chữ số.</div>
+                            </div>
+                        </div>
+                        <!-- Cột phải -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="@Model.UserProfile.Email" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="avatar" class="form-label">Ảnh đại diện</label>
+                                <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+                                <div class="form-text">Chọn ảnh từ thiết bị (jpg, png).</div>
+                                <img id="avatarPreview" class="img-preview" alt="Ảnh đại diện xem trước">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Giới tính</label>
+                                <div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="gender" id="male" value="1"
+                                        @(Model.UserProfile.Gender ? "checked" : "") />
+                                        <label class="form-check-label" for="male">Nam</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="gender" id="female" value="0"
+                                        @(!Model.UserProfile.Gender ? "checked" : "") />
+                                        <label class="form-check-label" for="female">Nữ</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="userTypeId" name="userTypeId" value="@Model.UserProfile.UserTypeId" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitUserForm()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Tùy chỉnh giao diện */
+    .modal-content {
+        border-radius: 1rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header, .modal-footer {
+        border: none;
+        background-color: #f8f9fa;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .modal-footer {
+        border-radius: 0 0 1rem 1rem;
+    }
+
+    .form-label {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-control, .form-check-input {
+        border-radius: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .btn-primary, .btn-secondary {
+        border-radius: 0.5rem;
+        padding: 0.5rem 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    .img-preview {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+        display: none;
+    }
+</style>
 
 @await Html.PartialAsync("Component/CreatePostModal")
 @await Html.PartialAsync("Component/DetailPostModal")

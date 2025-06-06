@@ -10,7 +10,11 @@
 
         public string? PosterType { get; set; }
 
-        public string? PosterAvatar { get; set; }
+        public string? PosterAvatarUrl { get; set; }
+
+        public string? PosterAvatarType { get; set; }
+
+        public string? PosterAvatarFileName { get; set; }
 
         public string FullName { get; set; } = null!;
 

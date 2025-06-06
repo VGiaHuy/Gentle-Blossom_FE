@@ -47,7 +47,8 @@ namespace Gentle_Blossom_FE.Controllers
                         {
                             new Claim(ClaimTypes.Name, jsonData.Data.FullName),
                             new Claim(ClaimTypes.NameIdentifier, jsonData.Data.UserId.ToString()),
-                            new Claim(ClaimTypes.Role, (jsonData.Data.UserTypeId == 3 ? "User" : "Expert") )
+                            new Claim(ClaimTypes.Role, (jsonData.Data.UserTypeId == 3 ? "User" : "Expert") ),
+                            new Claim("ProfileImageUrl", jsonData.Data.AvatarUrl ?? string.Empty)
                         };
 
                     var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

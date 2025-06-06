@@ -12,10 +12,24 @@
 
         public string Email { get; set; } = null!;
 
-        public string? Avatar { get; set; }
+        public string? AvatarUrl { get; set; }
+
+        public string? AvatarType { get; set; }
+
+        public string? AvatarFileName { get; set; }
 
         public bool Gender { get; set; }
 
         public byte UserTypeId { get; set; }
+
+        public int ExpertId { get; set; }
+
+        public string AcademicTitle { get; set; } = null!;
+
+        public string Position { get; set; } = null!;
+
+        public string Specialization { get; set; } = null!;
+
+        public string Organization { get; set; } = null!;
     }
 }

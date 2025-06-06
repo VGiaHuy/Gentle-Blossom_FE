@@ -42,6 +42,7 @@ function handleCommentButtonClick(event) {
 
     const contentElement = postElement.querySelector('div.text-muted.mb-3');
     const content = contentElement?.innerHTML || ''; // Lấy toàn bộ nội dung HTML
+    $("#commentsList").empty();
 
     const postData = {
         postId: postId,
@@ -190,7 +191,7 @@ function loadPosts(page, append = false) {
 
             initializeLazyIframes(document.getElementById("post-container"));
             attachCommentButtonEvents();
-            initializeLikeButtons(document.getElementById("post-container")); // Thêm dòng này
+            initializeLikeButtons(document.getElementById("post-container"));
 
             currentPage++;
             isLoading = false;
