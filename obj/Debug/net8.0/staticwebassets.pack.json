@@ -37,6 +37,14 @@
       "PackagePath": "staticwebassets\\js\\site.js"
     },
     {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\view\\chat.js",
+      "PackagePath": "staticwebassets\\js\\view\\chat.js"
+    },
+    {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\view\\connectPost.js",
+      "PackagePath": "staticwebassets\\js\\view\\connectPost.js"
+    },
+    {
       "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\view\\createPost.js",
       "PackagePath": "staticwebassets\\js\\view\\createPost.js"
     },
