@@ -42,6 +42,35 @@ namespace Gentle_Blossom_FE.Controllers
             return View("Index");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetChatWindow(int chatRoomId)
+        {
+            int userId = 0;
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
+
+            var model = new ChatViewModel { CurrentUserId = userId };
+
+            var client = _httpClientFactory.CreateClient();
+            var roomResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetChatRoom?chatRoomId={chatRoomId}");
+            var roomResult = await roomResponse.Content.ReadFromJsonAsync<API_Response<ChatRoomDTO>>();
+
+            if (roomResult?.Success == true)
+            {
+                model.SelectedRoom = roomResult.Data;
+
+                var messagesResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetMessages?chatRoomId={chatRoomId}"); 
+                var messagesResult = await messagesResponse.Content.ReadFromJsonAsync<API_Response<List<MessageDTO>>>();
+
+                model.Messages = messagesResult?.Data?.Select(m =>
+                {
+                    m.IsOutgoing = m.SenderId == userId;
+                    return m;
+                }).ToList() ?? new();
+            }
+
+            return PartialView("Component/ChatWindow", model);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateChatRoom([FromBody] CreateChatRoomRequestDTO request)
         {

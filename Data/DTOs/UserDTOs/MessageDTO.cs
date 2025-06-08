@@ -14,7 +14,7 @@
 
         public string? AttachmentType { get; set; } = "";
 
-        public DateTime? SentAt { get; set; }
+        public DateTime SentAt { get; set; }
 
         public bool? IsDeleted { get; set; }
 

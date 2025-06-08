@@ -9,7 +9,6 @@
 
     // Hàm điều chỉnh vị trí badge
     function adjustBadgePosition() {
-        console.log('Điều chỉnh vị trí badge');
         const button = $('#notifications');
         const badge = $('#notification-count').parent();
         const buttonOffset = button.offset();
@@ -26,7 +25,6 @@
     // Gọi điều chỉnh vị trí badge khi trang load và khi resize
     adjustBadgePosition();
     $(window).on('resize', function () {
-        console.log('Resize cửa sổ, điều chỉnh vị trí badge');
         adjustBadgePosition();
     });
 
@@ -178,8 +176,6 @@
             !$(e.target).closest('.modal-content').length &&
             !$(e.target).closest('#notifications').length) {
             $('#notificationModal').modal('hide');
-        } else {
-            console.log('Click bên trong modal-content hoặc nút thông báo, giữ modal mở');
         }
     });
 });
