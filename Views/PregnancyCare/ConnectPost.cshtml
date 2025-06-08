@@ -1,0 +1,123 @@
+﻿@using Gentle_Blossom_FE.Data.DTOs.UserDTOs
+@model PostDTO
+
+<div class="container my-4" style="max-width: 1000px;">
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden" style="background: #fff;">
+        <div class="card-body p-4">
+            <!-- Header bài viết -->
+            <!-- Header bài viết -->
+            <div class="d-flex align-items-center mb-3">
+                <img src="/Post/ProxyImage?url=@(Uri.EscapeDataString(Model.PosterAvatar.AvatarUrl))"
+                     alt="Avatar"
+                     class="rounded-circle me-3 border border-2 border-primary"
+                     loading="lazy"
+                     style="width: 48px; height: 48px; object-fit: cover;">
+                <div class="flex-grow-1">
+                    @if (!string.IsNullOrEmpty(Model.AcademicTitle))
+                    {
+                        <span class="badge bg-success-subtle text-success mb-1">@Model.AcademicTitle</span>
+                    }
+                    <h6 class="mb-0 fw-bold text-primary">@Model.PosterName</h6>
+                    <small class="text-muted">@Model.CreatedDate</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-primary btn-sm" onclick="connectUser('@Model.PostId')">
+                        Kết nối
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="skipUser('@Model.PostId')">
+                        Bỏ qua
+                    </button>
+                </div>
+            </div>
+
+            <!-- Nội dung bài viết -->
+            <div class="mb-3 text-dark">@Html.Raw(Model.Content)</div>
+
+            <!-- Media Gallery -->
+            @if (Model.MediaList != null && Model.MediaList.Any())
+            {
+                <div class="row g-1 mb-3">
+                    @foreach (var media in Model.MediaList)
+                    {
+                        @if (!string.IsNullOrEmpty(media.MediaUrl))
+                        {
+                            <div class="@(Model.MediaList.Count == 2 ? "col-6" : Model.MediaList.Count == 3 ? "col-4" : "col-6 col-md-4")">
+                                @if (string.Equals(media.MediaType, "Image", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (Uri.TryCreate(media.MediaUrl, UriKind.Absolute, out var uriResult) &&
+                                    (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+                                    {
+                                        <a href="/Post/ProxyImage?url=@(Uri.EscapeDataString(media.MediaUrl))" data-lightbox="post-@Model.PostId">
+                                            <img src="/Post/ProxyImage?url=@(Uri.EscapeDataString(media.MediaUrl))"
+                                                 alt="@media.FileName"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="max-height: 200px; object-fit: cover; transition: transform 0.2s;"
+                                                 loading="lazy"
+                                                 onerror="this.onerror=null; this.src='/images/fallback-image.jpg';" />
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <img src="/images/fallback-image.jpg"
+                                             alt="@media.FileName"
+                                             class="img-fluid rounded shadow-sm"
+                                             style="max-height: 200px; object-fit: cover;" />
+                                    }
+                                }
+                                else if (string.Equals(media.MediaType, "Video", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <iframe src="https://drive.google.com/file/d/@(ExtractFileId(media.MediaUrl))/preview?t=@(DateTime.Now.Ticks)"
+                                            class="img-fluid rounded"
+                                            style="max-height: 200px; width: 100%; border: 1px solid #dee2e6;"
+                                            allowfullscreen>
+                                    </iframe>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            }
+
+            <!-- Thống kê tương tác -->
+            <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-3">
+                <div class="d-flex gap-2 align-items-center">
+                    <i class="bi bi-heart-fill text-danger"></i>
+                    <span class="text-muted small" id="post-like-count-@Model.PostId">@Model.NumberOfLike lượt thích</span>
+                </div>
+                <div class="d-flex gap-3">
+                    <span class="text-muted small comment-count">@Model.NumberOfComment bình luận</span>
+                    <span class="text-muted small share-count">0 lượt chia sẻ</span>
+                </div>
+            </div>
+
+            <!-- Comment Section -->
+            <div class="comments-section mt-3">
+                <div id="commentsList-@Model.PostId" class="comments-list" style="max-height: 400px; overflow-y: auto;">
+                    <div id="loadingSpinner-@Model.PostId" class="text-center" style="display: none;">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                    </div>
+                    <div id="sentinel-@Model.PostId" style="height: 20px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string ExtractFileId(string url)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(url, @"id=([\w-]+)");
+        return match.Success ? match.Groups[1].Value : url;
+    }
+}
+
+@section Scripts {
+    <script src="~/js/view/connectPost.js"></script>
+    <script>
+        $(document).ready(function () {
+            initCommentsObserver('@Model.PostId');
+        });
+    </script>
+}
