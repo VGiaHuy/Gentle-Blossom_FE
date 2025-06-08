@@ -5,7 +5,7 @@ const connection = new signalR.HubConnectionBuilder()
 
 // Nhận tin nhắn mới
 connection.on("ReceiveMessage", (senderId, content, attachmentUrl, sentAt) => {
-    const isOutgoing = senderId == @Model.CurrentUserId;
+    const isOutgoing = senderId == document.getElementById('userId')?.value;
     const messageHtml = `
                 <div class="message ${isOutgoing ? 'outgoing ms-auto' : 'incoming'} p-3 mb-3">
                     <p class="mb-1">${content || ''}</p>
@@ -37,21 +37,58 @@ connection.on("UserLeft", (userId) => {
 });
 
 // Khởi động SignalR
-connection.start().then(() => {
-    if (@Model.SelectedRoom?.ChatRoomId) {
-        connection.invoke("JoinRoom", @Model.SelectedRoom?.ChatRoomId);
-    }
-}).catch(err => console.error(err));
+connection.start().catch(err => console.error(err));
 
 $(document).ready(function () {
-    // Chuyển đổi phòng chat
-    $(".chat-room-item").click(function () {
+    // Chuyển đổi phòng chat (sử dụng event delegation)
+    $(document).on("click", ".chat-room-item", function (e) {
+        e.preventDefault(); // Ngăn hành vi mặc định nếu có
         const roomId = $(this).data("room-id");
-        window.location.href = `/Chat/Index?chatRoomId=${roomId}`;
+        console.log("Clicked roomId:", roomId); // Log để kiểm tra
+
+        if (!roomId) {
+            alert("Không tìm thấy ID phòng chat!");
+            return;
+        }
+
+        // Kiểm tra trạng thái SignalR
+        if (connection.state === signalR.HubConnectionState.Connected) {
+            // Tham gia phòng chat qua SignalR
+            connection.invoke("JoinRoom", roomId.toString()).catch(err => {
+                console.error("SignalR JoinRoom error:", err);
+                alert("Lỗi khi tham gia phòng chat!");
+            });
+        } else {
+            console.warn("SignalR not connected, attempting to reconnect...");
+            connection.start().then(() => {
+                connection.invoke("JoinRoom", roomId.toString()).catch(err => {
+                    console.error("SignalR JoinRoom error after reconnect:", err);
+                });
+            }).catch(err => {
+                console.error("SignalR reconnect error:", err);
+            });
+        }
+
+        // Tải khung Chat Window động
+        $.ajax({
+            url: `/Chat/GetChatWindow?chatRoomId=${roomId}`,
+            type: "GET",
+            success: function (data) {
+                console.log("Chat window loaded successfully for roomId:", roomId);
+                $("#chatWindowContainer").html(data);
+                // Đánh dấu phòng chat đang chọn
+                $(".chat-room-item").removeClass("active");
+                $(`[data-room-id="${roomId}"]`).addClass("active");
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX error:", status, error, xhr.responseText);
+                alert("Lỗi khi tải phòng chat!");
+            }
+        });
     });
 
     // Gửi tin nhắn
-    $("#sendMessageForm").submit(function (e) {
+    $(document).on("submit", "#sendMessageForm", function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         $.ajax({
@@ -103,7 +140,7 @@ $(document).ready(function () {
     // Xóa tin nhắn
     $(document).on("click", ".delete-message", function () {
         const messageId = $(this).data("message-id");
-        if (messageId === "new") return; // Bỏ qua tin nhắn mới chưa có ID
+        if (messageId === "new") return;
         $.ajax({
             url: `/Chat/DeleteMessage?messageId=${messageId}`,
             type: "DELETE",

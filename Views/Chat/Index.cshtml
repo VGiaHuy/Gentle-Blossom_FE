@@ -1,4 +1,7 @@
-﻿<div class="chat-container">
+﻿@using Gentle_Blossom_FE.Data.DTOs.UserDTOs
+@model List<ChatRoomDTO>
+
+<div class="chat-container">
     <div class="row">
         <!-- Left: Chat Rooms List -->
         <div class="col-lg-4 col-md-5 mb-4">
@@ -7,12 +10,12 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold text-primary"><i class="bi bi-chat-text-fill me-2"></i>Danh sách trò chuyện</h5>
                         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createRoomModal">
-                            <i class="bi bi-plus-circle"></i> Tạo phòng
+                            <i class="bi bi-plus-circle me-1"></i>Tạo phòng
                         </button>
                     </div>
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-start-0" placeholder="Tìm kiếm..." id="searchRooms">
+                        <span class="input-group-text bg-white border-end-0 rounded-start-3"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0 rounded-end-3" placeholder="Tìm kiếm..." id="searchRooms">
                     </div>
                 </div>
                 <ul class="list-group list-group-flush" id="chatRoomList">
@@ -31,64 +34,9 @@
         </div>
 
         <!-- Right: Chat Window -->
-@*         <div class="col-lg-8 col-md-7 mb-4">
-                <div class="chat-window">
-                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 40px; height: 40px;">
-                            <div>
-                                <h5 class="mb-0 fw-bold text-primary">@Model.SelectedRoom.ChatRoomName</h5>
-                                <small class="text-muted">@(Model.SelectedRoom.IsActive ? "Đang hoạt động" : "Offline")</small>
-                            </div>
-                        </div>
-                        <div>
-                            <button class="btn btn-outline-primary btn-sm me-2" title="Gọi video"><i class="bi bi-camera-video-fill"></i></button>
-                            <button class="btn btn-outline-primary btn-sm me-2" title="Gọi thoại"><i class="bi bi-telephone-fill"></i></button>
-                            <button class="btn btn-outline-primary btn-sm" title="Chi tiết"><i class="bi bi-info-circle"></i></button>
-                        </div>
-                    </div>
-                    <div class="chat-messages" id="chatMessages">
-                        @foreach (var message in Model.Messages)
-                        {
-                            <div class="message @(message.IsOutgoing ? "outgoing ms-auto" : "incoming") p-3 mb-3">
-                                <p class="mb-1">@message.Content</p>
-                                @if (!string.IsNullOrEmpty(message.AttachmentUrl))
-                                {
-                                    if (message.AttachmentType.StartsWith("image"))
-                                    {
-                                        <img src="@message.AttachmentUrl" alt="Attachment" class="message-attachment">
-                                    }
-                                    else if (message.AttachmentType.StartsWith("video"))
-                                    {
-                                        <video src="@message.AttachmentUrl" controls class="message-attachment"></video>
-                                    }
-                                    else
-                                    {
-                                        <a href="@message.AttachmentUrl" class="text-decoration-none">Tải file</a>
-                                    }
-                                }
-                                <small class="d-block text-muted @(message.IsOutgoing ? "text-end" : "")">@message.SentAt.ToString("HH:mm")</small>
-                                @if (message.IsOutgoing)
-                                {
-                                    <button class="btn btn-sm btn-danger delete-message" data-message-id="@message.MessageId">Xóa</button>
-                                }
-                            </div>
-                        }
-                    </div>
-                    <div class="chat-input">
-                        <form id="sendMessageForm" enctype="multipart/form-data">
-                            <input type="hidden" name="chatRoomId" value="@Model.SelectedRoom.ChatRoomId" />
-                            <input type="hidden" name="senderId" value="@Model.CurrentUserId" />
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Nhập tin nhắn..." name="content" id="messageInput">
-                                <input type="file" class="d-none" id="attachmentInput" name="attachment">
-                                <label for="attachmentInput" class="btn btn-outline-primary"><i class="bi bi-paperclip"></i></label>
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-send-fill"></i></button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-        </div> *@
+        <div class="col-lg-8 col-md-7 mb-4" id="chatWindowContainer">
+            <!-- Chat Window sẽ được tải động khi chọn phòng chat -->
+        </div>
     </div>
 
     <!-- Modal for Creating Chat Room -->
@@ -111,15 +59,6 @@
                                 Là phòng nhóm
                             </label>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Thành viên</label>
-@*                             <select class="form-select" name="participantIds" id="participantIds" multiple>
-                                @foreach (var user in Model.AvailableUsers)
-                                {
-                                    <option value="@user.UserId">@user.UserName</option>
-                                }
-                            </select> *@
-                        </div>
                         <button type="submit" class="btn btn-primary">Tạo phòng</button>
                     </form>
                 </div>
@@ -130,7 +69,7 @@
 
 <style>
     body {
-        background-color: #f0f2f5;
+        background: linear-gradient(135deg, #f0f2f5, #e9ecef);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
@@ -141,9 +80,9 @@
     }
 
     .chat-room-list {
-        background: linear-gradient(135deg, #ffffff, #e9ecef);
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
         height: 600px;
         overflow-y: auto;
     }
@@ -151,24 +90,25 @@
     .chat-room-item {
         transition: background-color 0.3s, transform 0.2s;
         cursor: pointer;
-        border-radius: 10px;
-        margin: 5px;
+        border-radius: 15px;
+        margin: 8px 10px;
+        padding: 15px;
     }
 
         .chat-room-item:hover {
-            background-color: #e9ecef;
+            background-color: #f1f3f5;
             transform: translateX(5px);
         }
 
         .chat-room-item.active {
-            background-color: #0dcaf0;
+            background: linear-gradient(135deg, #0dcaf0, #0abde3);
             color: white;
         }
 
     .chat-window {
         background: white;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
         height: 600px;
         display: flex;
         flex-direction: column;
@@ -183,56 +123,101 @@
     .message {
         max-width: 70%;
         margin-bottom: 15px;
+        padding: 12px 18px;
+        border-radius: 18px;
         animation: fadeIn 0.3s ease-in;
     }
 
         .message.incoming {
             background-color: #e9ecef;
-            border-radius: 15px 15px 15px 5px;
+            border-radius: 18px 18px 18px 5px;
         }
 
         .message.outgoing {
-            background-color: #0dcaf0;
+            background: linear-gradient(135deg, #0dcaf0, #0abde3);
             color: white;
-            border-radius: 15px 15px 5px 15px;
+            border-radius: 18px 18px 5px 18px;
         }
 
     .message-attachment img, .message-attachment video {
         max-width: 100%;
-        border-radius: 10px;
+        border-radius: 12px;
     }
 
     .chat-input {
         border-top: 1px solid #dee2e6;
         padding: 15px;
         background: #f8f9fa;
-        border-radius: 0 0 15px 15px;
+        border-radius: 0 0 20px 20px;
     }
 
     .btn-primary {
-        background-color: #0dcaf0;
-        border-color: #0dcaf0;
-        transition: background-color 0.3s;
+        background: linear-gradient(135deg, #0dcaf0, #0abde3);
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
 
         .btn-primary:hover {
-            background-color: #0abde3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+    .btn-outline-primary {
+        border-color: #0dcaf0;
+        color: #0dcaf0;
+        border-radius: 12px;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #0dcaf0;
+            color: white;
         }
 
     .status-dot {
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         display: inline-block;
     }
 
-    /* Custom scrollbar */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     .chat-messages::-webkit-scrollbar, .chat-room-list::-webkit-scrollbar {
         width: 8px;
     }
 
     .chat-messages::-webkit-scrollbar-thumb, .chat-room-list::-webkit-scrollbar-thumb {
-        background-color: #0dcaf0;
+        background: #0dcaf0;
         border-radius: 10px;
     }
+
+    .modal-content {
+        border-radius: 20px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 12px;
+    }
+
+    #chatWindowContainer {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 20px;
+        height: 600px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+    }
 </style>
+
+@section Scripts {
+    <script src="~/js/view/chat.js"></script>
+}
