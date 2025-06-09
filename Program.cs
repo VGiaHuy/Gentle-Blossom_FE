@@ -44,6 +44,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("User", "Expert"));
 });
 
+builder.Services.AddSignalR();
 
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 builder.Services.AddHttpClient();

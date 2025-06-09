@@ -1,5 +1,5 @@
 ﻿@using Gentle_Blossom_FE.Data.DTOs.UserDTOs
-@model List<ChatRoomDTO>
+@model ChatViewModel
 
 <div class="chat-container">
     <div class="row">
@@ -19,13 +19,15 @@
                     </div>
                 </div>
                 <ul class="list-group list-group-flush" id="chatRoomList">
-                    @foreach (var room in Model)
+                    @foreach (var room in Model.ChatRooms)
                     {
-                        <li class="list-group-item chat-room-item" data-room-id="@room.ChatRoomId">
+                        <li class="list-group-item chat-room-item @(room.ChatRoomId == Model.SelectedRoom?.ChatRoomId ? "active" : "")" data-room-id="@room.ChatRoomId">
                             <div class="d-flex align-items-center">
+                                @* <img src="@room.AvatarUrl" alt="Avatar" class="rounded-circle me-3" style="width: 40px; height: 40px;"> *@
                                 <div class="flex-grow-1">
                                     <strong>@room.ChatRoomName</strong>
                                 </div>
+                                @* <span class="status-dot @(room.IsActive ? "bg-success" : "bg-secondary")"></span> *@
                             </div>
                         </li>
                     }
@@ -34,8 +36,17 @@
         </div>
 
         <!-- Right: Chat Window -->
-        <div class="col-lg-8 col-md-7 mb-4" id="chatWindowContainer">
-            <!-- Chat Window sẽ được tải động khi chọn phòng chat -->
+        <div class="col-lg-8 col-md-7 mb-4">
+            @if (Model.SelectedRoom != null)
+            {
+                @await Html.PartialAsync("_ChatWindow", Model)
+            }
+            else
+            {
+                <div class="chat-window d-flex align-items-center justify-content-center">
+                    <p class="text-muted">Chọn một phòng chat để bắt đầu trò chuyện</p>
+                </div>
+            }
         </div>
     </div>
 
@@ -93,6 +104,7 @@
         border-radius: 15px;
         margin: 8px 10px;
         padding: 15px;
+        pointer-events: auto !important;
     }
 
         .chat-room-item:hover {
@@ -208,13 +220,6 @@
 
     .form-control, .form-select {
         border-radius: 12px;
-    }
-
-    #chatWindowContainer {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        border-radius: 20px;
-        height: 600px;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
     }
 </style>
 

@@ -1,114 +1,184 @@
-﻿// SignalR Connection
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/chatHub")
-    .build();
+﻿// Khai báo connection ở phạm vi toàn cục
+let connection = null;
+let userId = document.getElementById('userId')?.value;
 
-// Nhận tin nhắn mới
-connection.on("ReceiveMessage", (senderId, content, attachmentUrl, sentAt) => {
-    const isOutgoing = senderId == document.getElementById('userId')?.value;
-    const messageHtml = `
-                <div class="message ${isOutgoing ? 'outgoing ms-auto' : 'incoming'} p-3 mb-3">
-                    <p class="mb-1">${content || ''}</p>
-                    ${attachmentUrl ? (attachmentUrl.match(/\.(jpeg|jpg|png|gif)$/i) ?
-            `<img src="${attachmentUrl}" alt="Attachment" class="message-attachment">` :
-            attachmentUrl.match(/\.(mp4|webm)$/i) ?
-                `<video src="${attachmentUrl}" controls class="message-attachment"></video>` :
-                `<a href="${attachmentUrl}" class="text-decoration-none">Tải file</a>`) : ''}
-                    <small class="d-block text-muted ${isOutgoing ? 'text-end' : ''}">${new Date(sentAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</small>
-                    ${isOutgoing ? '<button class="btn btn-sm btn-danger delete-message" data-message-id="new">Xóa</button>' : ''}
-                </div>`;
-    $("#chatMessages").append(messageHtml);
-    $("#chatMessages").scrollTop($("#chatMessages")[0].scrollHeight);
-});
+if (typeof signalR === "undefined") {
+    alert("Lỗi: Không tải được SignalR! Vui lòng kiểm tra kết nối mạng hoặc CDN.");
+} else {
+    // Khởi tạo SignalR connection
+    connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:7111/chatHub", { withCredentials: true })
+        .withAutomaticReconnect()
+        .build();
 
-// Nhận thông báo xóa tin nhắn
-connection.on("MessageDeleted", (messageId) => {
-    $(`.delete-message[data-message-id="${messageId}"]`).closest(".message").remove();
-});
+    // Nhận tin nhắn mới
+    connection.on("ReceiveMessage", (senderId, content, attachmentUrl, sentAt) => {
+        const chatRoomId = parseInt($("input[name='chatRoomId']").val());
+        const isOutgoing = senderId == userId;
 
-// Nhận thông báo thành viên mới
-connection.on("UserJoined", (userId) => {
-    alert(`Người dùng ${userId} đã tham gia phòng chat.`);
-});
+        const messageHtml = `
+            <div class="message ${isOutgoing ? 'outgoing ms-auto' : 'incoming'} p-3 mb-3" data-room-id="${chatRoomId}">
+                <p class="mb-1">${content || ''}</p>
+                ${attachmentUrl ? (attachmentUrl.match(/\.(jpeg|jpg|png|gif)$/i) ?
+                `<img src="${attachmentUrl}" alt="Attachment" class="message-attachment">` :
+                attachmentUrl.match(/\.(mp4|webm)$/i) ?
+                    `<video src="${attachmentUrl}" controls class="message-attachment"></video>` :
+                    `<a href="${attachmentUrl}" class="text-decoration-none">Tải file</a>`) : ''}
+                <small class="d-block text-muted ${isOutgoing ? 'text-end' : ''}">${new Date(sentAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</small>
+                ${isOutgoing ? `<button class="btn btn-sm btn-danger delete-message" data-message-id="new">Xóa</button>` : ''}
+            </div>`;
 
-// Nhận thông báo thành viên rời phòng
-connection.on("UserLeft", (userId) => {
-    alert(`Người dùng ${userId} đã rời phòng chat.`);
-});
+        $("#chatMessages").append(messageHtml);
+        $("#chatMessages").scrollTop($("#chatMessages")[0].scrollHeight);
+    });
 
-// Khởi động SignalR
-connection.start().catch(err => console.error(err));
+    // Nhận thông báo xóa tin nhắn
+    connection.on("MessageDeleted", (messageId) => {
+        $(`.delete-message[data-message-id="${messageId}"]`).closest(".message").remove();
+    });
 
-$(document).ready(function () {
-    // Chuyển đổi phòng chat (sử dụng event delegation)
+    // Nhận thông báo thành viên mới
+    connection.on("UserJoined", (userId) => {
+        alert(`Người dùng ${userId} đã tham gia phòng chat.`);
+    });
+
+    // Nhận thông báo thành viên rời phòng
+    connection.on("UserLeft", (userId) => {
+        alert(`Người dùng ${userId} đã rời phòng chat.`);
+    });
+
+    // Khởi động SignalR
+    connection.start().catch(err => {
+        alert("Lỗi kết nối SignalR: " + err.message);
+    });
+
+    // Xử lý ngắt kết nối
+    connection.onclose((error) => {
+        alert("Kết nối SignalR bị đóng!");
+    });
+}
+
+// Sử dụng jQuery
+jQuery(document).ready(function ($) {
+    // Chuyển đổi phòng chat
     $(document).on("click", ".chat-room-item", function (e) {
-        e.preventDefault(); // Ngăn hành vi mặc định nếu có
+        e.preventDefault();
         const roomId = $(this).data("room-id");
-        console.log("Clicked roomId:", roomId); // Log để kiểm tra
 
-        if (!roomId) {
-            alert("Không tìm thấy ID phòng chat!");
+        if (!roomId || isNaN(roomId)) {
+            alert("ID phòng chat không hợp lệ!");
             return;
         }
 
-        // Kiểm tra trạng thái SignalR
-        if (connection.state === signalR.HubConnectionState.Connected) {
-            // Tham gia phòng chat qua SignalR
-            connection.invoke("JoinRoom", roomId.toString()).catch(err => {
+        // Kiểm tra trạng thái connection
+        if (connection && connection.state === signalR.HubConnectionState.Connected) {
+            connection.invoke("JoinRoom", parseInt(roomId), parseInt(userId)).catch(err => {
                 console.error("SignalR JoinRoom error:", err);
-                alert("Lỗi khi tham gia phòng chat!");
+                alert("Lỗi khi tham gia phòng chat: " + err.message);
             });
         } else {
-            console.warn("SignalR not connected, attempting to reconnect...");
-            connection.start().then(() => {
-                connection.invoke("JoinRoom", roomId.toString()).catch(err => {
-                    console.error("SignalR JoinRoom error after reconnect:", err);
-                });
-            }).catch(err => {
-                console.error("SignalR reconnect error:", err);
-            });
+            console.error("SignalR is not connected or not loaded");
+            alert("Lỗi: SignalR chưa kết nối!");
         }
 
-        // Tải khung Chat Window động
+        // Tải khung Chat Window
         $.ajax({
             url: `/Chat/GetChatWindow?chatRoomId=${roomId}`,
             type: "GET",
             success: function (data) {
-                console.log("Chat window loaded successfully for roomId:", roomId);
-                $("#chatWindowContainer").html(data);
-                // Đánh dấu phòng chat đang chọn
+                $(".col-lg-8").html(data);
                 $(".chat-room-item").removeClass("active");
                 $(`[data-room-id="${roomId}"]`).addClass("active");
             },
             error: function (xhr, status, error) {
                 console.error("AJAX error:", status, error, xhr.responseText);
-                alert("Lỗi khi tải phòng chat!");
+                alert("Lỗi khi tải phòng chat: " + error);
             }
         });
     });
 
-    // Gửi tin nhắn
+    // Gửi tin nhắn qua SignalR
     $(document).on("submit", "#sendMessageForm", function (e) {
         e.preventDefault();
         const formData = new FormData(this);
-        $.ajax({
-            url: "/Chat/SendMessage",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                if (response.success) {
-                    $("#messageInput").val("");
-                    $("#attachmentInput").val("");
-                } else {
-                    alert(response.message);
+
+        //// Log dữ liệu FormData
+        //console.log("FormData entries:");
+        //for (const [key, value] of formData.entries()) {
+        //    console.log(`${key}:`, value, typeof value);
+        //}
+
+        const chatRoomId = formData.get("chatRoomId");
+        const content = formData.get("content");
+        const attachment = formData.get("attachment");
+        const userId = formData.get("senderId") || userId;
+        const senderId = parseInt(userId);
+
+        // Kiểm tra giá trị hợp lệ
+        if (!chatRoomId || isNaN(chatRoomId)) {
+            alert("ID phòng chat không hợp lệ!");
+            return;
+        }
+        if (!senderId || isNaN(senderId)) {
+            alert("ID người dùng không hợp lệ!");
+            return;
+        }
+        if (!content && (!attachment || attachment.size === 0)) {
+            alert("Vui lòng nhập nội dung hoặc chọn tệp đính kèm!");
+            return;
+        }
+
+        //// Log trước khi gọi invoke
+        //const messageData = {
+        //    chatRoomId: parseInt(chatRoomId),
+        //    senderId: senderId,
+        //    content: content || "", // Đảm bảo content không là null
+        //    attachmentUrl: attachment && attachment.size > 0 ? attachment.name : null
+        //};
+        //console.log("Before invoke SendMessage:", messageData);
+
+        // Nếu có file đính kèm, tải lên server trước
+        if (attachment && attachment.size > 0) {
+            const uploadFormData = new FormData();
+            uploadFormData.append("file", attachment);
+            $.ajax({
+                url: "/Chat/UploadFile",
+                type: "POST",
+                data: uploadFormData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success && response.fileUrl) {
+                        sendMessage(parseInt(chatRoomId), senderId, content || "", response.fileUrl);
+                    } else {
+                        alert("Lỗi khi tải file: " + (response.message || "Không xác định"));
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Upload file error:", status, error, xhr.responseText);
+                    alert("Lỗi khi tải file!");
                 }
-            },
-            error: function () {
-                alert("Lỗi khi gửi tin nhắn!");
+            });
+        } else {
+            // Gửi tin nhắn không có file
+            sendMessage(parseInt(chatRoomId), senderId, content || "", null);
+        }
+
+        // Hàm gửi tin nhắn qua SignalR
+        function sendMessage(chatRoomId, senderId, content, attachmentUrl) {
+            if (connection && connection.state === signalR.HubConnectionState.Connected) {
+                connection.invoke("SendMessage", chatRoomId, senderId, content, attachmentUrl)
+                    .then(() => {
+                        $("#messageInput").val(""); // Cập nhật ID nếu input có ID khác
+                        $("#attachment").val("");   // Cập nhật ID nếu input có ID khác
+                    })
+                    .catch(err => {
+                        alert("Lỗi khi gửi tin nhắn: " + err.message);
+                    });
+            } else {
+                alert("Lỗi: SignalR chưa kết nối!");
             }
-        });
+        }
     });
 
     // Tạo phòng chat
@@ -117,8 +187,9 @@ $(document).ready(function () {
         const formData = {
             chatRoomName: $("#chatRoomName").val(),
             isGroup: $("#isGroup").is(":checked"),
-            participantIds: $("#participantIds").val().map(Number)
+            userCreate: parseInt(userId),
         };
+
         $.ajax({
             url: "/Chat/CreateChatRoom",
             type: "POST",
@@ -128,11 +199,12 @@ $(document).ready(function () {
                 if (response.success) {
                     window.location.reload();
                 } else {
-                    alert(response.message);
+                    alert(response.message || "Lỗi khi tạo phòng chat!");
                 }
             },
-            error: function () {
-                alert("Lỗi khi tạo phòng chat!");
+            error: function (xhr, status, error) {
+                console.error("AJAX error:", status, error, xhr.responseText);
+                alert("Lỗi khi tạo phòng chat: " + error);
             }
         });
     });
@@ -140,19 +212,21 @@ $(document).ready(function () {
     // Xóa tin nhắn
     $(document).on("click", ".delete-message", function () {
         const messageId = $(this).data("message-id");
-        if (messageId === "new") return;
-        $.ajax({
-            url: `/Chat/DeleteMessage?messageId=${messageId}`,
-            type: "DELETE",
-            success: function (response) {
-                if (!response.success) {
-                    alert(response.message);
-                }
-            },
-            error: function () {
-                alert("Lỗi khi xóa tin nhắn!");
-            }
-        });
+        const chatRoomId = $(this).closest(".message").data("room-id");
+        if (messageId === "new" || !chatRoomId || isNaN(chatRoomId)) {
+            alert("ID tin nhắn hoặc phòng chat không hợp lệ!");
+            return;
+        }
+
+        if (connection && connection.state === signalR.HubConnectionState.Connected) {
+            connection.invoke("DeleteMessage", parseInt(chatRoomId), parseInt(messageId))
+                .catch(err => {
+                    console.error("SignalR DeleteMessage error:", err);
+                    alert("Lỗi khi xóa tin nhắn: " + err.message);
+                });
+        } else {
+            alert("Lỗi: SignalR chưa kết nối!");
+        }
     });
 
     // Tìm kiếm phòng chat

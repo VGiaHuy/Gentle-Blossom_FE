@@ -4,6 +4,6 @@
     {
         public string? ChatRoomName { get; set; }
         public bool IsGroup { get; set; }
-        public List<int> ParticipantIds { get; set; }
+        public int userCreate { get; set; }
     }
 }

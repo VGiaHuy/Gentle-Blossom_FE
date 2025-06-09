@@ -22,24 +22,42 @@ namespace Gentle_Blossom_FE.Controllers
             _apiSettings = apiSettings.Value;
         }
 
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(int? chatRoomId)
         {
-            // Lấy ID người dùng từ Claims
             int userId = 0;
             int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
 
+            var model = new ChatViewModel { CurrentUserId = userId };
+
             var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetUserChatRooms?userId={userId}");
 
-            var rawJson = await response.Content.ReadAsStringAsync();
-            var jsonData = JsonConvert.DeserializeObject<API_Response<List<ChatRoomDTO>>>(rawJson);
+            // Lấy danh sách phòng chat của người dùng
+            var roomsResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetUserChatRooms?userId={userId}");
+            var rawJson = await roomsResponse.Content.ReadAsStringAsync();
+            var roomsResult = JsonConvert.DeserializeObject<API_Response<List<ChatRoomDTO>>>(rawJson);
 
-            if (response.IsSuccessStatusCode)
+            model.ChatRooms = roomsResult?.Success == true ? roomsResult.Data ?? new() : new();
+
+            // Nếu có chatRoomId, lấy thông tin phòng và tin nhắn
+            if (chatRoomId.HasValue)
             {
-                return View("Index", jsonData.Data);
+                var roomResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetChatRoom/{chatRoomId.Value}");
+                var roomResult = await roomResponse.Content.ReadFromJsonAsync<API_Response<ChatRoomDTO>>();
+                if (roomResult?.Success == true)
+                {
+                    model.SelectedRoom = roomResult.Data;
+                    var messagesResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetChatRoom/GetMessages/{chatRoomId.Value}");
+                    var messagesResult = await messagesResponse.Content.ReadFromJsonAsync<API_Response<List<MessageDTO>>>();
+                    model.Messages = messagesResult?.Data?.Select(m =>
+                    {
+                        m.IsOutgoing = m.SenderId == userId;
+                        return m;
+                    }).ToList() ?? new();
+                }
             }
 
-            return View("Index");
+            return View(model);
         }
 
         [HttpGet]
@@ -76,7 +94,7 @@ namespace Gentle_Blossom_FE.Controllers
         {
             var client = _httpClientFactory.CreateClient();
 
-            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/", request);
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/Chat/CreateChatRoom", request);
             var result = await response.Content.ReadFromJsonAsync<API_Response<ChatRoomDTO>>();
 
             return Json(result);
