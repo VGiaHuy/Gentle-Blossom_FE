@@ -16,7 +16,7 @@
     <div class="chat-messages" id="chatMessages">
         @foreach (var message in Model.Messages)
         {
-            <div class="message @(message.IsOutgoing ? "outgoing ms-auto" : "incoming") p-3 mb-3">
+            <div class="message @(message.IsOutgoing ? "outgoing ms-auto" : "incoming") p-2 mb-3">
                 <p class="mb-1">@message.Content</p>
                 @if (!string.IsNullOrEmpty(message.AttachmentUrl))
                 {

@@ -11,5 +11,8 @@
         public DateTime? CreateAt { get; set; }
 
         public bool? IsSeen { get; set; }
+
+        public string Url { get; set; } = null!;
+
     }
 }
