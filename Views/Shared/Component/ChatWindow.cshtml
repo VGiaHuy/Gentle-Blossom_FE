@@ -16,28 +16,42 @@
     <div class="chat-messages" id="chatMessages">
         @foreach (var message in Model.Messages)
         {
-            <div class="message @(message.IsOutgoing ? "outgoing ms-auto" : "incoming") p-2 mb-3">
-                <p class="mb-1">@message.Content</p>
-                @if (!string.IsNullOrEmpty(message.AttachmentUrl))
-                {
-                    if (message.AttachmentType.StartsWith("image"))
+            if (message.IsDeleted == true) // Ẩn tin nhắn đã xóa
+            {
+                continue;
+            }
+            <div class="message d-flex align-items-start mb-1 @(message.IsOutgoing ? "ms-auto flex-row-reverse" : "")">
+                <img src="/Post/ProxyImage?url=@(message.AvatarUrl)" alt="Avatar" class="rounded-circle me-2 ms-2" style="width: 32px; height: 32px;">
+                <div class="message-content p-2 rounded-4 @(message.IsOutgoing ? "bg-primary text-white" : "bg-light")" style="max-width: 70%;">
+                    <strong class="d-block mb-1">@(message.SenderName ?? "Unknown")</strong>
+                    @if (!string.IsNullOrEmpty(message.Content))
                     {
-                        <img src="@message.AttachmentUrl" alt="Attachment" class="message-attachment">
+                        <p class="mb-1">@message.Content</p>
                     }
-                    else if (message.AttachmentType.StartsWith("video"))
+                    @if (message.MediaList != null && message.MediaList.Any())
                     {
-                        <video src="@message.AttachmentUrl" controls class="message-attachment"></video>
+                        foreach (var media in message.MediaList)
+                        {
+                            if (media.MediaType.StartsWith("image"))
+                            {
+                                <img src="@media.MediaUrl" alt="Attachment" class="img-fluid rounded-3 mb-2">
+                            }
+                            else if (media.MediaType.StartsWith("video"))
+                            {
+                                <video src="@media.MediaUrl" controls class="img-fluid rounded-3 mb-2"></video>
+                            }
+                            else
+                            {
+                                <a href="@media.MediaUrl" class="text-decoration-none mb-2 d-block">@(media.FileName ?? "Tải file")</a>
+                            }
+                        }
                     }
-                    else
+                    <small class="d-block text-muted @(message.IsOutgoing ? "text-end" : "")">@message.SentAt.ToString("HH:mm")</small>
+                    @if (message.IsOutgoing)
                     {
-                        <a href="@message.AttachmentUrl" class="text-decoration-none">Tải file</a>
+                        <button class="btn btn-sm btn-danger mt-2" data-message-id="@message.MessageId">Xóa</button>
                     }
-                }
-                <small class="d-block text-muted @(message.IsOutgoing ? "text-end" : "")">@message.SentAt.ToString("HH:mm")</small>
-                @if (message.IsOutgoing)
-                {
-                    <button class="btn btn-sm btn-danger delete-message" data-message-id="@message.MessageId">Xóa</button>
-                }
+                </div>
             </div>
         }
     </div>
@@ -47,7 +61,7 @@
             <input type="hidden" name="senderId" value="@Model.CurrentUserId" />
             <div class="input-group">
                 <input type="text" class="form-control rounded-start-3" placeholder="Nhập tin nhắn..." name="content" id="messageInput">
-                <input type="file" class="d-none" id="attachmentInput" name="attachment">
+                <input type="file" class="d-none" id="attachmentInput" name="attachment" multiple accept="image/*,video/*,.pdf">
                 <label for="attachmentInput" class="btn btn-outline-primary"><i class="bi bi-paperclip"></i></label>
                 <button type="submit" class="btn btn-primary rounded-end-3"><i class="bi bi-send-fill"></i></button>
             </div>

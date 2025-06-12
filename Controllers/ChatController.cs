@@ -103,25 +103,64 @@ namespace Gentle_Blossom_FE.Controllers
         [HttpPost]
         public async Task<IActionResult> SendMessage([FromForm] SendMessageRequestDTO request)
         {
-            var client = _httpClientFactory.CreateClient();
-
-            var formData = new MultipartFormDataContent();
-            formData.Add(new StringContent(request.ChatRoomId.ToString()), "ChatRoomId");
-            formData.Add(new StringContent(request.SenderId.ToString()), "SenderId");
-
-            if (!string.IsNullOrEmpty(request.Content))
-                formData.Add(new StringContent(request.Content), "Content");
-
-            if (request.Attachment != null)
+            try
             {
-                var streamContent = new StreamContent(request.Attachment.OpenReadStream());
-                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(request.Attachment.ContentType);
-                formData.Add(streamContent, "Attachment", request.Attachment.FileName);
-            }
+                if (request.ChatRoomId <= 0 || request.SenderId <= 0)
+                {
+                    return Json(new
+                    {
+                        Success = false,
+                        Message = "ID phòng chat hoặc người gửi không hợp lệ"
+                    });
+                }
 
-            var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/send", formData);
-            var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
-            return Json(result);
+                // Tạo FormData để gửi tới backend API
+                var formData = new MultipartFormDataContent();
+                formData.Add(new StringContent(request.ChatRoomId.ToString()), "ChatRoomId");
+                formData.Add(new StringContent(request.SenderId.ToString()), "SenderId");
+                if (!string.IsNullOrEmpty(request.Content))
+                    formData.Add(new StringContent(request.Content), "Content");
+
+                if (request.Attachments != null && request.Attachments.Any())
+                {
+                    foreach (var file in request.Attachments)
+                    {
+                        if (file.Length > 0)
+                        {
+                            var streamContent = new StreamContent(file.OpenReadStream());
+                            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                            formData.Add(streamContent, "Attachments", file.FileName);
+                        }
+                    }
+                }
+
+                // Gửi yêu cầu tới backend API
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Chat/SendMessage", formData);
+                var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
+
+                if (result.Success)
+                {
+                    return Json(new API_Response<object>
+                    {
+                        Success = true,
+                    });
+                }
+
+                return Json(new API_Response<object>
+                {
+                    Success = false,
+                    Message = result.Message ?? "Lỗi khi gửi tin nhắn tới backend"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new API_Response<object>
+                {
+                    Success = false,
+                    Message = $"Lỗi server: {ex.Message}"
+                });
+            }
         }
 
         [HttpDelete]
