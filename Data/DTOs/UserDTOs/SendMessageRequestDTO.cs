@@ -5,6 +5,6 @@
         public int ChatRoomId { get; set; }
         public int SenderId { get; set; }
         public string? Content { get; set; }
-        public IFormFile? Attachment { get; set; }
+        public List<IFormFile>? Attachments { get; set; }
     }
 }

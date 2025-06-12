@@ -1,5 +1,4 @@
-﻿// Khai báo connection ở phạm vi toàn cục
-let connection = null;
+﻿let connection = null;
 let userId = document.getElementById('userId')?.value;
 
 if (typeof signalR === "undefined") {
@@ -12,22 +11,35 @@ if (typeof signalR === "undefined") {
         .build();
 
     // Nhận tin nhắn mới
-    connection.on("ReceiveMessage", (senderId, content, attachmentUrl, sentAt) => {
+    connection.on("ReceiveMessage", (senderId, content, mediaList, sentAt, senderAvatarUrl, senderName) => {
+        console.log("Nhận tin nhắn mới từ chathub");
         const chatRoomId = parseInt($("input[name='chatRoomId']").val());
         const isOutgoing = senderId == userId;
 
-        const messageHtml = `
-            <div class="message ${isOutgoing ? 'outgoing ms-auto' : 'incoming'} p-2 mb-3" data-room-id="${chatRoomId}">
-                <p class="mb-1">${content || ''}</p>
-                ${attachmentUrl ? (attachmentUrl.match(/\.(jpeg|jpg|png|gif)$/i) ?
-                `<img src="${attachmentUrl}" alt="Attachment" class="message-attachment">` :
-                attachmentUrl.match(/\.(mp4|webm)$/i) ?
-                    `<video src="${attachmentUrl}" controls class="message-attachment"></video>` :
-                    `<a href="${attachmentUrl}" class="text-decoration-none">Tải file</a>`) : ''}
-                <small class="d-block text-muted ${isOutgoing ? 'text-end' : ''}">${new Date(sentAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</small>
-                ${isOutgoing ? `<button class="btn btn-sm btn-danger delete-message" data-message-id="new">Xóa</button>` : ''}
-            </div>`;
+        let mediaHtml = '';
+        if (mediaList && mediaList.length > 0) {
+            mediaList.forEach(media => {
+                if (media.mediaType.startsWith('image')) {
+                    mediaHtml += `<img src="${media.mediaUrl}" alt="Attachment" class="img-fluid rounded-3 mb-2">`;
+                } else if (media.mediaType.startsWith('video')) {
+                    mediaHtml += `<video src="${media.mediaUrl}" controls class="img-fluid rounded-3 mb-2"></video>`;
+                } else {
+                    mediaHtml += `<a href="${media.mediaUrl}" class="text-decoration-none mb-2 d-block">${media.fileName || 'Tải file'}</a>`;
+                }
+            });
+        }
 
+        const messageHtml = `
+        <div class="message d-flex align-items-start mb-1 ${isOutgoing ? 'ms-auto flex-row-reverse' : ''}" data-room-id="${chatRoomId}">
+            <img src="/Post/ProxyImage?url=${senderAvatarUrl}" alt="Avatar" class="rounded-circle ${isOutgoing ? 'ms-2' : 'me-2'}" style="width: 32px; height: 32px;">
+            <div class="message-content p-2 rounded-4 ${isOutgoing ? 'bg-primary text-white' : 'bg-light'}" style="max-width: 70%;">
+                <strong class="d-block mb-1">${senderName || 'Unknown'}</strong>
+                ${content ? `<p class="mb-1">${content}</p>` : ''}
+                ${mediaHtml}
+                <small class="d-block text-muted ${isOutgoing ? 'text-end' : ''}">${new Date(sentAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</small>
+                ${isOutgoing ? `<button class="btn btn-sm btn-danger mt-2" data-message-id="new">Xóa</button>` : ''}
+            </div>
+        </div>`;
         $("#chatMessages").append(messageHtml);
         $("#chatMessages").scrollTop($("#chatMessages")[0].scrollHeight);
     });
@@ -72,6 +84,18 @@ jQuery(document).ready(function ($) {
 
         // Kiểm tra trạng thái connection
         if (connection && connection.state === signalR.HubConnectionState.Connected) {
+            // Lấy phòng hiện tại
+            const currentRoomId = parseInt($("input[name='chatRoomId']").val());
+
+            // Gọi LeaveRoom nếu đang ở trong một phòng
+            if (currentRoomId && !isNaN(currentRoomId)) {
+                connection.invoke("LeaveRoom", currentRoomId, parseInt(userId)).catch(err => {
+                    console.error("SignalR LeaveRoom error:", err);
+                    showErrorModal("Lỗi khi rời phòng chat: " + err.message);
+                });
+            }
+
+            // Tham gia phòng mới
             connection.invoke("JoinRoom", parseInt(roomId), parseInt(userId)).catch(err => {
                 console.error("SignalR JoinRoom error:", err);
                 showErrorModal("Lỗi khi tham gia phòng chat: " + err.message);
@@ -101,17 +125,9 @@ jQuery(document).ready(function ($) {
     $(document).on("submit", "#sendMessageForm", function (e) {
         e.preventDefault();
         const formData = new FormData(this);
-
-        //// Log dữ liệu FormData
-        //console.log("FormData entries:");
-        //for (const [key, value] of formData.entries()) {
-        //    console.log(`${key}:`, value, typeof value);
-        //}
-
         const chatRoomId = formData.get("chatRoomId");
         const content = formData.get("content");
-        const attachment = formData.get("attachment");
-        const userId = formData.get("senderId") || userId;
+        const attachments = formData.getAll("attachments"); // Lấy tất cả file từ input
         const senderId = parseInt(userId);
 
         // Kiểm tra giá trị hợp lệ
@@ -123,62 +139,42 @@ jQuery(document).ready(function ($) {
             showInfoModal("ID người dùng không hợp lệ!");
             return;
         }
-        if (!content && (!attachment || attachment.size === 0)) {
-            showInfoModal("Vui lòng nhập nội dung hoặc chọn tệp đính kèm!");
+        if (!content && (!attachments || attachments.length === 0 || attachments.every(file => file.size === 0))) {
+            showInfoModal("Vui lòng nhập nội dung hoặc chọn ít nhất một tệp đính kèm!");
             return;
         }
 
-        //// Log trước khi gọi invoke
-        //const messageData = {
-        //    chatRoomId: parseInt(chatRoomId),
-        //    senderId: senderId,
-        //    content: content || "", // Đảm bảo content không là null
-        //    attachmentUrl: attachment && attachment.size > 0 ? attachment.name : null
-        //};
-        //console.log("Before invoke SendMessage:", messageData);
-
-        // Nếu có file đính kèm, tải lên server trước
-        if (attachment && attachment.size > 0) {
-            const uploadFormData = new FormData();
-            uploadFormData.append("file", attachment);
-            $.ajax({
-                url: "/Chat/UploadFile",
-                type: "POST",
-                data: uploadFormData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    if (response.success && response.fileUrl) {
-                        sendMessage(parseInt(chatRoomId), senderId, content || "", response.fileUrl);
-                    } else {
-                        showErrorModal("Lỗi khi tải file: " + (response.message || "Không xác định"));
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Upload file error:", status, error, xhr.responseText);
-                    showErrorModal("Lỗi khi tải file!");
-                }
-            });
-        } else {
-            // Gửi tin nhắn không có file
-            sendMessage(parseInt(chatRoomId), senderId, content || "", null);
-        }
-
-        // Hàm gửi tin nhắn qua SignalR
-        function sendMessage(chatRoomId, senderId, content, attachmentUrl) {
-            if (connection && connection.state === signalR.HubConnectionState.Connected) {
-                connection.invoke("SendMessage", chatRoomId, senderId, content, attachmentUrl)
-                    .then(() => {
-                        $("#messageInput").val(""); // Cập nhật ID nếu input có ID khác
-                        $("#attachment").val("");   // Cập nhật ID nếu input có ID khác
-                    })
-                    .catch(err => {
-                        showErrorModal("Lỗi khi gửi tin nhắn: " + err.message);
-                    });
-            } else {
-                showErrorModal("Lỗi: SignalR chưa kết nối!");
+        // Tạo FormData để upload file
+        const uploadFormData = new FormData();
+        uploadFormData.append("chatRoomId", chatRoomId);
+        uploadFormData.append("senderId", senderId);
+        uploadFormData.append("content", content || "");
+        attachments.forEach((file, index) => {
+            if (file.size > 0) {
+                uploadFormData.append("attachments", file);
             }
-        }
+        });
+
+        // Gửi yêu cầu upload file và tin nhắn
+        $.ajax({
+            url: "/Chat/SendMessage",
+            type: "POST",
+            data: uploadFormData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    $("#messageInput").val("");
+                    $("#attachments").val("");
+                } else {
+                    showErrorModal("Lỗi khi gửi tin nhắn: " + (response.message || "Không xác định"));
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Send message error:", status, error, xhr.responseText);
+                showErrorModal("Lỗi khi gửi tin nhắn!");
+            }
+        });
     });
 
     // Tạo phòng chat
