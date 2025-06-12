@@ -3,7 +3,7 @@ let connection = null;
 let userId = document.getElementById('userId')?.value;
 
 if (typeof signalR === "undefined") {
-    alert("Lỗi: Không tải được SignalR! Vui lòng kiểm tra kết nối mạng hoặc CDN.");
+    showErrorModal("Lỗi: Không tải được SignalR! Vui lòng kiểm tra kết nối mạng hoặc CDN.");
 } else {
     // Khởi tạo SignalR connection
     connection = new signalR.HubConnectionBuilder()
@@ -17,7 +17,7 @@ if (typeof signalR === "undefined") {
         const isOutgoing = senderId == userId;
 
         const messageHtml = `
-            <div class="message ${isOutgoing ? 'outgoing ms-auto' : 'incoming'} p-3 mb-3" data-room-id="${chatRoomId}">
+            <div class="message ${isOutgoing ? 'outgoing ms-auto' : 'incoming'} p-2 mb-3" data-room-id="${chatRoomId}">
                 <p class="mb-1">${content || ''}</p>
                 ${attachmentUrl ? (attachmentUrl.match(/\.(jpeg|jpg|png|gif)$/i) ?
                 `<img src="${attachmentUrl}" alt="Attachment" class="message-attachment">` :
@@ -39,22 +39,22 @@ if (typeof signalR === "undefined") {
 
     // Nhận thông báo thành viên mới
     connection.on("UserJoined", (userId) => {
-        alert(`Người dùng ${userId} đã tham gia phòng chat.`);
+        showInfoModal(`Người dùng ${userId} đã tham gia phòng chat.`);
     });
 
     // Nhận thông báo thành viên rời phòng
     connection.on("UserLeft", (userId) => {
-        alert(`Người dùng ${userId} đã rời phòng chat.`);
+        showInfoModal(`Người dùng ${userId} đã rời phòng chat.`);
     });
 
     // Khởi động SignalR
     connection.start().catch(err => {
-        alert("Lỗi kết nối SignalR: " + err.message);
+        showErrorModal("Lỗi kết nối SignalR: " + err.message);
     });
 
     // Xử lý ngắt kết nối
     connection.onclose((error) => {
-        alert("Kết nối SignalR bị đóng!");
+        showInfoModal("Kết nối SignalR bị đóng!");
     });
 }
 
@@ -66,7 +66,7 @@ jQuery(document).ready(function ($) {
         const roomId = $(this).data("room-id");
 
         if (!roomId || isNaN(roomId)) {
-            alert("ID phòng chat không hợp lệ!");
+            showInfoModal("ID phòng chat không hợp lệ!");
             return;
         }
 
@@ -74,11 +74,11 @@ jQuery(document).ready(function ($) {
         if (connection && connection.state === signalR.HubConnectionState.Connected) {
             connection.invoke("JoinRoom", parseInt(roomId), parseInt(userId)).catch(err => {
                 console.error("SignalR JoinRoom error:", err);
-                alert("Lỗi khi tham gia phòng chat: " + err.message);
+                showErrorModal("Lỗi khi tham gia phòng chat: " + err.message);
             });
         } else {
             console.error("SignalR is not connected or not loaded");
-            alert("Lỗi: SignalR chưa kết nối!");
+            showErrorModal("Lỗi: SignalR chưa kết nối!");
         }
 
         // Tải khung Chat Window
@@ -92,7 +92,7 @@ jQuery(document).ready(function ($) {
             },
             error: function (xhr, status, error) {
                 console.error("AJAX error:", status, error, xhr.responseText);
-                alert("Lỗi khi tải phòng chat: " + error);
+                showErrorModal("Lỗi khi tải phòng chat: " + error);
             }
         });
     });
@@ -116,15 +116,15 @@ jQuery(document).ready(function ($) {
 
         // Kiểm tra giá trị hợp lệ
         if (!chatRoomId || isNaN(chatRoomId)) {
-            alert("ID phòng chat không hợp lệ!");
+            showInfoModal("ID phòng chat không hợp lệ!");
             return;
         }
         if (!senderId || isNaN(senderId)) {
-            alert("ID người dùng không hợp lệ!");
+            showInfoModal("ID người dùng không hợp lệ!");
             return;
         }
         if (!content && (!attachment || attachment.size === 0)) {
-            alert("Vui lòng nhập nội dung hoặc chọn tệp đính kèm!");
+            showInfoModal("Vui lòng nhập nội dung hoặc chọn tệp đính kèm!");
             return;
         }
 
@@ -151,12 +151,12 @@ jQuery(document).ready(function ($) {
                     if (response.success && response.fileUrl) {
                         sendMessage(parseInt(chatRoomId), senderId, content || "", response.fileUrl);
                     } else {
-                        alert("Lỗi khi tải file: " + (response.message || "Không xác định"));
+                        showErrorModal("Lỗi khi tải file: " + (response.message || "Không xác định"));
                     }
                 },
                 error: function (xhr, status, error) {
                     console.error("Upload file error:", status, error, xhr.responseText);
-                    alert("Lỗi khi tải file!");
+                    showErrorModal("Lỗi khi tải file!");
                 }
             });
         } else {
@@ -173,10 +173,10 @@ jQuery(document).ready(function ($) {
                         $("#attachment").val("");   // Cập nhật ID nếu input có ID khác
                     })
                     .catch(err => {
-                        alert("Lỗi khi gửi tin nhắn: " + err.message);
+                        showErrorModal("Lỗi khi gửi tin nhắn: " + err.message);
                     });
             } else {
-                alert("Lỗi: SignalR chưa kết nối!");
+                showErrorModal("Lỗi: SignalR chưa kết nối!");
             }
         }
     });
@@ -199,12 +199,12 @@ jQuery(document).ready(function ($) {
                 if (response.success) {
                     window.location.reload();
                 } else {
-                    alert(response.message || "Lỗi khi tạo phòng chat!");
+                    showErrorModal(response.message || "Lỗi khi tạo phòng chat!");
                 }
             },
             error: function (xhr, status, error) {
                 console.error("AJAX error:", status, error, xhr.responseText);
-                alert("Lỗi khi tạo phòng chat: " + error);
+                showErrorModal("Lỗi khi tạo phòng chat: " + error);
             }
         });
     });
@@ -214,7 +214,7 @@ jQuery(document).ready(function ($) {
         const messageId = $(this).data("message-id");
         const chatRoomId = $(this).closest(".message").data("room-id");
         if (messageId === "new" || !chatRoomId || isNaN(chatRoomId)) {
-            alert("ID tin nhắn hoặc phòng chat không hợp lệ!");
+            showInfoModal("ID tin nhắn hoặc phòng chat không hợp lệ!");
             return;
         }
 
@@ -222,10 +222,10 @@ jQuery(document).ready(function ($) {
             connection.invoke("DeleteMessage", parseInt(chatRoomId), parseInt(messageId))
                 .catch(err => {
                     console.error("SignalR DeleteMessage error:", err);
-                    alert("Lỗi khi xóa tin nhắn: " + err.message);
+                    showErrorModal("Lỗi khi xóa tin nhắn: " + err.message);
                 });
         } else {
-            alert("Lỗi: SignalR chưa kết nối!");
+            showErrorModal("Lỗi: SignalR chưa kết nối!");
         }
     });
 

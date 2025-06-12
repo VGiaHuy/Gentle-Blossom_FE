@@ -1,6 +1,6 @@
 ﻿<!-- Success Modal -->
 <div id="successModal" class="custom-modal position-fixed top-0 end-0 m-4 bg-success text-white rounded-4 shadow d-none"
-     style="z-index: 1050; min-width: 300px;">
+     style="z-index: 9000; min-width: 300px;">
     <div class="d-flex align-items-center p-4">
         <i class="bi bi-check-circle-fill fs-3 me-3" style="color: #fff;"></i>
         <div>
@@ -12,12 +12,24 @@
 
 <!-- Error Modal -->
 <div id="errorModal" class="custom-modal position-fixed top-0 end-0 m-4 bg-danger text-white rounded-4 shadow d-none"
-     style="z-index: 1050; min-width: 300px;">
+     style="z-index: 9000; min-width: 300px;">
     <div class="d-flex align-items-center p-4">
         <i class="bi bi-x-circle-fill fs-3 me-3" style="color: #fff;"></i>
         <div>
             <h5 class="mb-2 fw-bold text-white">Lỗi</h5>
             <p class="mb-0" id="errorMessage" style="color: #ffe6e6;">Đã xảy ra lỗi trong quá trình xử lý.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Info Modal -->
+<div id="infoModal" class="custom-modal position-fixed top-0 end-0 m-4 bg-info text-white rounded-4 shadow d-none"
+     style="z-index: 9000; min-width: 300px;">
+    <div class="d-flex align-items-center p-4">
+        <i class="bi bi-info-circle-fill fs-3 me-3" style="color: #fff;"></i>
+        <div>
+            <h5 class="mb-2 fw-bold text-white">Thông tin</h5>
+            <p class="mb-0" id="infoMessage" style="color: #e6f7ff;">Đây là thông báo thông tin.</p>
         </div>
     </div>
 </div>

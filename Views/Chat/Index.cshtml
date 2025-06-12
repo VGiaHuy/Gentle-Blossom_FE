@@ -39,7 +39,7 @@
         <div class="col-lg-8 col-md-7 mb-4">
             @if (Model.SelectedRoom != null)
             {
-                @await Html.PartialAsync("_ChatWindow", Model)
+                @await Html.PartialAsync("ChatWindow", Model)
             }
             else
             {
@@ -85,7 +85,7 @@
     }
 
     .chat-container {
-        max-width: 1400px;
+        max-width: 1600px;
         margin: 0 auto;
         padding: 20px;
     }
@@ -102,8 +102,8 @@
         transition: background-color 0.3s, transform 0.2s;
         cursor: pointer;
         border-radius: 15px;
-        margin: 8px 10px;
-        padding: 15px;
+        margin: 5px 10px;
+        padding: 10px;
         pointer-events: auto !important;
     }
 

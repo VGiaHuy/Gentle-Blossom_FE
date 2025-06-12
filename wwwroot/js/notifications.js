@@ -86,7 +86,7 @@
                     const createAt = notification.createAt ? new Date(notification.createAt).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '';
                     const notificationItem = `
                         <div class="p-2 border rounded mb-1${isUnseen ? ' bg-light fw-bold' : ''}">
-                            <a class="text-decoration-none text-dark" href="#" data-notification-id="${notification.notificationId}">
+                            <a class="text-decoration-none text-dark" href="#" data-notification-id="${notification.notificationId}" data-notification-url="${notification.url}">
                                 <p class="mb-0">${notification.content}</p>
                                 ${createAt ? `<small class="text-muted">${createAt}</small>` : ''}
                             </a>
@@ -129,17 +129,24 @@
     $('#notification-list').on('click', 'a[data-notification-id]', function (e) {
         e.preventDefault();
         const notificationId = $(this).data('notification-id');
+        const notificationUrl = $(this).data('notification-url');
+
         console.log('Nhấn vào thông báo với ID:', notificationId);
 
-        // Gọi AJAX tới controller khi nhấn vào thông báo
         $.ajax({
-            url: `/api/notifications/${notificationId}`,
+            url: `/Notification/ReadNotice`,
             method: 'POST',
-            dataType: 'json',
+            data: {
+                notificationId: notificationId
+            },
             success: function (response) {
-                console.log('Thông báo được xử lý:', response);
-                // Làm mới danh sách thông báo
-                loadNotifications(false);
+                if (response.success) {
+                    loadNotifications(false);
+
+                    if (notificationUrl != null) {
+                        window.location.href = notificationUrl;
+                    }
+                }
             },
             error: function (xhr, status, error) {
                 console.error('Lỗi khi xử lý thông báo:', error);
