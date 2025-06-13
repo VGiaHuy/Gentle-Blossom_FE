@@ -164,12 +164,12 @@ namespace Gentle_Blossom_FE.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteMessage(int messageId)
+        public async Task<IActionResult> DeleteMessage(int messageId, int chatRoomId)
         {
             var client = _httpClientFactory.CreateClient();
-
-            var response = await client.DeleteAsync($"{_apiSettings.UserApiBaseUrl}/message/{messageId}");
+            var response = await client.DeleteAsync($"{_apiSettings.UserApiBaseUrl}/Chat/DeleteMessage?messageId={messageId}&chatRoomId={chatRoomId}");
             var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
+
             return Json(result);
         }
     }

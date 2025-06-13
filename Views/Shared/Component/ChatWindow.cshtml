@@ -16,13 +16,9 @@
     <div class="chat-messages" id="chatMessages">
         @foreach (var message in Model.Messages)
         {
-            if (message.IsDeleted == true) // Ẩn tin nhắn đã xóa
-            {
-                continue;
-            }
             <div class="message d-flex align-items-start mb-1 @(message.IsOutgoing ? "ms-auto flex-row-reverse" : "")">
                 <img src="/Post/ProxyImage?url=@(message.AvatarUrl)" alt="Avatar" class="rounded-circle me-2 ms-2" style="width: 32px; height: 32px;">
-                <div class="message-content p-2 rounded-4 @(message.IsOutgoing ? "bg-primary text-white" : "bg-light")" style="max-width: 70%;">
+                <div class="message-content p-2 rounded-4 @(message.IsOutgoing ? "bg-primary text-white" : "bg-light")" style="max-width: 70%;" data-message-id="@message.MessageId">
                     <strong class="d-block mb-1">@(message.SenderName ?? "Unknown")</strong>
                     @if (!string.IsNullOrEmpty(message.Content))
                     {
@@ -32,24 +28,30 @@
                     {
                         foreach (var media in message.MediaList)
                         {
-                            if (media.MediaType.StartsWith("image"))
+                            if (media.MediaType.StartsWith("Image"))
                             {
-                                <img src="@media.MediaUrl" alt="Attachment" class="img-fluid rounded-3 mb-2">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="@media.MediaUrl" data-media-type="image" class="d-block mb-2">
+                                    <img src="/Post/ProxyImage?url=@media.MediaUrl" alt="Attachment" class="img-fluid rounded-3" style="max-width: 200px; max-height: 150px; object-fit: cover;" loading="lazy">
+                                </a>
                             }
-                            else if (media.MediaType.StartsWith("video"))
+                            else if (media.MediaType.StartsWith("Video"))
                             {
-                                <video src="@media.MediaUrl" controls class="img-fluid rounded-3 mb-2"></video>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="@media.MediaUrl" data-media-type="video" class="d-block mb-2">
+                                    <iframe src="https://drive.google.com/file/d/@(ExtractFileId(media.MediaUrl))/preview?t=@(DateTime.Now.Ticks)" class="img-fluid rounded-3" style="max-width: 200px; max-height: 150px; object-fit: cover;" allowfullscreen></iframe>
+                                </a>
                             }
                             else
                             {
-                                <a href="@media.MediaUrl" class="text-decoration-none mb-2 d-block">@(media.FileName ?? "Tải file")</a>
+                                <a href="@media.MediaUrl" target="_blank" class="text-decoration-none mb-2 d-block" style="color:#ffff">
+                                    <i class="bi bi-file-pdf-fill text-danger me-1"></i>@(media.FileName ?? "Tải file")
+                                </a>
                             }
                         }
                     }
                     <small class="d-block text-muted @(message.IsOutgoing ? "text-end" : "")">@message.SentAt.ToString("HH:mm")</small>
                     @if (message.IsOutgoing)
                     {
-                        <button class="btn btn-sm btn-danger mt-2" data-message-id="@message.MessageId">Xóa</button>
+                        @* <button class="btn btn-sm btn-danger mt-2" data-message-id="@message.MessageId">Xóa</button> *@
                     }
                 </div>
             </div>
@@ -61,10 +63,36 @@
             <input type="hidden" name="senderId" value="@Model.CurrentUserId" />
             <div class="input-group">
                 <input type="text" class="form-control rounded-start-3" placeholder="Nhập tin nhắn..." name="content" id="messageInput">
+                <button type="button" class="btn btn-outline-primary" id="emojiPickerBtn" title="Chọn emoji"><i class="bi bi-emoji-smile"></i></button>
                 <input type="file" class="d-none" id="attachmentInput" name="attachment" multiple accept="image/*,video/*,.pdf">
                 <label for="attachmentInput" class="btn btn-outline-primary"><i class="bi bi-paperclip"></i></label>
                 <button type="submit" class="btn btn-primary rounded-end-3"><i class="bi bi-send-fill"></i></button>
             </div>
+            <!-- Thêm khu vực preview file -->
+            <div id="mediaPreview" class="row mt-2"></div>
         </form>
     </div>
 </div>
+
+<!-- Modal hiển thị hình ảnh/video lớn -->
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Xem nội dung</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="mediaModalContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string ExtractFileId(string url)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(url, @"id=([\w-]+)");
+        return match.Success ? match.Groups[1].Value : url;
+    }
+}
