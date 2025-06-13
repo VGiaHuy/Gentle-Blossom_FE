@@ -42,12 +42,12 @@ namespace Gentle_Blossom_FE.Controllers
             // Nếu có chatRoomId, lấy thông tin phòng và tin nhắn
             if (chatRoomId.HasValue)
             {
-                var roomResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetChatRoom/{chatRoomId.Value}");
+                var roomResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetChatRoom?chatRoomId={chatRoomId.Value}");
                 var roomResult = await roomResponse.Content.ReadFromJsonAsync<API_Response<ChatRoomDTO>>();
                 if (roomResult?.Success == true)
                 {
                     model.SelectedRoom = roomResult.Data;
-                    var messagesResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetChatRoom/GetMessages/{chatRoomId.Value}");
+                    var messagesResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetMessages?chatRoomId={chatRoomId.Value}");
                     var messagesResult = await messagesResponse.Content.ReadFromJsonAsync<API_Response<List<MessageDTO>>>();
                     model.Messages = messagesResult?.Data?.Select(m =>
                     {
@@ -168,6 +168,25 @@ namespace Gentle_Blossom_FE.Controllers
         {
             var client = _httpClientFactory.CreateClient();
             var response = await client.DeleteAsync($"{_apiSettings.UserApiBaseUrl}/Chat/DeleteMessage?messageId={messageId}&chatRoomId={chatRoomId}");
+            var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
+
+            return Json(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> JoinChatRoom(string chatCode)
+        {
+            int userId = 0;
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
+
+            JoinChatRoomDTO data = new()
+            {
+                ChatCode = chatCode,
+                UserId = userId
+            };
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/Chat/JoinChatRoom", data);
             var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
 
             return Json(result);

@@ -12,7 +12,6 @@ if (typeof signalR === "undefined") {
 
     // Nhận tin nhắn mới
     connection.on("ReceiveMessage", (messageId, senderId, content, mediaList, sentAt, senderAvatarUrl, senderName) => {
-        console.log("Nhận tin nhắn mới từ chathub");
         const chatRoomId = parseInt($("input[name='chatRoomId']").val());
         const isOutgoing = senderId == userId;
 
@@ -296,9 +295,9 @@ function extractFileId(url) {
     }
     // Hỗ trợ các định dạng URL Google Drive
     const patterns = [
-        /\/d\/(.+?)\//, 
-        /\/d\/([^\/]+)/, 
-        /id=([^&]+)/, 
+        /\/d\/(.+?)\//,
+        /\/d\/([^\/]+)/,
+        /id=([^&]+)/,
         /\/file\/d\/(.+?)\//
     ];
     for (const pattern of patterns) {
@@ -363,7 +362,6 @@ jQuery(document).ready(function ($) {
             type: "GET",
             success: function (data) {
                 $(".col-lg-8").html(data);
-                // Xóa emojiPicker cũ trước khi khởi tạo mới
                 $('#emojiPicker').remove();
                 initChatWindow();
                 $(".chat-room-item").removeClass("active");
@@ -463,13 +461,13 @@ jQuery(document).ready(function ($) {
     });
 
     // Tìm kiếm phòng chat
-    $("#searchRooms").on("input", function () {
-        const searchText = $(this).val().toLowerCase();
-        $(".chat-room-item").each(function () {
-            const roomName = $(this).find("strong").text().toLowerCase();
-            $(this).toggle(roomName.includes(searchText));
-        });
-    });
+    //$("#searchRooms").on("input", function () {
+    //    const searchText = $(this).val().toLowerCase();
+    //    $(".chat-room-item").each(function () {
+    //        const roomName = $(this).find("strong").text().toLowerCase();
+    //        $(this).toggle(roomName.includes(searchText));
+    //    });
+    //});
 
     // Xử lý modal hiển thị hình ảnh/video
     $(document).on('show.bs.modal', '#mediaModal', function (event) {
@@ -505,4 +503,43 @@ jQuery(document).ready(function ($) {
             }
         }
     });
+
+
+    // Xử lý tham gia phòng chat bằng chatcode
+    enterRoom.addEventListener('click', function () {
+        console.log("vô hàm");
+        const enterRoomBtn = document.getElementById('enterRoom');
+        const chatCodeInput = document.getElementById('chatCode');
+        const chatCode = chatCodeInput.value.trim();
+
+        if (!chatCode) {
+            showErrorModal('Vui lòng nhập Chat Code!');
+            return;
+        }
+
+        $.ajax({
+            url: '/Chat/JoinChatRoom',
+            type: 'POST',
+            data: { chatCode: chatCode },
+            success: function (data) {
+                if (data.success) {
+                    showSuccessModal(data.message)
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showErrorModal(data.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+                showErrorModal('Đã xảy ra lỗi server');
+                alert('Có lỗi xảy ra khi gửi Chat Code!');
+            }
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    scrollToBottom();
 });
