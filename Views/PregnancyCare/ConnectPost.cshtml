@@ -1,10 +1,11 @@
 ﻿@using Gentle_Blossom_FE.Data.DTOs.UserDTOs
+@using System.Security.Claims
+@using Gentle_Blossom_FE.Data.Constants
 @model PostDTO
 
 <div class="container my-4" style="max-width: 1000px;">
     <div class="card shadow-sm border-0 rounded-3 overflow-hidden" style="background: #fff;">
         <div class="card-body p-4">
-            <!-- Header bài viết -->
             <!-- Header bài viết -->
             <div class="d-flex align-items-center mb-3">
                 <img src="/Post/ProxyImage?url=@(Uri.EscapeDataString(Model.PosterAvatar.AvatarUrl))"
@@ -20,14 +21,14 @@
                     <h6 class="mb-0 fw-bold text-primary">@Model.PosterName</h6>
                     <small class="text-muted">@Model.CreatedDate</small>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-primary btn-sm" onclick="connectUser('@Model.PostId')">
-                        Kết nối
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="skipUser('@Model.PostId')">
-                        Bỏ qua
-                    </button>
-                </div>
+                @if (User.FindFirst(ClaimTypes.Role)?.Value == UserTypeName.TypeNames[UserTypeName.Expert])
+                {
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-primary btn-sm" onclick="connectUser(@Model.PostId)">
+                            Kết nối
+                        </button>
+                    </div>
+                }
             </div>
 
             <!-- Nội dung bài viết -->

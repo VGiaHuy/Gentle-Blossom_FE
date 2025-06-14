@@ -8,6 +8,8 @@
 
         public bool IsGroup { get; set; }
 
+        public string? ChatCode { get; set; }
+
         public DateTime? CreatedAt { get; set; }
     }
 }

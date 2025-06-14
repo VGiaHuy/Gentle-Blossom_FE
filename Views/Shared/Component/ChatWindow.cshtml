@@ -10,7 +10,7 @@
         <div>
             <button class="btn btn-outline-primary btn-sm me-2" title="Gọi video"><i class="bi bi-camera-video-fill"></i></button>
             <button class="btn btn-outline-primary btn-sm me-2" title="Gọi thoại"><i class="bi bi-telephone-fill"></i></button>
-            <button class="btn btn-outline-primary btn-sm" title="Chi tiết"><i class="bi bi-info-circle"></i></button>
+            <button id="detailInfoChatRoom" class="btn btn-outline-primary btn-sm" title="Chi tiết" ><i class="bi bi-info-circle"></i></button>
         </div>
     </div>
     <div class="chat-messages" id="chatMessages">
@@ -49,10 +49,6 @@
                         }
                     }
                     <small class="d-block text-muted @(message.IsOutgoing ? "text-end" : "")">@message.SentAt.ToString("HH:mm")</small>
-                    @if (message.IsOutgoing)
-                    {
-                        @* <button class="btn btn-sm btn-danger mt-2" data-message-id="@message.MessageId">Xóa</button> *@
-                    }
                 </div>
             </div>
         }
@@ -89,6 +85,36 @@
     </div>
 </div>
 
+<!-- Modal hiển thị thông tin chi tiết phòng chat -->
+<div class="modal fade" id="chatRoomModal" tabindex="-1" aria-labelledby="chatRoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatRoomModalLabel">Thông tin phòng chat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <strong>Tên phòng:</strong> @Model.SelectedRoom.ChatRoomName
+                </div>
+                <div class="mb-3">
+                    <strong>Mã phòng (ChatCode):</strong>
+                    <span id="chatCodeInfo">@Model.SelectedRoom.ChatCode</span>
+                    <button type="button" id="coppyChatCode" class="btn btn-outline-primary btn-sm ms-2">
+                        <i class="bi bi-clipboard"></i> Sao chép
+                    </button>
+                </div>
+                @*                 <div class="mb-3">
+                <strong>Số thành viên:</strong> @Model.SelectedRoom.Members?.Count()
+                </div>
+                <div class="mb-3">
+                <strong>Ngày tạo:</strong> @Model.SelectedRoom.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                </div> *@
+            </div>
+        </div>
+    </div>
+</div>
+
 @functions {
     string ExtractFileId(string url)
     {
@@ -96,3 +122,52 @@
         return match.Success ? match.Groups[1].Value : url;
     }
 }
+
+<script>
+    $(document).ready(function () {
+        // Hiển thị modal khi nhấn nút chi tiết
+        $('#detailInfoChatRoom').on('click', function (e) {
+            $('#chatRoomModal').modal('show');
+        });
+
+        // Sao chép ChatCode
+        $('#coppyChatCode').on('click', function (e) {
+            const chatCodeElement = document.getElementById('chatCodeInfo');
+            if (!chatCodeElement) {
+                console.error('Không tìm thấy phần tử chatCode');
+                showErrorModal('Không tìm thấy mã phòng!', 2000);
+                return;
+            }
+            const chatCode = chatCodeElement.textContent.trim();
+            console.log('ChatCode:', chatCode);
+            if (!chatCode) {
+                console.error('Mã phòng trống');
+                showErrorModal('Mã phòng trống!', 2000);
+                return;
+            }
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(chatCode).then(() => {
+                    showInfoModal('Đã sao chép mã phòng!', 1500);
+                }).catch(err => {
+                    console.error('Lỗi sao chép:', err);
+                    showErrorModal('Không thể sao chép mã phòng!', 2000);
+                });
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = chatCode;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showInfoModal('Đã sao chép mã phòng!', 1500);
+                } catch (err) {
+                    console.error('Lỗi sao chép fallback:', err);
+                    showErrorModal('Không thể sao chép mã phòng!', 2000);
+                }
+                document.body.removeChild(textArea);
+            }
+        });
+    });
+</script>

@@ -85,7 +85,7 @@
                     const isUnseen = notification.isSeen === false;
                     const createAt = notification.createAt ? new Date(notification.createAt).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '';
                     const notificationItem = `
-                        <div class="p-2 border rounded mb-1${isUnseen ? ' bg-light fw-bold' : ''}">
+                        <div class="p-2 border rounded-4 mb-1${isUnseen ? ' bg-light fw-bold' : ''}">
                             <a class="text-decoration-none text-dark" href="#" data-notification-id="${notification.notificationId}" data-notification-url="${notification.url}">
                                 <p class="mb-0">${notification.content}</p>
                                 ${createAt ? `<small class="text-muted">${createAt}</small>` : ''}
