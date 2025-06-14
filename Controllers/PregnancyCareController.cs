@@ -48,5 +48,29 @@ namespace Gentle_Blossom_FE.Controllers
             var error = await response.Content.ReadAsStringAsync();
             return View("/Shared/404");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ConnectMessage(int postId, int expertId)
+        {
+            ConnectMessageDTO connectMessage = new ConnectMessageDTO
+            {
+                PostId = postId,
+                ExpertId = expertId
+            };
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/PregnancyCare/ConnectMessage", connectMessage);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+                return Json(new { success = true, message = jsonData.Message });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return View("/Shared/404");
+        }
     }
 }

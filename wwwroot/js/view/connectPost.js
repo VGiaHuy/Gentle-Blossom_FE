@@ -1,5 +1,6 @@
 ﻿// Biến quản lý trạng thái
 const commentStates = new Map(); // Lưu trạng thái cho từng post
+let userId = document.getElementById('userId')?.value;
 
 // Khởi tạo trạng thái cho một post
 function initCommentState(postId) {
@@ -145,18 +146,17 @@ function extractFileId(url) {
     return match ? match[1] : '';
 }
 
-function connectUser(posterId) {
+function connectUser(postId) {
     $.ajax({
-        url: `/User/Connect`,
+        url: `/PregnancyCare/ConnectMessage`,
         type: 'POST',
-        data: { posterId: posterId },
-        dataType: 'json',
+        data: { postId: parseInt(postId), expertId: parseInt(userId) },
         success: function (response) {
             if (response.success) {
-                alert('Đã gửi yêu cầu kết nối thành công!');
+                showSuccessModal(response.message);
                 // Có thể cập nhật giao diện, ví dụ: đổi nút "Kết nối" thành "Đã gửi yêu cầu"
             } else {
-                alert('Lỗi khi gửi yêu cầu kết nối: ' + (response.message || 'Vui lòng thử lại.'));
+                showErrorModal('Lỗi khi gửi yêu cầu kết nối: ' + (response.message || 'Vui lòng thử lại.'));
             }
         },
         error: function (xhr, status, error) {
