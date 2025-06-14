@@ -3,7 +3,7 @@
 
 @foreach (var post in Model)
 {
-    <div class="mb-4 border border-1 border-primary rounded-4 p-3">
+    <div class="mb-4 border border-1 border-primary rounded-4 p-3" id="post-@post.PostId">
         <div class="d-flex align-items-center mb-3">
             <img src="/Post/ProxyImage?url=@(Uri.EscapeDataString(post.PosterAvatar.AvatarUrl))" alt="Avatar" class="rounded-circle me-3" loading="lazy" style="width: 50px; height: 50px;">
             <div class="flex-grow-1">
@@ -22,6 +22,7 @@
                     <li><a class="dropdown-item" href="#" onclick="savePost()"><i class="bi bi-bookmark me-2"></i>Lưu bài viết</a></li>
                     <li><a class="dropdown-item" href="#" onclick="muteNotifications()"><i class="bi bi-bell-slash me-2"></i>Tắt thông báo</a></li>
                     <li><a class="dropdown-item" href="#" onclick="reportPost()"><i class="bi bi-flag me-2"></i>Báo cáo bài viết</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="deletePost(@post.PostId)"><i class="bi bi-trash me-2"></i>Xóa bài viết</a></li>
                 </ul>
             </div>
         </div>

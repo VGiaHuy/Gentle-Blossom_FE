@@ -20,6 +20,35 @@ function initProfileView() {
     loadPosts(currentPage, false);
 }
 
+// Hàm xóa bài viết
+function deletePost(postId) {
+    console.log("Xóa bài viết: ", postId);
+    const id = parseInt(postId);
+
+    fetch(`/Post/DeletePost?postId=${id}`, {
+        method: 'DELETE',
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Phản hồi từ server không thành công');
+            }
+            return response.json(); // Phân tích JSON từ phản hồi
+        })
+        .then(data => {
+            if (data.success) {
+                showSuccessModal('Bài viết đã được xóa thành công');
+                console.log(`post-${postId}`);
+                document.getElementById(`post-${postId}`)?.remove();
+            } else {
+                showErrorModal(data.message || 'Có lỗi xảy ra khi xóa bài viết');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorModal(error);
+        });
+}
+
 // Hàm gắn sự kiện click cho nút bình luận
 function attachCommentButtonEvents() {
     document.querySelectorAll('button.comment-button').forEach(button => {

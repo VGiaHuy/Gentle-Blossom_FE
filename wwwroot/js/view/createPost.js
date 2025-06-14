@@ -139,6 +139,9 @@
 
                 if (data.success) {
                     showSuccessModal(data.message, 3000);
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 2000);
                 } else {
                     showErrorModal(data.message, 3000);
                 }

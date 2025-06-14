@@ -242,5 +242,18 @@ namespace Gentle_Blossom_FE.Controllers
                 return StatusCode(500, $"Error fetching image: {ex.Message}");
             }
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeletePost([FromQuery] int postId)
+        {
+            int userId = 0;
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.DeleteAsync($"{_apiSettings.UserApiBaseUrl}/Post/DeletePost?postId={postId}&userId={userId}");
+            var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
+
+            return Json(result);
+        }
     }
 }
