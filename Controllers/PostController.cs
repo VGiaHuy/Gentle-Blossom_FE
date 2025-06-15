@@ -10,6 +10,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Gentle_Blossom_FE.Controllers
 {
@@ -76,7 +77,17 @@ namespace Gentle_Blossom_FE.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePost(CreatePostDTO model)
         {
-            using var httpClient = new HttpClient();
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                ViewBag.Error = "Không tìm thấy token. Vui lòng đăng nhập lại.";
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Account");
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var form = new MultipartFormDataContent();
             form.Add(new StringContent(model.Content), "Content");
@@ -92,7 +103,7 @@ namespace Gentle_Blossom_FE.Controllers
             // (Tuỳ bạn xác thực qua Cookie hay Token)
             // httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await httpClient.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/CreatePost", form);
+            var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/CreatePost", form);
 
             if (response.IsSuccessStatusCode)
             {
@@ -107,7 +118,18 @@ namespace Gentle_Blossom_FE.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromForm] CreateCommentDTOs model)
         {
-            using var httpClient = new HttpClient();
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                ViewBag.Error = "Không tìm thấy token. Vui lòng đăng nhập lại.";
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Account");
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            
             using var formData = new MultipartFormDataContent();
 
             formData.Add(new StringContent(model.PostId.ToString()), "PostId");
@@ -134,7 +156,7 @@ namespace Gentle_Blossom_FE.Controllers
             }
 
             // Gửi yêu cầu đến backend API
-            var response = await httpClient.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/CreateComment", formData);
+            var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/CreateComment", formData);
 
             if (response.IsSuccessStatusCode)
             {
@@ -183,7 +205,18 @@ namespace Gentle_Blossom_FE.Controllers
             var json = JsonConvert.SerializeObject(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                ViewBag.Error = "Không tìm thấy token. Vui lòng đăng nhập lại.";
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Account");
+            }
+
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/ToggleLikePost", content);
 
             if (response.IsSuccessStatusCode)
@@ -249,7 +282,18 @@ namespace Gentle_Blossom_FE.Controllers
             int userId = 0;
             int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
 
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                ViewBag.Error = "Không tìm thấy token. Vui lòng đăng nhập lại.";
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Account");
+            }
+
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await client.DeleteAsync($"{_apiSettings.UserApiBaseUrl}/Post/DeletePost?postId={postId}&userId={userId}");
             var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
 

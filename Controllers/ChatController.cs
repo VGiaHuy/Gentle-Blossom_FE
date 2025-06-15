@@ -1,11 +1,13 @@
 ﻿using Gentle_Blossom_FE.Data.DTOs.UserDTOs;
 using Gentle_Blossom_FE.Data.Responses;
 using Gentle_Blossom_FE.Data.Settings;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 
 namespace Gentle_Blossom_FE.Controllers
@@ -30,7 +32,16 @@ namespace Gentle_Blossom_FE.Controllers
 
             var model = new ChatViewModel { CurrentUserId = userId };
 
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Auth");
+            }
+
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             // Lấy danh sách phòng chat của người dùng
             var roomsResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetUserChatRooms?userId={userId}");
@@ -68,7 +79,16 @@ namespace Gentle_Blossom_FE.Controllers
 
             var model = new ChatViewModel { CurrentUserId = userId };
 
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Auth");
+            }
+
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var roomResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetChatRoom?chatRoomId={chatRoomId}");
             var roomResult = await roomResponse.Content.ReadFromJsonAsync<API_Response<ChatRoomDTO>>();
 
@@ -92,7 +112,16 @@ namespace Gentle_Blossom_FE.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateChatRoom([FromBody] CreateChatRoomRequestDTO request)
         {
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Auth");
+            }
+
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/Chat/CreateChatRoom", request);
             var result = await response.Content.ReadFromJsonAsync<API_Response<ChatRoomDTO>>();
@@ -135,7 +164,16 @@ namespace Gentle_Blossom_FE.Controllers
                 }
 
                 // Gửi yêu cầu tới backend API
+                // Lấy token từ Claims
+                var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+                if (string.IsNullOrEmpty(token))
+                {
+                    await HttpContext.SignOutAsync();
+                    return RedirectToAction("Login", "Auth");
+                }
+
                 var client = _httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Chat/SendMessage", formData);
                 var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
 
@@ -166,7 +204,16 @@ namespace Gentle_Blossom_FE.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteMessage(int messageId, int chatRoomId)
         {
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Auth");
+            }
+
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.DeleteAsync($"{_apiSettings.UserApiBaseUrl}/Chat/DeleteMessage?messageId={messageId}&chatRoomId={chatRoomId}");
             var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
 
@@ -185,7 +232,16 @@ namespace Gentle_Blossom_FE.Controllers
                 UserId = userId
             };
 
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Auth");
+            }
+
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/Chat/JoinChatRoom", data);
             var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
 

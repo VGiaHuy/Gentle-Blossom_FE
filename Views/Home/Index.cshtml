@@ -1,35 +1,39 @@
 ﻿<div class="container-fluid my-5">
     <div class="row">
         <!-- Bên trái: Danh sách bác sĩ/chuyên gia -->
+
         <div class="col-lg-3 col-md-4 mb-4">
-            <div class="card border-0 shadow-lg rounded-4">
-                <div class="card-header bg-primary text-white fw-bold py-3 rounded-top-4">
-                    <i class="bi bi-person-heart me-2"></i>Kết nối với chuyên gia
-                </div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
+            @if (User.IsInRole("User"))
+            {
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-header bg-primary text-white fw-bold py-3 rounded-top-4">
+                        <i class="bi bi-person-heart me-2"></i>Kết nối với chuyên gia
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
 
-                        <li class="list-group-item d-flex align-items-center py-3">
-                            <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 50px; height: 50px;">
-                            <div>
-                                <strong class="d-block">Bs. Nguyễn Thị Lan</strong>
-                                <p class="text-muted mb-1 small">Sản khoa, 10 năm kinh nghiệm</p>
-                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3"
-                                   data-view="Message" data-expert-id="1" style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
-                                    <i class="bi bi-chat-dots me-1"></i>Nhắn tin
-                                </a>
-                            </div>
-                        </li>
+                            <li class="list-group-item d-flex align-items-center py-3">
+                                <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 50px; height: 50px;">
+                                <div>
+                                    <strong class="d-block">Bs. Nguyễn Thị Lan</strong>
+                                    <p class="text-muted mb-1 small">Sản khoa, 10 năm kinh nghiệm</p>
+                                    <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3"
+                                       data-view="Message" data-expert-id="1" style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                                        <i class="bi bi-chat-dots me-1"></i>Nhắn tin
+                                    </a>
+                                </div>
+                            </li>
 
-                    </ul>
-                    <div class="card-footer text-center py-3">
-                        <a href="javascript:void(0)" class="btn btn-outline-soft w-100 rounded-3"
-                           data-view="Experts" style="--btn-color: #198754; --btn-hover: #d1e7dd;">
-                            <i class="bi bi-arrow-right-circle me-2"></i>Xem tất cả
-                        </a>
+                        </ul>
+                        <div class="card-footer text-center py-3">
+                            <a href="javascript:void(0)" class="btn btn-outline-soft w-100 rounded-3"
+                               data-view="Experts" style="--btn-color: #198754; --btn-hover: #d1e7dd;">
+                                <i class="bi bi-arrow-right-circle me-2"></i>Xem tất cả
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
 
         <!-- Ở giữa: Danh sách bài viết từ chuyên gia -->

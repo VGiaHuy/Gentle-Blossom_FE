@@ -71,9 +71,6 @@ function fetchComments(postId, page = 1, append = false) {
                                     </div>
                                 ` : ''}
                                 <small class="text-muted d-block mb-1">${comment.commentDate}</small>
-                                <button class="btn btn-link p-0 text-muted small" style="text-decoration: none;">
-                                    <i class="bi bi-reply me-1"></i>Trả lời
-                                </button>
                             </div>
                         </div>
                     `;

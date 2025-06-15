@@ -42,6 +42,70 @@
                             </div>
                         </div>
                         <div class="mb-4">
+                            <label for="phoneNumber" class="form-label fw-bold">
+                                <i class="bi bi-telephone-fill me-2 text-primary"></i>Số điện thoại
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #0dcaf0;">
+                                    <i class="bi bi-telephone text-primary"></i>
+                                </span>
+                                <input type="tel" class="form-control border-start-0 rounded-end-3" id="phoneNumber"
+                                       name="PhoneNumber" required placeholder="Nhập số điện thoại" pattern="[0-9]{10}" style="border-color: #0dcaf0;">
+                            </div>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập số điện thoại hợp lệ (10 số).
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="dateOfBirth" class="form-label fw-bold">
+                                <i class="bi bi-calendar-fill me-2 text-primary"></i>Ngày sinh
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #0dcaf0;">
+                                    <i class="bi bi-calendar-date text-primary"></i>
+                                </span>
+                                <input type="date" class="form-control border-start-0 rounded-end-3" id="dateOfBirth"
+                                       name="DateOfBirth" required style="border-color: #0dcaf0;">
+                            </div>
+                            <div class="invalid-feedback">
+                                Vui lòng chọn ngày sinh.
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="gender" class="form-label fw-bold">
+                                <i class="bi bi-gender-ambiguous me-2 text-primary"></i>Giới tính
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #0dcaf0;">
+                                    <i class="bi bi-gender-male text-primary"></i>
+                                </span>
+                                <select class="form-select border-start-0 rounded-end-3" id="gender" name="Gender" required style="border-color: #0dcaf0;">
+                                    <option value="" disabled selected>Chọn giới tính</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div class="invalid-feedback">
+                                Vui lòng chọn giới tính.
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-bold">
+                                <i class="bi bi-person-badge-fill me-2 text-primary"></i>Tên đăng nhập
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3" style="border-color: #0dcaf0;">
+                                    <i class="bi bi-person-badge text-primary"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 rounded-end-3" id="username"
+                                       name="Username" required placeholder="Nhập tên đăng nhập" style="border-color: #0dcaf0;">
+                            </div>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập tên đăng nhập (tối thiểu 4 ký tự).
+                            </div>
+                        </div>
+                        <div class="mb-4">
                             <label for="password" class="form-label fw-bold">
                                 <i class="bi bi-key-fill me-2 text-primary"></i>Mật khẩu
                             </label>
@@ -53,7 +117,7 @@
                                        name="Password" required placeholder="Nhập mật khẩu" style="border-color: #0dcaf0;">
                             </div>
                             <div class="invalid-feedback">
-                                Vui lòng nhập mật khẩu (tối thiểu 6 ký tự).
+                                Vui lòng nhập mật khẩu (tối thiểu 8 ký tự).
                             </div>
                         </div>
                         <div class="mb-4">
@@ -80,12 +144,12 @@
                         <div class="text-center">
                             <p class="mb-2">
                                 Đã có tài khoản?
-                                <a href="javascript:void(0)" data-view="Auth/Login" class="text-decoration-none fw-bold"
+                                <a href="/Auth/Login" class="text-decoration-none fw-bold"
                                    style="color: #198754;">Đăng nhập ngay</a>
                             </p>
                             <p class="mb-0">
                                 Quên mật khẩu?
-                                <a href="javascript:void(0)" data-view="Auth/ForgotPassword" class="text-decoration-none fw-bold"
+                                <a href="/Auth/ForgotPassword" class="text-decoration-none fw-bold"
                                    style="color: #dc3545;">Khôi phục</a>
                             </p>
                         </div>
@@ -96,6 +160,8 @@
     </div>
 </div>
 
+@await Html.PartialAsync("~/Views/Shared/Component/Modal.cshtml")
+
 @section Scripts {
     <script>
         (function () {
@@ -105,16 +171,46 @@
                 event.preventDefault();
                 event.stopPropagation();
 
+                var username = document.getElementById('username').value;
                 var password = document.getElementById('password').value;
                 var confirmPassword = document.getElementById('confirmPassword').value;
+                var phoneNumber = document.getElementById('phoneNumber').value;
+                var dateOfBirth = document.getElementById('dateOfBirth').value;
 
-                if (password.length < 6) {
-                    document.getElementById('password').classList.add('is-invalid');
+                // Kiểm tra tên đăng nhập
+                if (username.length < 4) {
+                    document.getElementById('username').classList.add('is-invalid');
+                    showErrorModal("Tên đăng nhập phải có ít nhất 4 ký tự!", 3000);
                     return;
                 }
 
+                // Kiểm tra mật khẩu
+                if (password.length < 8) {
+                    document.getElementById('password').classList.add('is-invalid');
+                    showErrorModal("Mật khẩu phải có ít nhất 8 ký tự!", 3000);
+                    return;
+                }
+
+                // Kiểm tra xác nhận mật khẩu
                 if (password !== confirmPassword) {
                     document.getElementById('confirmPassword').classList.add('is-invalid');
+                    showErrorModal("Mật khẩu xác nhận không khớp!", 3000);
+                    return;
+                }
+
+                // Kiểm tra số điện thoại
+                if (!phoneNumber.match(/^[0-9]{10}$/)) {
+                    document.getElementById('phoneNumber').classList.add('is-invalid');
+                    showErrorModal("Số điện thoại phải có 10 số!", 3000);
+                    return;
+                }
+
+                // Kiểm tra ngày sinh (không cho phép ngày tương lai)
+                var today = new Date();
+                var dob = new Date(dateOfBirth);
+                if (dob > today) {
+                    document.getElementById('dateOfBirth').classList.add('is-invalid');
+                    showErrorModal("Ngày sinh không được là ngày trong tương lai!", 3000);
                     return;
                 }
 
@@ -123,11 +219,15 @@
                         url: form.action,
                         method: form.method,
                         data: $(form).serialize(),
-                        beforeSend: function () {
-                            $('#main-content').html('<div class="text-center p-3"><i class="bi bi-arrow-repeat fs-3"></i> Đang xử lý...</div>');
-                        },
                         success: function (response) {
-                            $('#main-content').html(response);
+                            if (response.success) {
+                                showSuccessModal("Đăng ký thành công!");
+                                setTimeout(function () {
+                                    window.location.href = "/Auth/Login";
+                                }, 2000);
+                            } else {
+                                showErrorModal(response.message);
+                            }
                         },
                         error: function (xhr) {
                             $('#main-content').html(

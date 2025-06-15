@@ -1,6 +1,4 @@
 ﻿$(document).ready(function () {
-    console.log('Script thông báo được khởi tạo');
-
     let notificationPage = 1;
     const notificationPageSize = 20;
     let notificationIsLoading = false;
@@ -34,7 +32,6 @@
     // Hàm lấy danh sách thông báo từ controller
     function loadNotifications(append = true) {
         if (notificationIsLoading || !notificationHasMore || !userId) {
-            console.log('Tải thông báo bị hủy', { isLoading: notificationIsLoading, hasMore: notificationHasMore, userId });
             return;
         }
         notificationIsLoading = true;
@@ -45,8 +42,6 @@
             data: { userId: userId, page: notificationPage, pageSize: notificationPageSize },
             dataType: 'json',
             success: function (response) {
-                console.log('data', response.data);
-
                 if (!response.success) {
                     console.error('Lỗi từ API:', response.message);
                     $('#notification-list').append('<div class="text-danger p-2">Lỗi khi tải thông báo</div>');
@@ -73,7 +68,6 @@
                 if (notifications.length === 0) {
                     if (notificationPage === 1) {
                         list.append('<div class="text-muted p-2">Không có thông báo mới</div>');
-                        console.log('Không có thông báo mới');
                     }
                     notificationHasMore = false;
                     notificationIsLoading = false;
@@ -157,10 +151,7 @@
     // Tự động làm mới thông báo mỗi 30 giây (chỉ khi modal đang mở)
     setInterval(() => {
         if ($('#notificationModal').hasClass('show')) {
-            console.log('Tự động làm mới thông báo vì modal đang mở');
             loadNotifications(false);
-        } else {
-            console.log('Bỏ qua làm mới vì modal không mở');
         }
     }, 30000);
 

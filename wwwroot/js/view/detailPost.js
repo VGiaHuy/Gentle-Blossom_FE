@@ -273,11 +273,6 @@
                         }
                         commentHtml += `
                                 <small class="text-muted">${comment.commentDate}</small>
-                                <div class="d-flex gap-2 mt-1">
-                                    <button class="btn btn-link p-0 text-muted small" style="text-decoration: none;">
-                                        <i class="bi bi-reply me-1"></i>Trả lời
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     `;

@@ -46,7 +46,7 @@ namespace Gentle_Blossom_FE.Controllers
             }
 
             var error = await response.Content.ReadAsStringAsync();
-            return View("/Shared/404");
+            return View("404");
         }
 
         [HttpPost]

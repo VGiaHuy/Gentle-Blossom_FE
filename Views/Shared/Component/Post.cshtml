@@ -14,17 +14,20 @@
                 <strong class="d-block text-primary fw-bold" style="color: #0dcaf0;">@post.PosterName</strong>
                 <p class="text-muted mb-0 small">@post.CreatedDate</p>
             </div>
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary btn-sm rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-three-dots"></i>
-                </button>
-                <ul class="dropdown-menu rounded-3">
-                    <li><a class="dropdown-item" href="#" onclick="savePost()"><i class="bi bi-bookmark me-2"></i>Lưu bài viết</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="muteNotifications()"><i class="bi bi-bell-slash me-2"></i>Tắt thông báo</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="reportPost()"><i class="bi bi-flag me-2"></i>Báo cáo bài viết</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="deletePost(@post.PostId)"><i class="bi bi-trash me-2"></i>Xóa bài viết</a></li>
-                </ul>
-            </div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu rounded-3">
+                        <li><a class="dropdown-item" href="#" onclick="savePost()"><i class="bi bi-bookmark me-2"></i>Lưu bài viết</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="muteNotifications()"><i class="bi bi-bell-slash me-2"></i>Tắt thông báo</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="reportPost()"><i class="bi bi-flag me-2"></i>Báo cáo bài viết</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="deletePost(@post.PostId)"><i class="bi bi-trash me-2"></i>Xóa bài viết</a></li>
+                    </ul>
+                </div>
+            }
         </div>
         <div class="text-muted mb-3">@Html.Raw(post.Content)</div>
         @if (post.MediaList != null && post.MediaList.Any())
@@ -79,24 +82,45 @@
                 <span class="text-muted small share-count">0 lượt chia sẻ</span>
             </div>
         </div>
-        <div class="d-flex gap-2 border-top pt-3 mb-3">
-            <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft like-button"
-                    data-post-id="@post.PostId" data-liked="@post.Liked.ToString().ToLower()"
-                    style="--btn-color: #dc3545; --btn-hover: #f8d7da;"
-                    onclick="toggleLike(this, 'post', @post.PostId)">
-                <i class="bi bi-heart me-1"></i> Thích
-            </button>
-            <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft comment-button"
-                    style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;"
-                    data-post-id="@post.PostId">
-                <i class="bi bi-chat-text me-1"></i> Bình luận
-            </button>
-            <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft"
-                    style="--btn-color: #198754; --btn-hover: #d1e7dd;"
-                    onclick="sharePost()">
-                <i class="bi bi-share me-1"></i> Chia sẻ
-            </button>
-        </div>
+        @if(!User.Identity.IsAuthenticated)
+        {
+            <div class="d-flex gap-2 border-top pt-3 mb-3">
+                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft like-button"
+                        style="--btn-color: #dc3545; --btn-hover: #f8d7da;">
+                    <i class="bi bi-heart me-1"></i> Thích
+                </button>
+                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft comment-button"
+                        style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;"
+                        data-post-id="@post.PostId">
+                    <i class="bi bi-chat-text me-1"></i> Bình luận
+                </button>
+                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft"
+                        style="--btn-color: #198754; --btn-hover: #d1e7dd;">
+                    <i class="bi bi-share me-1"></i> Chia sẻ
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex gap-2 border-top pt-3 mb-3">
+                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft like-button"
+                        data-post-id="@post.PostId" data-liked="@post.Liked.ToString().ToLower()"
+                        style="--btn-color: #dc3545; --btn-hover: #f8d7da;"
+                        onclick="toggleLike(this, 'post', @post.PostId)">
+                    <i class="bi bi-heart me-1"></i> Thích
+                </button>
+                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft comment-button"
+                        style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;"
+                        data-post-id="@post.PostId">
+                    <i class="bi bi-chat-text me-1"></i> Bình luận
+                </button>
+                <button class="btn btn-sm rounded-3 flex-fill btn-outline-soft"
+                        style="--btn-color: #198754; --btn-hover: #d1e7dd;"
+                        onclick="sharePost()">
+                    <i class="bi bi-share me-1"></i> Chia sẻ
+                </button>
+            </div>
+        }
     </div>
 }
 

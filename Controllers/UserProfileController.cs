@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using System.Security.Claims;
 using Gentle_Blossom_FE.Data.Responses;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication;
+using System.Net.Http.Headers;
 
 namespace Gentle_Blossom_FE.Controllers
 {
@@ -25,7 +27,17 @@ namespace Gentle_Blossom_FE.Controllers
         {
             try
             {
+                // Lấy token từ Claims
+                var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+                if (string.IsNullOrEmpty(token))
+                {
+                    await HttpContext.SignOutAsync();
+                    return RedirectToAction("Login", "Auth");
+                }
+
                 var client = _httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                
                 var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var userId = int.Parse(userIdString);
 
@@ -51,7 +63,17 @@ namespace Gentle_Blossom_FE.Controllers
         {
             try
             {
-                using var httpClient = new HttpClient();
+                // Lấy token từ Claims
+                var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+                if (string.IsNullOrEmpty(token))
+                {
+                    await HttpContext.SignOutAsync();
+                    return RedirectToAction("Login", "Auth");
+                }
+
+                var client = _httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                
                 using var formData = new MultipartFormDataContent();
 
                 formData.Add(new StringContent(userProfile.UserId.ToString()), "UserId");
@@ -80,7 +102,7 @@ namespace Gentle_Blossom_FE.Controllers
                     }
                 }
 
-                var response = await httpClient.PostAsync($"{_apiSettings.UserApiBaseUrl}/UserProfile/UpdateUserProfile", formData);
+                var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/UserProfile/UpdateUserProfile", formData);
 
                 if (response.IsSuccessStatusCode)
                 {

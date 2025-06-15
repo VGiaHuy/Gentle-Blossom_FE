@@ -23,9 +23,9 @@
             <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Home/Index" data-view="Home" title="Trang chủ">
                 <i class="bi bi-house-heart fs-5 text-primary"></i>
             </a>
-            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
+@*             <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
                 <i class="bi bi-person-hearts fs-5 text-success"></i>
-            </a>
+            </a> *@
             <div class="dropdown">
                 <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Chăm sóc sức khỏe">
                     <i class="bi bi-heart-pulse fs-5 text-danger"></i>
@@ -43,7 +43,13 @@
                     </li>
                 </ul>
             </div>
-            <div class="dropdown">
+            @if(User.Identity.IsAuthenticated )
+            {
+                <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Chat/Index" data-view="Chat" title="Trò chuyện">
+                    <i class="bi bi-chat-heart fs-5 text-info"></i>
+                </a>
+            }
+@*             <div class="dropdown">
                 <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Công cụ sức khỏe">
                     <i class="bi bi-heart-half fs-5 text-info"></i>
                 </a>
@@ -64,15 +70,12 @@
                         </a>
                     </li>
                 </ul>
-            </div>
+            </div> *@
         </div>
 
         <div class="d-flex align-items-center gap-4">
             @if (User.Identity.IsAuthenticated)
             {
-                <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Chat/Index" data-view="Chat" title="Trò chuyện">
-                    <i class="bi bi-chat-heart fs-5 text-info"></i>
-                </a>
                 <div>
                     <button class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark p-1" id="notifications" title="Thông báo" type="button" data-bs-toggle="modal" data-bs-target="#notificationModal">
                         <i class="bi bi-bell-fill fs-5 text-warning"></i>

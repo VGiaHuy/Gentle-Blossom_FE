@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using GentleBlossom_BE.Data.Responses;
+using Newtonsoft.Json.Linq;
 
 namespace Gentle_Blossom_FE.Controllers
 {
@@ -39,30 +42,34 @@ namespace Gentle_Blossom_FE.Controllers
                 var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/UserAuth/Login", model);
 
                 var rawJson = await response.Content.ReadAsStringAsync();
-                var jsonData = JsonConvert.DeserializeObject<API_Response<UserProfileDTO>>(rawJson)!;
+                var jsonData = JsonConvert.DeserializeObject<API_Response<LoginResponse>>(rawJson)!;
 
                 if (response.IsSuccessStatusCode)
                 {
                     var claims = new List<Claim>
                         {
-                            new Claim(ClaimTypes.Name, jsonData.Data.FullName),
-                            new Claim(ClaimTypes.NameIdentifier, jsonData.Data.UserId.ToString()),
-                            new Claim(ClaimTypes.Role, (jsonData.Data.UserTypeId == 3 ? "User" : "Expert") ),
-                            new Claim("ProfileImageUrl", jsonData.Data.AvatarUrl ?? string.Empty)
+                            new Claim(ClaimTypes.Name, jsonData.Data.userProfileDTO.FullName),
+                            new Claim(ClaimTypes.NameIdentifier, jsonData.Data.userProfileDTO.UserId.ToString()),
+                            new Claim(ClaimTypes.Role, (jsonData.Data.userProfileDTO.UserTypeId == 3 ? "User" : "Expert") ),
+                            new Claim("ProfileImageUrl", jsonData.Data.userProfileDTO.AvatarUrl ?? string.Empty),
+                            new Claim("JwtToken", jsonData.Data.AccessToken!)
                         };
 
                     var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var claimsPrincipal = new ClaimsPrincipal(claimIdentity);
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
-
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, new AuthenticationProperties
+                    {
+                        IsPersistent = true, // Lưu cookie qua các phiên trình duyệt
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30) // Đồng bộ với thời gian hết hạn token
+                    });
                     return Json(new
                     {
                         success = true,
                         message = "Đăng nhập thành công!",
                         data = new
                         {
-                            username = jsonData.Data.FullName,
-                            redirectUrl = Url.Action("Index", "Home")
+                            username = jsonData.Data.userProfileDTO.FullName,
+                            redirectUrl = Url.Action("Index", "Home"),
                         }
                     });
                 }
@@ -84,13 +91,36 @@ namespace Gentle_Blossom_FE.Controllers
             }
         }
 
-        [HttpGet]
         public IActionResult Register()
         {
-            return PartialView("Register");
+            return View("Register");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/UserAuth/Register", model);
+
+            var rawJson = await response.Content.ReadAsStringAsync();
+            var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Json(new { success = true, message = "Đăng ký thành công!" });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Đăng ký không thành công!" + error });
         }
 
         [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Logout()
         {
             try
