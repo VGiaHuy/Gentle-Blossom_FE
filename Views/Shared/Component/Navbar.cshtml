@@ -20,31 +20,35 @@
         </div>
 
         <div class="d-flex align-items-center justify-content-center gap-4 mx-auto">
-            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Home/Index" data-view="Home" title="Trang chủ">
-                <i class="bi bi-house-heart fs-5 text-primary"></i>
-            </a>
-@*             <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
-                <i class="bi bi-person-hearts fs-5 text-success"></i>
-            </a> *@
-            <div class="dropdown">
-                <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Chăm sóc sức khỏe">
-                    <i class="bi bi-heart-pulse fs-5 text-danger"></i>
-                </a>
-                <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
-                    <li>
-                        <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/HealthJourney" data-view="PregnancyCare/HealthJourney">
-                            <i class="bi bi-hospital fs-5 text-primary me-2"></i> Sức khỏe thai sản
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/PsychologyDiary" data-view="PregnancyCare/PsychologyDiary">
-                            <i class="bi bi-emoji-smile fs-5 text-success me-2"></i> Tâm lý thai sản
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            @if(User.Identity.IsAuthenticated )
+            @if (User.Identity.IsAuthenticated)
             {
+                <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Home/Index" data-view="Home" title="Trang chủ">
+                    <i class="bi bi-house-heart fs-5 text-primary"></i>
+                </a>
+                @* <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
+                    <i class="bi bi-person-hearts fs-5 text-success"></i>
+                </a> *@
+                @if (User.IsInRole("User"))
+                {
+                    <div class="dropdown">
+                        <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Chăm sóc sức khỏe">
+                            <i class="bi bi-heart-pulse fs-5 text-danger"></i>
+                        </a>
+                        <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
+                            <li>
+                                <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/HealthJourney" data-view="PregnancyCare/HealthJourney">
+                                    <i class="bi bi-hospital fs-5 text-primary me-2"></i> Sức khỏe thai sản
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/PsychologyDiary" data-view="PregnancyCare/PsychologyDiary">
+                                    <i class="bi bi-emoji-smile fs-5 text-success me-2"></i> Tâm lý thai sản
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                }
+
                 <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Chat/Index" data-view="Chat" title="Trò chuyện">
                     <i class="bi bi-chat-heart fs-5 text-info"></i>
                 </a>
@@ -97,10 +101,7 @@
                         </div>
                     </div>
                 </div>
-            }
 
-            @if (User.Identity.IsAuthenticated)
-            {
                 <div class="dropdown">
                     <input id="userId" hidden value="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" />
                     <a class="nav-link d-flex align-items-center text-dark" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

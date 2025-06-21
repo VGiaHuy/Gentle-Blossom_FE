@@ -129,14 +129,20 @@
         const loadingSpinner = document.getElementById('loadingSpinner');
         formData.set('Content', quill.root.innerHTML);
 
+        // Lưu trữ nút gửi và nội dung ban đầu
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonContent = submitButton.innerHTML;
+
+        // Thay đổi nút thành trạng thái loading
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="bi bi-arrow-repeat spin me-2"></i>Đang đăng...';
+
         fetch('/Post/CreatePost', {
             method: 'POST',
             body: formData
         })
             .then(response => response.json())
             .then(data => {
-                if (loadingSpinner) loadingSpinner.classList.add('d-none');
-
                 if (data.success) {
                     showSuccessModal(data.message, 3000);
                     setTimeout(function () {
@@ -160,6 +166,11 @@
             })
             .catch(error => {
                 showErrorModal('Lỗi kết nối, vui lòng thử lại!', 3000);
+            })
+            .finally(() => {
+                // Khôi phục nút về trạng thái ban đầu
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonContent;
             });
     });
 };

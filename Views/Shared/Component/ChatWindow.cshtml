@@ -8,9 +8,11 @@
             </div>
         </div>
         <div>
-            <button class="btn btn-outline-primary btn-sm me-2" title="Gọi video"><i class="bi bi-camera-video-fill"></i></button>
-            <button class="btn btn-outline-primary btn-sm me-2" title="Gọi thoại"><i class="bi bi-telephone-fill"></i></button>
-            <button id="detailInfoChatRoom" class="btn btn-outline-primary btn-sm" title="Chi tiết" ><i class="bi bi-info-circle"></i></button>
+            @if (User.IsInRole("Expert"))
+            {
+                <button id="createTracking" class="btn btn-primary btn-sm" type="button">Chăm sóc sức khỏe</button>
+            }
+            <button id="detailInfoChatRoom" class="btn btn-outline-primary btn-sm" title="Chi tiết"><i class="bi bi-info-circle"></i></button>
         </div>
     </div>
     <div class="chat-messages" id="chatMessages">
@@ -42,9 +44,18 @@
                             }
                             else
                             {
-                                <a href="@media.MediaUrl" target="_blank" class="text-decoration-none mb-2 d-block" style="color:#ffff">
-                                    <i class="bi bi-file-pdf-fill text-danger me-1"></i>@(media.FileName ?? "Tải file")
-                                </a>
+                                if (message.IsOutgoing)
+                                {
+                                    <a href="@media.MediaUrl" target="_blank" class="text-decoration-none mb-2 d-block" style="color:#ffff">
+                                        <i class="bi bi-file-pdf-fill text-danger me-1"></i>@(media.FileName ?? "Tải file")
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@media.MediaUrl" target="_blank" class="text-decoration-none mb-2 d-block" style="color:#06BBCC">
+                                        <i class="bi bi-file-pdf-fill text-danger me-1"></i>@(media.FileName ?? "Tải file")
+                                    </a>
+                                }
                             }
                         }
                     }
@@ -64,7 +75,6 @@
                 <label for="attachmentInput" class="btn btn-outline-primary"><i class="bi bi-paperclip"></i></label>
                 <button type="submit" class="btn btn-primary rounded-end-3"><i class="bi bi-send-fill"></i></button>
             </div>
-            <!-- Thêm khu vực preview file -->
             <div id="mediaPreview" class="row mt-2"></div>
         </form>
     </div>
@@ -104,12 +114,6 @@
                         <i class="bi bi-clipboard"></i> Sao chép
                     </button>
                 </div>
-                @*                 <div class="mb-3">
-                <strong>Số thành viên:</strong> @Model.SelectedRoom.Members?.Count()
-                </div>
-                <div class="mb-3">
-                <strong>Ngày tạo:</strong> @Model.SelectedRoom.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-                </div> *@
             </div>
         </div>
     </div>
@@ -123,51 +127,639 @@
     }
 }
 
-<script>
-    $(document).ready(function () {
-        // Hiển thị modal khi nhấn nút chi tiết
-        $('#detailInfoChatRoom').on('click', function (e) {
-            $('#chatRoomModal').modal('show');
-        });
+<!-- Thay thế phần modal trackingModal -->
+<div class="modal fade" id="trackingModal" tabindex="-1" aria-labelledby="trackingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trackingModalLabel">Danh sách thông tin theo dõi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Loại điều trị</th>
+                                <th>Ngày bắt đầu</th>
+                                <th>Ngày kết thúc</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trackingList">
+                            <!-- Dữ liệu sẽ được thêm bởi JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="createNewJourney">Tạo mới</button>
+                <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // Sao chép ChatCode
-        $('#coppyChatCode').on('click', function (e) {
-            const chatCodeElement = document.getElementById('chatCodeInfo');
-            if (!chatCodeElement) {
-                console.error('Không tìm thấy phần tử chatCode');
-                showErrorModal('Không tìm thấy mã phòng!', 2000);
-                return;
-            }
-            const chatCode = chatCodeElement.textContent.trim();
-            console.log('ChatCode:', chatCode);
-            if (!chatCode) {
-                console.error('Mã phòng trống');
-                showErrorModal('Mã phòng trống!', 2000);
-                return;
-            }
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(chatCode).then(() => {
-                    showInfoModal('Đã sao chép mã phòng!', 1500);
-                }).catch(err => {
-                    console.error('Lỗi sao chép:', err);
-                    showErrorModal('Không thể sao chép mã phòng!', 2000);
-                });
-            } else {
-                const textArea = document.createElement('textarea');
-                textArea.value = chatCode;
-                textArea.style.position = 'fixed';
-                textArea.style.opacity = '0';
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showInfoModal('Đã sao chép mã phòng!', 1500);
-                } catch (err) {
-                    console.error('Lỗi sao chép fallback:', err);
-                    showErrorModal('Không thể sao chép mã phòng!', 2000);
-                }
-                document.body.removeChild(textArea);
-            }
+<!-- Modal chi tiết tracking -->
+<div class="modal fade" id="trackingDetailModal" tabindex="-1" aria-labelledby="trackingDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trackingDetailModalLabel">Chi tiết sức khỏe định kỳ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="trackingDetailContent">
+                <!-- Nội dung chi tiết sẽ được thêm bởi JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal hiển thị lịch sử theo dõi sức khỏe -->
+<div class="modal fade" id="healthHistoryModal" tabindex="-1" aria-labelledby="healthHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="healthHistoryModalLabel">Lịch sử theo dõi sức khỏe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="healthHistoryContent">
+                <!-- Nội dung lịch sử sẽ được thêm bởi JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-3 create-tracking-ticket">Tạo phiếu theo dõi</button>
+                <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal tạo phiếu theo dõi -->
+<div class="modal fade" id="createTrackingModal" tabindex="-1" aria-labelledby="createTrackingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createTrackingModalLabel">Tạo phiếu theo dõi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createTrackingForm">
+                    <div class="mb-3">
+                        <label for="trackingStatus" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="trackingStatus" name="status" required>
+                            <option value="1">Ổn định</option>
+                            <option value="2">Cần theo dõi</option>
+                            <option value="3">Nguy cấp</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trackingNotes" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="trackingNotes" name="notes" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Thêm modal tạo hành trình mới -->
+<div class="modal fade" id="createJourneyModal" tabindex="-1" aria-labelledby="createJourneyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createJourneyModalLabel">Tạo hành trình mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createJourneyForm">
+                    <div class="mb-3">
+                        <label for="treatmentId" class="form-label">Loại điều trị</label>
+                        <select class="form-select" id="treatmentId" name="treatmentId" required>
+                            <option value="2">Thai sản</option>
+                            <option value="1">Tâm lý</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dueDate" class="form-label">Ngày dự sinh</label>
+                        <input type="date" class="form-control" id="dueDate" name="dueDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="monitoringStatus" class="form-label">Trạng thái theo dõi</label>
+                        <select class="form-select" id="monitoringStatus" name="monitoringStatus" required>
+                            <option value="1">Ổn định</option>
+                            <option value="2">Cần theo dõi</option>
+                            <option value="3">Nguy cấp</option>n>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="journeyNotes" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="journeyNotes" name="notes" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Hàm dọn dẹp trạng thái modal
+    function clearModalState() {
+        console.log('Clearing modal state');
+        $('body').removeClass('modal-open').css({
+            'overflow': '',
+            'padding-right': ''
         });
+        $('.modal-backdrop').remove();
+        $('#trackingModal, #trackingDetailModal, #healthHistoryModal, #createTrackingModal, #createJourneyModal').removeAttr('tabindex').css('pointer-events', 'none');
+        $('.modal-dialog').css('pointer-events', 'auto');
+        $('#messageInput').prop('disabled', false);
+    }
+
+    // Khởi tạo draggable cho cả 3 modal
+    if ($("#trackingModal .modal-dialog").length) {
+        $("#trackingModal .modal-dialog").draggable({
+            handle: ".modal-header"
+        });
+    }
+    if ($("#trackingDetailModal .modal-dialog").length) {
+        $("#trackingDetailModal .modal-dialog").draggable({
+            handle: ".modal-header"
+        });
+    }
+    if ($("#healthHistoryModal .modal-dialog").length) {
+        $("#healthHistoryModal .modal-dialog").draggable({
+            handle: ".modal-header"
+        });
+    }
+    // Khởi tạo draggable cho createTrackingModal
+    if ($("#createTrackingModal .modal-dialog").length) {
+        $("#createTrackingModal .modal-dialog").draggable({
+            handle: ".modal-header"
+        });
+    }
+    // Khởi tạo draggable cho createJourneyModal
+    if ($("#createJourneyModal .modal-dialog").length) {
+        console.log('createJourneyModal found, initializing draggable');
+        $("#createJourneyModal .modal-dialog").draggable({
+            handle: ".modal-header"
+        });
+    }
+
+
+    // Xử lý sự kiện click nút Tạo mới
+    $(document).off('click.createNewJourney').on('click.createNewJourney', '#createNewJourney', function () {
+        console.log('Nút Tạo mới được click');
+        try {
+            clearModalState();
+            const modalElement = document.getElementById('createJourneyModal');
+            if (!modalElement) {
+                console.error('createJourneyModal element not found');
+                return;
+            }
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: false,
+                keyboard: true,
+                focus: false
+            });
+            modal.show();
+            clearModalState();
+
+            // Xử lý submit form
+            $('#createJourneyForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+                const formData = {
+                    TreatmentId: $('#treatmentId').val(),
+                    DueDate: $('#dueDate').val(),
+                    MonitoringStatus: $('#monitoringStatus').val(),
+                    MonitoringNote: $('#journeyNotes').val() || null,
+                    ChatRoomId: '@Model.SelectedRoom.ChatRoomId'
+                };
+                console.log('Dữ liệu form:', formData);
+
+                // Gửi dữ liệu qua API
+                $.ajax({
+                    url: '/PregnancyCare/CreateHealthJourney',
+                    method: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        console.log('Tạo hành trình mới thành công:', response);
+                        if (response.success) {
+                            showSuccessModal('Tạo hành trình mới thành công!');
+                            modal.hide();
+                            clearModalState();
+                            // Tùy chọn: Tải lại danh sách tracking
+                            $('#createTracking').trigger('click.createTracking');
+                        } else {
+                            showErrorModal('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Lỗi khi tạo hành trình mới:', err);
+                        showErrorModal('Lỗi khi lưu dữ liệu');
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Lỗi khi hiển thị modal tạo hành trình:', error);
+        }
+    });
+
+
+    // Xử lý sự kiện click nút Tạo phiếu theo dõi
+    $(document).off('click.createTrackingTicket').on('click.createTrackingTicket', '#healthHistoryModal .create-tracking-ticket', function () {
+        console.log('Nút Tạo phiếu theo dõi được click');
+        try {
+            clearModalState();
+            const modalElement = document.getElementById('createTrackingModal');
+            if (!modalElement) {
+                console.error('createTrackingModal element not found');
+                return;
+            }
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: false,
+                keyboard: true,
+                focus: false
+            });
+
+            // Lấy journeyId từ healthHistoryModal
+            const journeyId = $('#healthHistoryModal').data('journeyId');
+            console.log('JourneyId cho phiếu theo dõi:', journeyId);
+
+            modal.show();
+            clearModalState();
+
+            // Xử lý submit form
+            $('#createTrackingForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+                const formData = {
+                    Status: $('#trackingStatus').val(),
+                    Notes: $('#trackingNotes').val(),
+                    JourneyId: journeyId,
+                };
+                console.log('Dữ liệu form:', formData);
+
+                // Gửi dữ liệu qua API
+                $.ajax({
+                    url: '/PregnancyCare/CreateMonitoring',
+                    method: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        console.log('Tạo phiếu theo dõi thành công:', response);
+                        if (response.success) {
+                            showSuccessModal('Tạo phiếu theo dõi thành công!');
+                            modal.hide();
+                            clearModalState();
+                            // Tải lại danh sách lịch sử
+                            $('#healthHistoryModal .create-tracking-ticket').trigger('click.viewHistory');
+                        } else {
+                            showErrorModal('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Lỗi khi tạo phiếu theo dõi:', err);
+                        showErrorModal('Lỗi khi lưu dữ liệu');
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Lỗi khi hiển thị modal tạo phiếu:', error);
+        }
+    });
+
+
+    // Xử lý sự kiện mở trackingModal và lấy dữ liệu
+    $(document).off('click.createTracking').on('click.createTracking', '#createTracking', function () {
+        console.log('Nút createTracking được click');
+        try {
+            clearModalState();
+            const modalElement = document.getElementById('trackingModal');
+            if (!modalElement) {
+                console.error('trackingModal element not found');
+                return;
+            }
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: false,
+                keyboard: true,
+                focus: false
+            });
+
+            // Gọi API để lấy danh sách tracking
+            $.ajax({
+                url: '/PregnancyCare/GetHealthJourney',
+                method: 'GET',
+                data: { chatRoomId: '@Model.SelectedRoom.ChatRoomId' },
+                success: function (response) {
+                    console.log('Dữ liệu tracking:', response);
+                    const trackingList = $('#trackingList');
+                    trackingList.empty();
+                    if (response.success && response.data && response.data.length > 0) {
+                        response.data.forEach(item => {
+                            trackingList.append(`
+                                            <tr>
+                                                <td>${item.treatmentName || 'N/A'}</td>
+                                                <td>${item.startDate ? new Date(item.startDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                                <td>${item.endDate ? new Date(item.endDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                                <td>${item.status ? 'Đã điều trị' : 'Đang điều trị'}</td>
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm view-tracking" data-tracking-id="${item.journeyId}" data-treatment-id="${item.treatmentId}">Sức khỏe định kỳ</button>
+                                                    <button class="btn btn-primary btn-sm view-history" data-tracking-id="${item.journeyId}">Lịch sử theo dõi</button>
+                                                </td>
+                                            </tr>
+                                        `);
+                        });
+                    } else {
+                        trackingList.append('<tr><td colspan="5" class="text-center">Không có dữ liệu</td></tr>');
+                    }
+                    modal.show();
+                    clearModalState();
+                },
+                error: function (err) {
+                    console.error('Lỗi khi lấy dữ liệu tracking:', err);
+                    $('#trackingList').html('<tr><td colspan="5" class="text-center">Lỗi khi tải dữ liệu</td></tr>');
+                    modal.show();
+                    clearModalState();
+                }
+            });
+
+            $('#messageInput').off('click.inputFocus').on('click.inputFocus', function () {
+                $(this).focus();
+                console.log('messageInput clicked and focused', $(this).is(':focus') ? 'in focus' : 'failed to focus');
+            });
+        } catch (error) {
+            console.error('Lỗi khi hiển thị modal:', error);
+        }
+    });
+
+    // Xử lý sự kiện click nút Sức khỏe định kỳ
+    $(document).off('click.viewTracking').on('click.viewTracking', '.view-tracking', function () {
+        const trackingId = $(this).data('tracking-id');
+        const treatmentId = $(this).data('treatment-id');
+
+        try {
+            clearModalState();
+            const modalElement = document.getElementById('trackingDetailModal');
+            if (!modalElement) {
+                console.error('trackingDetailModal element not found');
+                return;
+            }
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: false,
+                keyboard: true,
+                focus: false
+            });
+
+            // Gọi API để lấy chi tiết tracking
+            $.ajax({
+                url: '/PregnancyCare/GetDetailHealthJourney',
+                method: 'GET',
+                data: { trackingId: trackingId, treatmentId: treatmentId },
+                success: function (response) {
+                    const content = $('#trackingDetailContent');
+                    // Kiểm tra response.data là mảng và có dữ liệu
+                    if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                        let htmlContent = '<div class="tracking-list">';
+                        response.data.forEach((data, index) => {
+                            htmlContent += `
+                                        <div class="tracking-item mb-3 p-3 border rounded">
+                                            <h6>Bản ghi ${index + 1}</h6>
+                                    `;
+                            if (treatmentId == 1) {
+                                htmlContent += `
+                                            <p><strong>Tên điều trị:</strong> ${data.treatmentName || 'N/A'}</p>
+                                            <p><strong>Nhật ký:</strong> ${data.notes || 'N/A'}</p>
+                                            <p><strong>Tâm trạng:</strong> ${data.mood || 'N/A'}</p>
+                                            <p><strong>Ngày tạo:</strong> ${data.createdDate ? new Date(data.createdDate).toLocaleDateString('vi-VN') : 'N/A'}</p>
+                                        `;
+                            } else if (treatmentId == 2) {
+                                htmlContent += `
+                                            <p><strong>Tên điều trị:</strong> ${data.treatmentName || 'N/A'}</p>
+                                            <p><strong>Huyết áp:</strong> ${data.bloodPressure || 'N/A'}</p>
+                                            <p><strong>Ngày dự sinh:</strong> ${data.dueDate ? new Date(data.dueDate).toLocaleDateString('vi-VN') : 'N/A'}</p>
+                                            <p><strong>Tâm trạng:</strong> ${data.mood || 'N/A'}</p>
+                                            <p><strong>Ngày tạo:</strong> ${data.createdDate ? new Date(data.createdDate).toLocaleDateString('vi-VN') : 'N/A'}</p>
+                                            <p><strong>Tuần thai:</strong> ${data.weeksPregnant || 'N/A'}</p>
+                                            <p><strong>Chu vi vòng eo:</strong> ${data.waistCircumference || 'N/A'} cm</p>
+                                            <p><strong>Cân nặng:</strong> ${data.weight || 'N/A'} kg</p>
+                                            <p><strong>Giới tính em bé:</strong> ${data.genderBaby === true ? 'Nam' : data.genderBaby === false ? 'Nữ' : 'Chưa xác định'}</p>
+                                            <p><strong>Ghi chú:</strong> ${data.notes || 'N/A'}</p>
+                                        `;
+                            } else {
+                                htmlContent += '<p class="text-danger">Loại điều trị không hợp lệ</p>';
+                            }
+                            htmlContent += '</div>';
+                        });
+                        htmlContent += '</div>';
+                        content.html(htmlContent);
+                    } else {
+                        content.html('<p class="text-danger">Không tìm thấy dữ liệu chi tiết</p>');
+                    }
+                    modal.show();
+                    clearModalState();
+                },
+                error: function (err) {
+                    console.error('Lỗi khi lấy chi tiết tracking:', err);
+                    $('#trackingDetailContent').html('<p class="text-danger">Lỗi khi tải dữ liệu</p>');
+                    modal.show();
+                    clearModalState();
+                }
+            });
+        } catch (error) {
+            console.error('Lỗi khi hiển thị modal chi tiết:', error);
+        }
+    });
+
+    // Xử lý sự kiện click nút Xem lịch sử
+    $(document).off('click.viewHistory').on('click.viewHistory', '.view-history', function () {
+        const trackingId = $(this).data('tracking-id');
+        console.log('Nút view-history được click, trackingId:', trackingId);
+        try {
+            clearModalState();
+            const modalElement = document.getElementById('healthHistoryModal');
+            if (!modalElement) {
+                console.error('healthHistoryModal element not found');
+                return;
+            }
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: false,
+                keyboard: true,
+                focus: false
+            });
+
+            // Lưu journeyId vào data của modal
+            $(modalElement).data('journeyId', trackingId);
+
+            // Gọi API để lấy lịch sử theo dõi
+            $.ajax({
+                url: '/PregnancyCare/GetAllMonitoringFormByHeathId',
+                method: 'GET',
+                data: { heathId: trackingId },
+                success: function (response) {
+                    console.log('Dữ liệu lịch sử theo dõi:', response);
+                    const content = $('#healthHistoryContent');
+
+                    // Ánh xạ trạng thái
+                    const statusMap = {
+                        1: 'Ổn định',
+                        2: 'Cần theo dõi',
+                        3: 'Nguy cấp'
+                    };
+
+                    if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                        let htmlContent = '<div class="history-list">';
+                        response.data.forEach((data, index) => {
+                            htmlContent += `
+                                <div class="history-item mb-3 p-3 border rounded">
+                                    <h6>Bản ghi ${index + 1}</h6>
+                                    <p><strong>Chuyên gia:</strong> ${data.expertAcademicTitle} ${data.expertName || 'N/A'}</p>
+                                    <p><strong>Trạng thái:</strong> ${statusMap[data.status] || 'Không xác định'}</p>
+                                    <p><strong>Ghi chú:</strong> ${data.notes || 'N/A'}</p>
+                                    <p><strong>Ngày tạo:</strong> ${data.createdDate ? new Date(data.createdDate).toLocaleDateString('vi-VN') : 'N/A'}<p>
+                                </div>
+                            `;
+                        });
+                        htmlContent += '</div>';
+                        content.html(htmlContent);
+                    } else {
+                        content.html('<p class="text-danger">Không tìm thấy dữ liệu lịch sử</p>');
+                    }
+                    modal.show();
+                    clearModalState();
+                },
+                error: function (err) {
+                    console.error('Lỗi khi lấy dữ liệu lịch sử:', err);
+                    $('#healthHistoryContent').html('<p class="text-danger">Lỗi khi tải dữ liệu</p>');
+                    modal.show();
+                    clearModalState();
+                }
+            });
+        } catch (error) {
+            console.error('Lỗi khi hiển thị modal lịch sử:', error);
+        }
+    });
+
+
+    // Dọn dẹp trạng thái khi modal đóng
+    $(document).off('hidden.bs.modal.trackingModal').on('hidden.bs.modal.trackingModal', '#trackingModal, #trackingDetailModal', function () {
+        clearModalState();
+    });
+
+    // Hiển thị modal chi tiết phòng chat
+    $(document).off('click.detailInfoChatRoom').on('click.detailInfoChatRoom', '#detailInfoChatRoom', function () {
+        console.log('Nút detailInfoChatRoom được click');
+        $('#chatRoomModal').modal('show');
+    });
+
+    $(document).off('hidden.bs.modal.trackingModal').on('hidden.bs.modal.trackingModal', '#trackingModal, #trackingDetailModal, #healthHistoryModal', function () {
+        clearModalState();
+    });
+
+    // Cập nhật sự kiện ẩn modal để bao gồm createTrackingModal
+    $(document).off('hidden.bs.modal.trackingModal').on('hidden.bs.modal.trackingModal', '#trackingModal, #trackingDetailModal, #healthHistoryModal, #createTrackingModal, #createJourneyModal', function () {
+        console.log('Modal hidden');
+        clearModalState();
+    });
+
+
+    // Sao chép ChatCode
+    $(document).off('click.coppyChatCode').on('click.coppyChatCode', '#coppyChatCode', function () {
+        console.log('Nút coppyChatCode được click');
+        const chatCodeElement = document.getElementById('chatCodeInfo');
+        if (!chatCodeElement) {
+            console.error('Không tìm thấy phần tử chatCode');
+            showInfoModal('Không tìm thấy mã phòng!');
+            return;
+        }
+        const chatCode = chatCodeElement.textContent.trim();
+        console.log('ChatCode:', chatCode);
+        if (!chatCode) {
+            console.error('Mã phòng trống');
+            showInfoModal('Mã phòng trống!');
+            return;
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(chatCode).then(() => {
+                showInfoModal('Đã sao chép mã phòng!');
+            }).catch(err => {
+                console.error('Lỗi sao chép:', err);
+                showInfoModal('Không thể sao chép mã phòng!');
+            });
+        } else {
+            const textArea = document.createElement('textarea');
+            textArea.value = chatCode;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showSuccessModal('Đã sao chép mã phòng!');
+            } catch (err) {
+                console.error('Lỗi sao chép fallback:', err);
+                showSuccessModal('Không thể sao chép mã phòng!');
+            }
+            document.body.removeChild(textArea);
+        }
     });
 </script>
+
+<!-- Cập nhật style -->
+<style>
+    #trackingModal, #trackingDetailModal, #healthHistoryModal, #createTrackingModal, #createJourneyModal {
+        z-index: 1050 !important;
+    }
+
+        #trackingModal .modal-dialog, #trackingDetailModal .modal-dialog, #healthHistoryModal .modal-dialog, #createTrackingModal .modal-dialog, #createJourneyModal .modal-dialog {
+            min-width: 600px;
+            pointer-events: auto;
+        }
+
+        #trackingModal .modal-dialog {
+            max-width: 1000px;
+        }
+
+    .chat-input, #messageInput {
+        position: relative;
+        pointer-events: auto !important;
+        /* z-index: 1050 !important; */
+    }
+
+    .chatRoomModal {
+        z-index: 1060 !important;
+    }
+
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    #trackingDetailModal .modal-body, #healthHistoryModal .modal-body, #createTrackingModal .modal-body, #createJourneyModal .modal-body {
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 1rem;
+    }
+
+    .tracking-list .tracking-item, .history-list .history-item {
+        background: #f8f9fa;
+        border-color: #dee2e6;
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+
+        .tracking-list .tracking-item h6, .history-list .history-item h6 {
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+</style>

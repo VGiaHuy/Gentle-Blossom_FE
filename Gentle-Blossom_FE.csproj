@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\js\chatWindow.js" />
     <Content Remove="wwwroot\js\notifications.js" />
   </ItemGroup>
 
@@ -16,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\js\chatWindow.js" />
     <None Include="wwwroot\js\notifications.js" />
   </ItemGroup>
 

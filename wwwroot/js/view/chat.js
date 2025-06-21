@@ -18,7 +18,6 @@ if (typeof signalR === "undefined") {
         let mediaHtml = '';
         if (mediaList && mediaList.length > 0) {
             mediaList.forEach(media => {
-                console.log('Media:', media);
                 const mediaType = media.mediaType.toLowerCase(); // Chuẩn hóa mediaType
                 if (mediaType.startsWith('image')) {
                     mediaHtml += `
@@ -31,7 +30,6 @@ if (typeof signalR === "undefined") {
                 </a>`;
                 } else if (mediaType.startsWith('video')) {
                     const fileId = extractFileId(media.fileUrl);
-                    console.log('Video File ID:', fileId);
                     if (fileId) {
                         mediaHtml += `
                     <a href="#" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="${media.fileUrl}" data-media-type="video" class="d-block mb-2">
@@ -43,7 +41,6 @@ if (typeof signalR === "undefined") {
                         </iframe>
                     </a>`;
                     } else {
-                        console.warn('No valid File ID for video, falling back to placeholder');
                         mediaHtml += `
                     <a href="#" data-bs-toggle="modal" data-bs-target="#mediaModal" data-media-url="${media.fileUrl}" data-media-type="video" class="d-block mb-2">
                         <img src="/images/fallback-video.jpg" alt="Video not available" 
@@ -52,10 +49,17 @@ if (typeof signalR === "undefined") {
                     </a>`;
                     }
                 } else {
-                    mediaHtml += `
-                <a href="${media.fileUrl}" target="_blank" class="text-decoration-none mb-2 d-block" style="color:#fff;">
-                    <i class="bi bi-file-pdf-fill text-danger me-1"></i>${media.fileName || 'Tải file'}
-                </a>`;
+                    if (isOutgoing) {
+                        mediaHtml += `
+                        <a href="${media.fileUrl}" target="_blank" class="text-decoration-none mb-2 d-block" style="color:#ffff;">
+                            <i class="bi bi-file-pdf-fill text-danger me-1"></i>${media.fileName || 'Tải file'}
+                        </a>`;
+                    } else {
+                        mediaHtml += `
+                        <a href="${media.fileUrl}" target="_blank" class="text-decoration-none mb-2 d-block" style="color:#06BBCC;">
+                            <i class="bi bi-file-pdf-fill text-danger me-1"></i>${media.fileName || 'Tải file'}
+                        </a>`;
+                    }
                 }
             });
 
@@ -409,6 +413,15 @@ jQuery(document).ready(function ($) {
             }
         });
 
+        // Lưu trữ nút gửi và nội dung ban đầu
+        const $sendButton = $(this).find('button[type="submit"]');
+        const originalButtonContent = $sendButton.html();
+        
+        // Thay đổi nút thành trạng thái loading
+        $sendButton
+            .prop("disabled", true)
+            .html('<i class="bi bi-arrow-repeat spin"></i>');
+        
         // Gửi yêu cầu upload file và tin nhắn
         $.ajax({
             url: "/Chat/SendMessage",
@@ -428,6 +441,12 @@ jQuery(document).ready(function ($) {
             error: function (xhr, status, error) {
                 console.error("Send message error:", status, error, xhr.responseText);
                 showErrorModal("Lỗi khi gửi tin nhắn: " + xhr.responseText);
+            },
+            complete: function () {
+                // Khôi phục nút về trạng thái ban đầu
+                $sendButton
+                    .prop("disabled", false)
+                    .html(originalButtonContent);
             }
         });
     });
