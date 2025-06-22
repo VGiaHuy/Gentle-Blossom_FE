@@ -325,7 +325,7 @@
     }
 
 
-    // Xử lý sự kiện click nút Tạo mới
+    // Xử lý sự kiện click nút Tạo mới (tạo hành trình mới)
     $(document).off('click.createNewJourney').on('click.createNewJourney', '#createNewJourney', function () {
         console.log('Nút Tạo mới được click');
         try {
@@ -386,7 +386,6 @@
 
     // Xử lý sự kiện click nút Tạo phiếu theo dõi
     $(document).off('click.createTrackingTicket').on('click.createTrackingTicket', '#healthHistoryModal .create-tracking-ticket', function () {
-        console.log('Nút Tạo phiếu theo dõi được click');
         try {
             clearModalState();
             const modalElement = document.getElementById('createTrackingModal');
@@ -415,15 +414,12 @@
                     Notes: $('#trackingNotes').val(),
                     JourneyId: journeyId,
                 };
-                console.log('Dữ liệu form:', formData);
 
-                // Gửi dữ liệu qua API
                 $.ajax({
                     url: '/PregnancyCare/CreateMonitoring',
                     method: 'POST',
                     data: formData,
                     success: function (response) {
-                        console.log('Tạo phiếu theo dõi thành công:', response);
                         if (response.success) {
                             showSuccessModal('Tạo phiếu theo dõi thành công!');
                             modal.hide();
@@ -446,7 +442,7 @@
     });
 
 
-    // Xử lý sự kiện mở trackingModal và lấy dữ liệu
+    // Xử lý sự kiện mở chăm sóc sức khỏe
     $(document).off('click.createTracking').on('click.createTracking', '#createTracking', function () {
         console.log('Nút createTracking được click');
         try {
@@ -587,10 +583,9 @@
         }
     });
 
-    // Xử lý sự kiện click nút Xem lịch sử
+    // Xử lý sự kiện click nút Xem lịch sử theo dõi
     $(document).off('click.viewHistory').on('click.viewHistory', '.view-history', function () {
         const trackingId = $(this).data('tracking-id');
-        console.log('Nút view-history được click, trackingId:', trackingId);
         try {
             clearModalState();
             const modalElement = document.getElementById('healthHistoryModal');
@@ -607,13 +602,11 @@
             // Lưu journeyId vào data của modal
             $(modalElement).data('journeyId', trackingId);
 
-            // Gọi API để lấy lịch sử theo dõi
             $.ajax({
                 url: '/PregnancyCare/GetAllMonitoringFormByHeathId',
                 method: 'GET',
                 data: { heathId: trackingId },
                 success: function (response) {
-                    console.log('Dữ liệu lịch sử theo dõi:', response);
                     const content = $('#healthHistoryContent');
 
                     // Ánh xạ trạng thái

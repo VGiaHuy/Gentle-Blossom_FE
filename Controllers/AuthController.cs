@@ -115,8 +115,7 @@ namespace Gentle_Blossom_FE.Controllers
                 return Json(new { success = true, message = "Đăng ký thành công!" });
             }
 
-            var error = await response.Content.ReadAsStringAsync();
-            return Json(new { success = false, message = "Đăng ký không thành công!" + error });
+            return Json(new { success = false, message = "Đăng ký không thành công!" + jsonData.Message });
         }
 
         [Authorize]

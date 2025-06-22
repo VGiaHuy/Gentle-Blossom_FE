@@ -6,7 +6,7 @@ namespace Gentle_Blossom_FE.Data.DTOs.UserDTOs
     {
         [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
         [StringLength(50, MinimumLength = 4, ErrorMessage = "Tên đăng nhập phải từ 4 đến 50 ký tự")]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập họ và tên")]
         [StringLength(100, ErrorMessage = "Họ và tên không được vượt quá 100 ký tự")]
@@ -22,7 +22,7 @@ namespace Gentle_Blossom_FE.Data.DTOs.UserDTOs
 
         [Required(ErrorMessage = "Vui lòng chọn ngày sinh")]
         [DataType(DataType.Date)]
-        public DateTime DateOfBirth { get; set; }
+        public DateOnly BirthDate { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn giới tính")]
         public string Gender { get; set; }

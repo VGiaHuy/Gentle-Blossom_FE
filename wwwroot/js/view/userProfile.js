@@ -357,3 +357,320 @@ $(document).ready(function () {
         }
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Lấy fullName từ window.appData
+    const fullName = window.appData ? window.appData.fullName : '';
+
+    // Xử lý nút "Xem thêm" cho Thai sản
+    const viewMoreThaiSanButton = document.getElementById('viewMoreThaiSan');
+    if (viewMoreThaiSanButton) {
+        viewMoreThaiSanButton.addEventListener('click', function () {
+            const list = document.getElementById('periodicHealthList');
+            let otherJourneys;
+            try {
+                otherJourneys = JSON.parse(list.getAttribute('data-other-journeys') || '[]');
+                console.log('Parsed ThaiSan otherJourneys:', otherJourneys);
+            } catch (e) {
+                console.error('Error parsing ThaiSan otherJourneys:', e);
+                return;
+            }
+
+            if (!Array.isArray(otherJourneys)) {
+                console.error('ThaiSan otherJourneys is not an array:', otherJourneys);
+                return;
+            }
+
+            otherJourneys.forEach(journey => {
+                if (!journey || !journey.journeyId) {
+                    console.warn('Invalid ThaiSan journey:', journey);
+                    return;
+                }
+                const li = document.createElement('li');
+                li.className = 'list-group-item py-3 journey-item';
+                li.style.cursor = 'pointer';
+                li.setAttribute('data-journey-id', journey.journeyId);
+                li.setAttribute('data-treatment-id', journey.treatmentId);
+                li.setAttribute('data-bs-toggle', 'modal');
+                li.setAttribute('data-bs-target', '#periodicHealthDetailsModal');
+                li.innerHTML = `
+                    <strong>Hành trình ${journey.treatmentName || 'Thai sản'} của <span style="color:#d63384">${fullName}</span></strong>
+                    <p class="mb-0">Mã hành trình: ${journey.journeyId}</p>
+                    <p class="mb-0">Ngày bắt đầu: ${journey.startDate ? new Date(journey.startDate).toLocaleDateString('vi-VN') : 'Không xác định'}</p>
+                    <p class="mb-0">Ngày dự sinh: ${journey.dueDate ? new Date(journey.dueDate).toLocaleDateString('vi-VN') : 'Không xác định'}</p>
+                    <p class="mb-0">Ngày kết thúc: ${journey.endDate ? new Date(journey.endDate).toLocaleDateString('vi-VN') : 'Chưa cập nhật'}</p>
+                    <p class="mb-0">Trạng thái: ${journey.status ? 'Đã hoàn thành' : 'Đang diễn ra'}</p>
+                `;
+                list.appendChild(li);
+            });
+
+            this.style.display = 'none'; // Ẩn nút
+        });
+    }
+
+    // Xử lý nút "Xem thêm" cho Tâm lý
+    const viewMoreTamLyButton = document.getElementById('viewMoreTamLy');
+    if (viewMoreTamLyButton) {
+        viewMoreTamLyButton.addEventListener('click', function () {
+            const list = document.getElementById('psychologyDiaryList');
+            let otherJourneys;
+            try {
+                otherJourneys = JSON.parse(list.getAttribute('data-other-journeys') || '[]');
+                console.log('Parsed TamLy otherJourneys:', otherJourneys);
+            } catch (e) {
+                console.error('Error parsing TamLy otherJourneys:', e);
+                return;
+            }
+
+            if (!Array.isArray(otherJourneys)) {
+                console.error('TamLy otherJourneys is not an array:', otherJourneys);
+                return;
+            }
+
+            otherJourneys.forEach(journey => {
+                if (!journey || !journey.journeyId) {
+                    console.warn('Invalid TamLy journey:', journey);
+                    return;
+                }
+                const li = document.createElement('li');
+                li.className = 'list-group-item py-3 journey-item';
+                li.style.cursor = 'pointer';
+                li.setAttribute('data-journey-id', journey.journeyId);
+                li.setAttribute('data-treatment-id', journey.treatmentId);
+                li.setAttribute('data-bs-toggle', 'modal');
+                li.setAttribute('data-bs-target', '#psychologyDiaryDetailsModal');
+                li.innerHTML = `
+                    <strong>Hành trình ${journey.treatmentName || 'Tâm lý'} của <span style="color:#d63384">${fullName}</span></strong>
+                    <p class="mb-0">Mã hành trình: ${journey.journeyId}</p>
+                    <p class="mb-0">Ngày bắt đầu: ${journey.startDate ? new Date(journey.startDate).toLocaleDateString('vi-VN') : 'Không xác định'}</p>
+                    <p class="mb-0">Ngày kết thúc: ${journey.endDate ? new Date(journey.endDate).toLocaleDateString('vi-VN') : 'Chưa cập nhật'}</p>
+                    <p class="mb-0">Trạng thái: ${journey.status ? 'Đã hoàn thành' : 'Đang diễn ra'}</p>
+                `;
+                list.appendChild(li);
+            });
+
+            this.style.display = 'none'; // Ẩn nút
+        });
+    }
+
+    // Sử dụng event delegation để xử lý click vào journey-item
+    document.getElementById('periodicHealthList').addEventListener('click', function (e) {
+        const item = e.target.closest('.journey-item');
+        if (item) {
+            const journeyId = item.getAttribute('data-journey-id');
+            const treatmentId = item.getAttribute('data-treatment-id');
+
+            if (treatmentId === '2') {
+                const detailsList = document.getElementById('periodicHealthDetailsList');
+                detailsList.innerHTML = '<li class="list-group-item">Đang tải...</li>';
+
+                // Gán journeyId vào nút trước khi mở modal
+                const completeButton = document.getElementById('completePeriodicHealth');
+                const addButton = document.getElementById('addPeriodicHealth');
+                if (completeButton && addButton) {
+                    completeButton.setAttribute('data-journey-id', journeyId);
+                    addButton.setAttribute('data-journey-id', journeyId);
+                    console.log('Assigned journeyId to buttons:', { journeyId });
+                } else {
+                    console.error('Button not found:', { completeButton, addButton });
+                }
+
+                fetch(`/PregnancyCare/GetPeriodicDetails?journeyId=${journeyId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        detailsList.innerHTML = '';
+                        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                            data.data.forEach(health => {
+                                const li = document.createElement('li');
+                                li.className = 'list-group-item py-3';
+                                li.innerHTML = `
+                                <strong>Theo dõi thai sản (ID: ${health.healthId})</strong>
+                                <p class="mb-0">Tuần thai: ${health.weeksPregnant}</p>
+                                <p class="mb-0">Huyết áp: ${health.bloodPressure}</p>
+                                <p class="mb-0">Vòng bụng: ${health.waistCircumference} cm</p>
+                                <p class="mb-0">Cân nặng: ${health.weight} kg</p>
+                                <p class="mb-0">Tâm trạng: ${health.mood}</p>
+                                <p class="mb-0">Giới tính bé: ${health.genderBaby === null ? 'Chưa xác định' : health.genderBaby ? 'Bé trai' : 'Bé gái'}</p>
+                                <p class="mb-0">Ghi chú: ${health.notes || 'Không có'}</p>
+                                <p class="mb-0">Ngày tạo: ${new Date(health.createdDate).toLocaleDateString('vi-VN')}</p>
+                            `;
+                                detailsList.appendChild(li);
+                            });
+                        } else {
+                            detailsList.innerHTML = '<li class="list-group-item">Không có lịch sử theo dõi</li>';
+                        }
+                        document.getElementById('addPeriodicHealth').setAttribute('data-journey-id', journeyId);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching PeriodicHealths:', error);
+                        detailsList.innerHTML = '<li class="list-group-item">Lỗi khi tải dữ liệu</li>';
+                    });
+            }
+        }
+    });
+
+    document.getElementById('psychologyDiaryList').addEventListener('click', function (e) {
+        const item = e.target.closest('.journey-item');
+        if (item) {
+            const journeyId = item.getAttribute('data-journey-id');
+            const treatmentId = item.getAttribute('data-treatment-id');
+
+            if (treatmentId === '1') {
+                const detailsList = document.getElementById('psychologyDiaryDetailsList');
+                detailsList.innerHTML = '<li class="list-group-item">Đang tải...</li>';
+
+                // Gán journeyId vào nút trước khi mở modal
+                const completeButton = document.getElementById('completePsychologyDiary');
+                const addButton = document.getElementById('addPsychologyDiary');
+                if (completeButton && addButton) {
+                    completeButton.setAttribute('data-journey-id', journeyId);
+                    addButton.setAttribute('data-journey-id', journeyId);
+                    console.log('Assigned journeyId to buttons:', { journeyId });
+                } else {
+                    console.error('Button not found:', { completeButton, addButton });
+                }
+
+                fetch(`/PregnancyCare/GetPsychologyDiaryDetails?journeyId=${journeyId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        detailsList.innerHTML = '';
+                        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+                            data.data.forEach(diary => {
+                                const li = document.createElement('li');
+                                li.className = 'list-group-item py-3';
+                                li.innerHTML = `
+                                <strong>Nhật ký tâm lý (ID: ${diary.diaryId})</strong>
+                                <p class="mb-0">Tâm trạng: ${diary.mood}</p>
+                                <p class="mb-0">Nội dung: ${diary.content || 'Không có'}</p>
+                                <p class="mb-0">Ngày tạo: ${new Date(diary.createdDate).toLocaleDateString('vi-VN')}</p>
+                            `;
+                                detailsList.appendChild(li);
+                            });
+                        } else {
+                            detailsList.innerHTML = '<li class="list-group-item">Không có lịch sử theo dõi</li>';
+                        }
+                        document.getElementById('addPsychologyDiary').setAttribute('data-journey-id', journeyId);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching PsychologyDiaries:', error);
+                        detailsList.innerHTML = '<li class="list-group-item">Lỗi khi tải dữ liệu</li>';
+                    });
+            }
+        }
+    });
+
+    // Xử lý nút "Thêm mới" trong modal chi tiết
+    document.getElementById('addPeriodicHealth').addEventListener('click', function () {
+        const journeyId = this.getAttribute('data-journey-id');
+        document.getElementById('periodicJourneyId').value = journeyId;
+    });
+
+    document.getElementById('addPsychologyDiary').addEventListener('click', function () {
+        const journeyId = this.getAttribute('data-journey-id');
+        document.getElementById('diaryJourneyId').value = journeyId;
+    });
+
+    // Xử lý lưu thông tin thai kỳ
+    document.getElementById('savePeriodicHealth').addEventListener('click', function () {
+        const form = document.getElementById('periodicHealthForm');
+        const formData = new FormData(form);
+
+        fetch('/PregnancyCare/CreatePeriodic', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('periodicHealthModal')).hide();
+                    showSuccessModal('Lưu thông tin thai kỳ thành công!');
+                } else {
+                    showErrorModal('Có lỗi xảy ra khi lưu thông tin.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorModal('Có lỗi xảy ra khi lưu thông tin.');
+            });
+    });
+
+    // Xử lý lưu nhật ký tâm lý
+    document.getElementById('savePsychologyDiary').addEventListener('click', function () {
+        const form = document.getElementById('psychologyDiaryForm');
+        const formData = new FormData(form);
+
+        fetch('/PregnancyCare/CreatePsychologyDiary', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('psychologyDiaryModal')).hide();
+                    showSuccessModal('Lưu nhật ký tâm lý thành công!');
+                } else {
+                    showErrorModal('Có lỗi xảy ra khi lưu nhật ký.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorModal('Có lỗi xảy ra khi lưu nhật ký.');
+            });
+    });
+
+    // Xử lý nút "Hoàn thành" trong modal chi tiết
+    document.getElementById('completePeriodicHealth').addEventListener('click', function () {
+        const journeyId = this.getAttribute('data-journey-id');
+
+        $.ajax({
+            url: '/PregnancyCare/CompleteJourney',
+            type: 'POST',
+            data: { journeyId: journeyId },
+            success: function (data) {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('periodicHealthDetailsModal')).hide();
+                    window.location.reload();
+                } else {
+                    showErrorModal(data.message || 'Có lỗi xảy ra khi hoàn thành hành trình.');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error completing PeriodicHealth journey:', error);
+                showErrorModal('Có lỗi xảy ra khi hoàn thành hành trình: ' + error);
+            }
+        });
+    });
+
+    document.getElementById('completePsychologyDiary').addEventListener('click', function () {
+        const journeyId = this.getAttribute('data-journey-id');
+
+        $.ajax({
+            url: '/PregnancyCare/CompleteJourney',
+            type: 'POST',
+            data: { journeyId: journeyId },
+            success: function (data) {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('psychologyDiaryDetailsModal')).hide();
+                    window.location.reload();
+                } else {
+                    showErrorModal(data.message || 'Có lỗi xảy ra khi hoàn thành hành trình.');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error completing PeriodicHealth journey:', error);
+                showErrorModal('Có lỗi xảy ra khi hoàn thành hành trình: ' + error);
+            }
+        });
+    });
+});

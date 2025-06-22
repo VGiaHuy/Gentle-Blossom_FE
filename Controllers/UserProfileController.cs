@@ -46,9 +46,10 @@ namespace Gentle_Blossom_FE.Controllers
                 var userProfile = JsonConvert.DeserializeObject<API_Response<UserProfileViewModel>>(userProfileRawJson);
 
                 var viewModal = new UserProfileViewModel();
-                viewModal.UserProfile = userProfile.Data.UserProfile!;
-                viewModal.PsychologyDiaries = userProfile.Data!.PsychologyDiaries.OrderByDescending(a => a.DiaryId).ToList();
-                viewModal.PeriodicHealths = userProfile.Data!.PeriodicHealths.OrderByDescending(a => a.HealthId).ToList();
+                viewModal.UserProfile = userProfile.Data.UserProfile;
+                //viewModal.PsychologyDiaries = userProfile.Data.PsychologyDiaries!.OrderByDescending(a => a.DiaryId).ToList();
+                //viewModal.PeriodicHealths = userProfile.Data.PeriodicHealths!.OrderByDescending(a => a.HealthId).ToList();
+                viewModal.HealthJourneys = userProfile.Data.HealthJourneys;
 
                 return View(viewModal);
             }

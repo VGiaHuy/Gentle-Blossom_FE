@@ -186,5 +186,96 @@ namespace Gentle_Blossom_FE.Controllers
             var error = await response.Content.ReadAsStringAsync();
             return Json(new { success = false, message = "Lấy dữ liệu không thành công! Lỗi: " + error });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPeriodicDetails([FromQuery] int journeyId)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/PregnancyCare/GetPeriodicDetails?journeyId={journeyId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<List<PeriodicHealthDTO>>>(rawJson);
+
+                return Json(new { success = true, message = jsonData.Message, data = jsonData.Data });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Lấy dữ liệu không thành công! Lỗi: " + error });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPsychologyDiaryDetails([FromQuery] int journeyId)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/PregnancyCare/GetPsychologyDiaryDetails?journeyId={journeyId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<List<PsychologyDiaryDTO>>>(rawJson);
+
+                return Json(new { success = true, message = jsonData.Message, data = jsonData.Data });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Lấy dữ liệu không thành công! Lỗi: " + error });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePeriodic(PeriodicHealthDTO periodicHealth)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/PregnancyCare/CreatePeriodic", periodicHealth);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+                return Json(new { success = true, message = jsonData.Message });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Thêm mới không thành công! Lỗi: " + error });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePsychologyDiary(PsychologyDiaryDTO psychologyDiary)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/PregnancyCare/CreatePsychologyDiary", psychologyDiary);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+                return Json(new { success = true, message = jsonData.Message });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Thêm mới không thành công! Lỗi: " + error });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CompleteJourney(string journeyId)
+        {
+            int id = int.Parse(journeyId);
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/PregnancyCare/CompleteJourney", id);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+                return Json(new { success = true, message = jsonData.Message });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Thực hiện không thành công! Lỗi: " + error });
+        }
     }
 }

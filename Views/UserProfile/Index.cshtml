@@ -7,8 +7,6 @@
     <!-- Profile Header -->
     <div class="card border-0 shadow-lg rounded-4 mb-5">
         <div class="card-body text-center p-3">
-            <img src="" alt="Avatar"
-                 class="rounded-circle mb-4" style="width: 180px; height: 180px; object-fit: cover;">
             <h3 class="fw-bold text-primary" style="color: #0dcaf0; font-size: 2rem;">
                 @Model.UserProfile.FullName
             </h3>
@@ -48,40 +46,45 @@
         <!-- Left: Periodic Health -->
         <div class="col-lg-3 col-md-6">
             <div class="card border-0 shadow-lg rounded-4">
-                @if(Model.UserProfile.UserTypeId == UserTypeName.User)
+                @if (Model.UserProfile.UserTypeId == UserTypeName.User)
                 {
                     <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
                         <i class="bi bi-heart-pulse me-2"></i>Sức khỏe thai sản
                     </div>
                     <div class="card-body p-4">
-
-                        @if (@Model.PeriodicHealths.Count != 0)
+                        @if (Model.HealthJourneys.Any(j => j.TreatmentId == 2))
                         {
-                            <ul class="list-group list-group-flush">
-                                @foreach (var group in Model.PeriodicHealths.GroupBy(x => x.JourneyId))
-                                {
-                                    var periodic = group.First();
-
-                                    <li class="list-group-item py-3">
-                                        <input hidden value="@periodic.JourneyId" />
-                                        <strong>Hành trình của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
-                                        <p class="mb-0">Ngày bắt đầu: @periodic.StartDate</p>
-                                        <p class="mb-0">Ngày dự sinh: @periodic.DueDate</p>
-                                        <p class="mb-0">Ngày kết thúc: @(periodic.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
-                                    </li>
-                                }
-
+                            var thaiSanJourneys = Model.HealthJourneys.Where(j => j.TreatmentId == 2).OrderByDescending(j => j.StartDate).ToList();
+                            var firstJourney = thaiSanJourneys.First();
+                            var otherJourneys = thaiSanJourneys.Skip(1).ToList();
+                            <ul class="list-group list-group-flush" id="periodicHealthList"
+                                data-full-name="@Model.UserProfile.FullName"
+                                data-other-journeys='@Html.Raw(Json.Serialize(otherJourneys))'>
+                                <li class="list-group-item py-3 journey-item" style="cursor: pointer;"
+                                    data-journey-id="@firstJourney.JourneyId"
+                                    data-treatment-id="@firstJourney.TreatmentId"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#periodicHealthDetailsModal">
+                                    <strong>Hành trình @firstJourney.TreatmentName của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
+                                    <p class="mb-0">Mã hành trình: @firstJourney.JourneyId</p>
+                                    <p class="mb-0">Ngày bắt đầu: @firstJourney.StartDate.ToString("dd/MM/yyyy")</p>
+                                    <p class="mb-0">Ngày dự sinh: @(firstJourney.DueDate?.ToString("dd/MM/yyyy") ?? "Không xác định")</p>
+                                    <p class="mb-0">Ngày kết thúc: @(firstJourney.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
+                                    <p class="mb-0">Trạng thái: @(firstJourney.Status ? "Đã hoàn thành" : "Đang diễn ra")</p>
+                                </li>
                             </ul>
-                            <a href="/periodic-health" class="btn btn-outline-primary rounded-3 mt-3 w-100"
-                               style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
-                                <i class="bi bi-list-ul me-2"></i>Xem tất cả
-                            </a>
+                            @if (otherJourneys.Any())
+                            {
+                                <button id="viewMoreThaiSan" class="btn btn-outline-primary rounded-3 mt-3 w-100"
+                                        style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                                    <i class="bi bi-list-ul me-2"></i>Xem thêm
+                                </button>
+                            }
                         }
                         else
                         {
-                            <p class="mt-2" style="font-style: italic; text-align: center">Không có lịch sử theo dõi</p>
+                            <p class="mt-2" style="font-style: italic; text-align: center">Không có hành trình thai sản</p>
                         }
-
                     </div>
                 }
             </div>
@@ -118,43 +121,48 @@
             </div>
         </div>
 
-
-
         <!-- Right: Psychology Diary -->
         <div class="col-lg-3 col-md-12">
             <div class="card border-0 shadow-lg rounded-4">
-                @if(Model.UserProfile.UserTypeId == UserTypeName.User)
+                @if (Model.UserProfile.UserTypeId == UserTypeName.User)
                 {
                     <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
                         <i class="bi bi-journal-text me-2"></i>Nhật ký tâm lý
                     </div>
-
-                    @if (@Model.PsychologyDiaries.Count != 0)
-                    {
-                        <div class="card-body p-4">
-
-                            @foreach (var group in @Model.PsychologyDiaries.GroupBy(x => x.JourneyId))
+                    <div class="card-body p-4">
+                        @if (Model.HealthJourneys.Any(j => j.TreatmentId == 1))
+                        {
+                            var tamLyJourneys = Model.HealthJourneys.Where(j => j.TreatmentId == 1).OrderByDescending(j => j.StartDate).ToList();
+                            var firstJourney = tamLyJourneys.First();
+                            var otherJourneys = tamLyJourneys.Skip(1).ToList();
+                            <ul class="list-group list-group-flush" id="psychologyDiaryList"
+                                data-full-name="@Model.UserProfile.FullName"
+                                data-other-journeys='@Html.Raw(Json.Serialize(otherJourneys))'>
+                                <li class="list-group-item py-3 journey-item" style="cursor: pointer;"
+                                    data-journey-id="@firstJourney.JourneyId"
+                                    data-treatment-id="@firstJourney.TreatmentId"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#psychologyDiaryDetailsModal">
+                                    <strong>Hành trình @firstJourney.TreatmentName của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
+                                    <p class="mb-0">Mã hành trình: @firstJourney.JourneyId</p>
+                                    <p class="mb-0">Ngày bắt đầu: @firstJourney.StartDate.ToString("dd/MM/yyyy")</p>
+                                    <p class="mb-0">Ngày kết thúc: @(firstJourney.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
+                                    <p class="mb-0">Trạng thái: @(firstJourney.Status ? "Đã hoàn thành" : "Đang diễn ra")</p>
+                                </li>
+                            </ul>
+                            @if (otherJourneys.Any())
                             {
-                                var diary = group.First();
-
-                                <div class="mb-4">
-                                    <input hidden value="@diary.JourneyId" />
-                                    <strong>Nhật ký của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
-                                    <p class="mb-0">Ngày bắt đầu: @diary.StartDate</p>
-                                    <p class="mb-0">Ngày kết thúc: @(diary.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
-                                </div>
+                                <button id="viewMoreTamLy" class="btn btn-outline-primary rounded-3 mt-3 w-100"
+                                        style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
+                                    <i class="bi bi-list-ul me-2"></i>Xem thêm
+                                </button>
                             }
-
-                            <a href="/psychology-diary" class="btn btn-outline-primary rounded-3 w-100"
-                               style="font-size: 1.1rem; --btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
-                                <i class="bi bi-list-ul me-2"></i>Xem tất cả
-                            </a>
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="mt-2" style="font-style: italic; text-align: center">Không có lịch sử theo dõi</p>
-                    }
+                        }
+                        else
+                        {
+                            <p class="mt-2" style="font-style: italic; text-align: center">Không có hành trình tâm lý</p>
+                        }
+                    </div>
                 }
             </div>
         </div>
@@ -230,6 +238,143 @@
     </div>
 </div>
 
+
+<!-- Modal chi tiết Thông tin thai kỳ -->
+<div class="modal fade" id="periodicHealthDetailsModal" tabindex="-1" aria-labelledby="periodicHealthDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="periodicHealthDetailsModalLabel">
+                    <i class="bi bi-heart-pulse me-2"></i>Chi tiết thông tin thai kỳ
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="periodicHealthDetailsList">
+                    <!-- Nội dung sẽ được thêm động bằng JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success me-auto rounded-3" id="completePeriodicHealth">Hoàn thành</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="addPeriodicHealth" data-bs-toggle="modal" data-bs-target="#periodicHealthModal">Thêm mới</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chi tiết Nhật ký tâm lý -->
+<div class="modal fade" id="psychologyDiaryDetailsModal" tabindex="-1" aria-labelledby="psychologyDiaryDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="psychologyDiaryDetailsModalLabel">
+                    <i class="bi bi-journal-text me-2"></i>Chi tiết nhật ký tâm lý
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="psychologyDiaryDetailsList">
+                    <!-- Nội dung sẽ được thêm động bằng JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success me-auto rounded-3" id="completePsychologyDiary">Hoàn thành</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="addPsychologyDiary" data-bs-toggle="modal" data-bs-target="#psychologyDiaryModal">Thêm mới</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cho Thêm thông tin thai kỳ -->
+<div class="modal fade" id="periodicHealthModal" tabindex="-1" aria-labelledby="periodicHealthModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="periodicHealthModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>Thêm thông tin thai kỳ
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="periodicHealthForm">
+                    <input type="hidden" id="periodicJourneyId" name="JourneyId" />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="weeksPregnant" class="form-label fw-medium">Tuần thai</label>
+                            <input type="number" class="form-control rounded-3" id="weeksPregnant" name="WeeksPregnant" min="1" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bloodPressure" class="form-label fw-medium">Huyết áp</label>
+                            <input type="number" class="form-control rounded-3" id="bloodPressure" name="BloodPressure" min="0" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="waistCircumference" class="form-label fw-medium">Vòng bụng (cm)</label>
+                            <input type="number" class="form-control rounded-3" id="waistCircumference" name="WaistCircumference" min="0" step="0.1" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="weight" class="form-label fw-medium">Cân nặng (kg)</label>
+                            <input type="number" class="form-control rounded-3" id="weight" name="Weight" min="0" step="0.1" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="mood" class="form-label fw-medium">Tâm trạng</label>
+                            <input type="text" class="form-control rounded-3" id="mood" name="Mood" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="genderBaby" class="form-label fw-medium">Giới tính bé</label>
+                            <select class="form-select rounded-3" id="genderBaby" name="GenderBaby">
+                                <option value="">Chưa xác định</option>
+                                <option value="true">Bé trai</option>
+                                <option value="false">Bé gái</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="healthNote" class="form-label fw-medium">Ghi chú</label>
+                            <textarea class="form-control rounded-3" id="healthNote" name="Notes" rows="4"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="savePeriodicHealth">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cho Thêm nhật ký tâm lý -->
+<div class="modal fade" id="psychologyDiaryModal" tabindex="-1" aria-labelledby="psychologyDiaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="psychologyDiaryModalLabel">
+                    <i class="bi bi-pen me-2"></i>Thêm nhật ký tâm lý
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="psychologyDiaryForm">
+                    <input type="hidden" id="diaryJourneyId" name="JourneyId" />
+                    <div class="mb-3">
+                        <label for="diaryMood" class="form-label fw-medium">Tâm trạng</label>
+                        <input type="text" class="form-control rounded-3" id="diaryMood" name="Mood" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="diaryContent" class="form-label fw-medium">Nội dung</label>
+                        <textarea class="form-control rounded-3" id="diaryContent" name="Content" rows="8" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="savePsychologyDiary">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     /* Tùy chỉnh giao diện */
     .modal-content {
@@ -271,6 +416,11 @@
         margin-top: 1rem;
         display: none;
     }
+
+    .modal-xl textarea.form-control {
+        min-height: 200px;
+        resize: vertical;
+    }
 </style>
 
 @await Html.PartialAsync("Component/CreatePostModal")
@@ -279,4 +429,10 @@
 @section Scripts {
     <script src="~/js/view/detailPost.js"></script>
     <script src="~/js/view/userProfile.js"></script>
+
+    <script>
+        window.appData = {
+            fullName: '@Model.UserProfile.FullName'
+        };
+    </script>
 }

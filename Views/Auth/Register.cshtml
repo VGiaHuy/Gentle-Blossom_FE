@@ -65,7 +65,7 @@
                                     <i class="bi bi-calendar-date text-primary"></i>
                                 </span>
                                 <input type="date" class="form-control border-start-0 rounded-end-3" id="dateOfBirth"
-                                       name="DateOfBirth" required style="border-color: #0dcaf0;">
+                                       name="BirthDate" required style="border-color: #0dcaf0;">
                             </div>
                             <div class="invalid-feedback">
                                 Vui lòng chọn ngày sinh.
@@ -81,9 +81,8 @@
                                 </span>
                                 <select class="form-select border-start-0 rounded-end-3" id="gender" name="Gender" required style="border-color: #0dcaf0;">
                                     <option value="" disabled selected>Chọn giới tính</option>
-                                    <option value="Nam">Nam</option>
-                                    <option value="Nữ">Nữ</option>
-                                    <option value="Khác">Khác</option>
+                                    <option value="true">Nam</option>
+                                    <option value="false">Nữ</option>
                                 </select>
                             </div>
                             <div class="invalid-feedback">
@@ -99,7 +98,7 @@
                                     <i class="bi bi-person-badge text-primary"></i>
                                 </span>
                                 <input type="text" class="form-control border-start-0 rounded-end-3" id="username"
-                                       name="Username" required placeholder="Nhập tên đăng nhập" style="border-color: #0dcaf0;">
+                                       name="UserName" required placeholder="Nhập tên đăng nhập" style="border-color: #0dcaf0;">
                             </div>
                             <div class="invalid-feedback">
                                 Vui lòng nhập tên đăng nhập (tối thiểu 4 ký tự).
