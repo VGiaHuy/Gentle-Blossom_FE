@@ -429,20 +429,35 @@
         const formData = new FormData();
         const posterId = document.getElementById('userCmtId').value;
 
-        formData.append('PostId', currentPost?.postId || 0); // ID bài viết
-        formData.append('PosterId', posterId || ''); // ID người đăng (giả sử bạn có `currentUser`)
-        formData.append('ParentCommentId', null); // ID bình luận cha (nếu là trả lời)
-        formData.append('Content', content); // Nội dung bình luận
+        formData.append('PostId', currentPost?.postId || 0);
+        formData.append('PosterId', posterId || '');
+        formData.append('ParentCommentId', null);
+        formData.append('Content', content);
         if (commentImage) {
-            // Kiểm tra định dạng file (hình ảnh hoặc video)
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm'];
             if (!allowedTypes.includes(commentImage.type)) {
                 showErrorModal('Chỉ chấp nhận hình ảnh hoặc video!', 3000);
                 return;
             }
-            formData.append('MediaFile', commentImage); // Chỉ gửi một file
+            formData.append('MediaFile', commentImage);
         }
-        formData.append('CommentDate', new Date().toISOString().split('T')[0]); // Ngày bình luận
+        formData.append('CommentDate', new Date().toISOString().split('T')[0]);
+
+        // Lấy thông tin người dùng từ hidden inputs
+        const userFullName = document.getElementById('userFullName')?.value || 'Người dùng';
+        const userAvatarUrl = document.getElementById('userAvatarUrl')?.value || '/images/default-avatar.jpg';
+
+        console.log("userFullName", userFullName, "userAvatarUrl", userAvatarUrl);
+
+        // Lưu trạng thái ban đầu của nút
+        const submitButton = $('#submitComment');
+        const originalButtonContent = submitButton.html();
+
+        // Tạo ID tạm để theo dõi bình luận
+        const tempCommentId = `temp-${Date.now()}`;
+
+        // Lưu commentImage tạm thời để sử dụng trong complete
+        const tempCommentImage = commentImage;
 
         // Gửi dữ liệu qua AJAX
         $.ajax({
@@ -451,24 +466,111 @@
             data: formData,
             processData: false,
             contentType: false,
+            beforeSend: function () {
+                submitButton
+                    .html('<span class="spinner-border spinner-border-sm"></span> Đang gửi...')
+                    .prop('disabled', true);
+            },
             success: function (data) {
                 if (data.success) {
+                    // Xóa nội dung form
                     quill.setContents([]);
                     document.getElementById('commentImage').value = '';
                     commentImage = null;
                     if (commentImagePreview) {
                         commentImagePreview.innerHTML = '';
                     }
-                    fetchComments(currentPost?.postId);
+                    // Xóa bình luận tạm trước khi gọi fetchComments
+                    const tempComment = document.querySelector(`[data-comment-id="${tempCommentId}"]`);
+                    if (tempComment) {
+                        tempComment.remove();
+                        console.log('Đã xóa bình luận tạm trước fetchComments');
+                    }
+                    // Cập nhật số lượng bình luận và tải lại danh sách để đồng bộ
                     updateCommentCount(currentPost?.postId, 1);
-                    showSuccessModal(data.message, 3000);
+                    fetchComments(currentPost?.postId, 1, false);
+                    showSuccessModal(data.message || 'Bình luận đã được gửi!', 3000);
                 } else {
-                    showErrorModal(data.message, 3000);
+                    // Xóa bình luận tạm nếu server trả về lỗi
+                    const tempComment = document.querySelector(`[data-comment-id="${tempCommentId}"]`);
+                    if (tempComment) {
+                        tempComment.remove();
+                    }
+                    showErrorModal(data.message || 'Lỗi khi gửi bình luận', 3000);
                 }
             },
             error: function (xhr, status, error) {
-                console.error('Lỗi khi gửi bình luận:', error);
-                showErrorModal('Lỗi khi gửi bình luận', 3000);
+                console.error('Lỗi gửi bình luận:', error, xhr.responseText);
+                // Xóa bình luận tạm nếu có lỗi
+                const tempComment = document.querySelector(`[data-comment-id="${tempCommentId}"]`);
+                if (tempComment) {
+                    tempComment.remove();
+                }
+                showErrorModal('Lỗi khi gửi bình luận', 5000);
+            },
+            complete: function () {
+                submitButton
+                    .html(originalButtonContent)
+                    .prop('disabled', false);
+
+                // Thêm bình luận mới bằng dữ liệu hiện có
+                const commentsList = document.getElementById('commentsList');
+                if (commentsList) {
+                    // Xóa bình luận tạm nếu còn tồn tại
+                    const existingTempComment = document.querySelector(`[data-comment-id="${tempCommentId}"]`);
+                    if (existingTempComment) {
+                        existingTempComment.remove();
+                        console.log('Đã xóa bình luận tạm trong complete');
+                    }
+                    let commentHtml = `
+                    <div class="d-flex align-items-start mb-2" data-comment-id="${tempCommentId}">
+                        <img src="/Post/ProxyImage?url=${userAvatarUrl}" alt="Avatar" class="rounded-circle me-2" style="width: 35px; height: 35px;">
+                        <div class="flex-grow-1">
+                            <p class="mb-0"><strong>${userFullName}</strong> ${content}</p>
+                `;
+                    if (tempCommentImage) {
+                        const mediaType = tempCommentImage.type.startsWith('image') ? 'image' : 'video';
+                        if (mediaType === 'image') {
+                            commentHtml += `
+                            <div class="mt-2">
+                                <img src="${URL.createObjectURL(tempCommentImage)}"
+                                     alt="${tempCommentImage.name || ''}"
+                                     class="img-fluid rounded"
+                                     style="max-height: 100px; object-fit: cover;"
+                                     loading="lazy"
+                                     onerror="this.onerror=null; this.src='/images/fallback-image.jpg';" />
+                            </div>
+                        `;
+                        } else if (mediaType === 'video') {
+                            commentHtml += `
+                            <div class="mt-2">
+                                <video controls class="img-fluid rounded" style="max-height: 100px;">
+                                    <source src="${URL.createObjectURL(tempCommentImage)}" type="${tempCommentImage.type}">
+                                    Trình duyệt không hỗ trợ video.
+                                </video>
+                            </div>
+                        `;
+                        }
+                    }
+                    commentHtml += `
+                            <small class="text-muted">${new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</small>
+                        </div>
+                    </div>
+                `;
+                    console.log('HTML bình luận:', commentHtml);
+                    commentsList.insertAdjacentHTML('afterbegin', commentHtml);
+                    console.log('Đã chèn bình luận vào đầu commentsList');
+
+                    // Hiệu ứng mượt mà
+                    const newComment = commentsList.firstElementChild;
+                    newComment.style.opacity = '0';
+                    newComment.style.transition = 'opacity 0.5s';
+                    setTimeout(() => {
+                        newComment.style.opacity = '1';
+                    }, 100);
+                } else {
+                    console.warn('Không tìm thấy commentsList');
+                }
             }
         });
     });

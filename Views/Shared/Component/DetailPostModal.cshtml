@@ -16,16 +16,6 @@
                             <strong id="postPosterName" class="d-block text-primary fw-bold" style="color: #0dcaf0;"></strong>
                             <p id="postCreatedDate" class="text-muted mb-0 small"></p>
                         </div>
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary btn-sm rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-three-dots"></i>
-                            </button>
-                            <ul class="dropdown-menu rounded-3">
-                                <li><a class="dropdown-item" href="#" onclick="savePost()"><i class="bi bi-bookmark me-2"></i>Lưu bài viết</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="muteNotifications()"><i class="bi bi-bell-slash me-2"></i>Tắt thông báo</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportPost()"><i class="bi bi-flag me-2"></i>Báo cáo bài viết</a></li>
-                            </ul>
-                        </div>
                     </div>
                     <p id="postTextContent" class="text-muted mb-3"></p>
                     <div id="postMediaGallery" class="media-gallery row g-2 mb-3"></div>
@@ -58,6 +48,8 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <input type="hidden" id="userCmtId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
+                            <input type="hidden" id="userFullName" value="@User.FindFirst(ClaimTypes.Name)?.Value">
+                            <input type="hidden" id="userAvatarUrl" value="@(string.IsNullOrEmpty(User.FindFirst("ProfileImageUrl")?.Value) ? "" : Uri.EscapeDataString(User.FindFirst("ProfileImageUrl").Value))">
                             <div class="comment-input-section">
                                 <div class="d-flex align-items-center mb-2">
                                     <div id="commentEditor" class="flex-grow-1 me-2" style="min-height: 38px;"></div>
@@ -107,4 +99,9 @@
         #commentsList::-webkit-scrollbar-thumb:hover {
             background: #0aa8d0;
         }
+
+    #commentsList {
+        display: flex;
+        flex-direction: column;
+    }
 </style>

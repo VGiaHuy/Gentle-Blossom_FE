@@ -1,4 +1,5 @@
-﻿@using Gentle_Blossom_FE.Data.DTOs.UserDTOs
+﻿@using System.Security.Claims
+@using Gentle_Blossom_FE.Data.DTOs.UserDTOs
 @model List<PostDTO>
 
 @foreach (var post in Model)
@@ -14,16 +15,13 @@
                 <strong class="d-block text-primary fw-bold" style="color: #0dcaf0;">@post.PosterName</strong>
                 <p class="text-muted mb-0 small">@post.CreatedDate</p>
             </div>
-            @if (User.Identity.IsAuthenticated)
+            @if (User.Identity!.IsAuthenticated && (post.PosterId) == int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!))
             {
                 <div class="dropdown">
                     <button class="btn btn-outline-secondary btn-sm rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-three-dots"></i>
                     </button>
                     <ul class="dropdown-menu rounded-3">
-                        <li><a class="dropdown-item" href="#" onclick="savePost()"><i class="bi bi-bookmark me-2"></i>Lưu bài viết</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="muteNotifications()"><i class="bi bi-bell-slash me-2"></i>Tắt thông báo</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="reportPost()"><i class="bi bi-flag me-2"></i>Báo cáo bài viết</a></li>
                         <li><a class="dropdown-item" href="#" onclick="deletePost(@post.PostId)"><i class="bi bi-trash me-2"></i>Xóa bài viết</a></li>
                     </ul>
                 </div>

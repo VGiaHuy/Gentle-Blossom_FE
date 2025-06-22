@@ -4,6 +4,8 @@
     {
         public int PostId { get; set; }
 
+        public int PosterId { get; set; }
+
         public string PosterName { get; set; }
 
         public AvatarMediaDTO? PosterAvatar { get; set; }
