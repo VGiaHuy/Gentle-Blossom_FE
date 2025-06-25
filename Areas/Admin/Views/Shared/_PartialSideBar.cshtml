@@ -1,0 +1,92 @@
+﻿<div class="sidebar" id="sidebar" style="font-size:20px; line-height:1.7">
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+            <!-- Trang chủ -->
+            <li class="nav-item">
+                <a href="/admin/homeadmin" class="nav-link">
+                    @* active *@
+                    <i class="nav-icon fas fa-tachometer-alt"></i>
+                    <p>
+                        Trang Chủ
+                    </p>
+                 </a>
+               
+            </li>
+
+            <!-- Phiếu mượn -->
+            <li class="nav-item">
+                <a href="/admin/keyword" class="nav-link">
+                    <i class="nav-icon fas fa-chart-pie"></i>
+                    <p>
+                        Quản lý bài viết
+                    </p>
+                </a>
+
+            </li>
+
+            <!-- quản lý Phiếu mượn -->
+            <li class="nav-item">
+                <a href="/admin/MentalHealthKeyword" class="nav-link">
+                    <i class="nav-icon fas fa-copy"></i>
+                    <p>
+                        Keyword phân tích cảm xúc
+                    </p>
+                </a>
+            </li>
+
+            <!-- public/admin/phieutra.html -->
+            <li class="nav-item">
+                <a href="/admin/phieutra" class="nav-link">
+                    <i class="nav-icon fas fa-copy"></i>
+                    <p>
+                        Thêm chuyên gia
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('sidebar');
+        const links = sidebar.querySelectorAll('.nav-link');
+
+        const activeItem = localStorage.getItem('activeMenuItem');
+
+        if (activeItem) {
+            const activeLink = sidebar.querySelector(`.nav-link[href="${activeItem}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        function handleSidebarClick(event) {
+            links.forEach(link => link.classList.remove('active'));
+
+            const clickedLink = event.target.closest('.nav-link');
+            if (clickedLink) {
+                clickedLink.classList.add('active');
+                localStorage.setItem('activeMenuItem', clickedLink.getAttribute('href'));
+
+                const parentItem = clickedLink.closest('.nav-item');
+                const parentLink = parentItem && parentItem.querySelector('.nav-link');
+                if (parentLink) {
+                    parentLink.classList.add('active');
+                }
+
+                const href = clickedLink.getAttribute('href');
+                if (href && href !== '#') {
+                    window.location.href = href;
+                }
+            }
+        }
+
+        sidebar.addEventListener('click', handleSidebarClick);
+    });
+</script>
+
+

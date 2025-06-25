@@ -1,0 +1,120 @@
+﻿@{
+    ViewBag.Title = "Trang chủ admin";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid header bg-white p-0">
+    <div class="row g-0 align-items-center">
+        <div class="col-md-12">
+
+            <h2 class="text-center text-blue text-bold">Gentle Blossoom</h2>
+
+            <div class="owl-carousel header-carousel">
+                <div class="owl-carousel-item mt-5">
+                    <h1>Chào mừng bạn đến với Trang dành cho đội ngũ quản trị hệ thống Gentle Blossoom</h1>
+                </div>
+              
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<style>
+    /* General styles */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    /* Container styles */
+    .container-fluid {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    /* Header styles */
+    .header {
+        position: relative;
+        background-color: #fff;
+        padding: 20px 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Carousel styles */
+    .header-carousel {
+        position: relative;
+    }
+
+        .header-carousel .owl-carousel-item img {
+            display: block;
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+            margin-top: 130px;
+        }
+
+    .text-container {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.1);
+    }
+
+        .text-container h6 {
+            font-size: 1.2rem;
+        }
+
+        .text-container p {
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+    /* Button styles */
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 10px 0;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+    /* Responsive styles */
+    @@media (max-width: 768px) {
+        .header-carousel .owl-carousel-item img {
+            margin-top: 0;
+        }
+
+        .text-container {
+            padding: 10px;
+        }
+
+            .text-container h6 {
+                font-size: 1rem;
+            }
+
+            .text-container p {
+                font-size: 0.9rem;
+            }
+    }
+</style>

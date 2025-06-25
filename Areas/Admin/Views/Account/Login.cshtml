@@ -1,0 +1,84 @@
+﻿@{
+    ViewBag.Title = "Login";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutLogin.cshtml";
+}
+
+<div class="limiter">
+    <div class="container-login100" style="background-image: url('~/Content/Assets/Login/images/bg-01.jpg')">
+        <div class="wrap-login100 p-l-55 p-r-55 p-t-40 p-b-40">
+            <form id="loginForm" class="login100-form validate-form" action="/Admin/Account/Login" method="post">
+                <span class="login100-form-title p-b-49">Login Admin</span>
+
+                <div class="wrap-input100 validate-input m-b-23">
+                    <span class="label-input100">Username</span>
+                    <input id="username" name="username" type="text" class="input100" placeholder="Type your username" />
+                    <span class="text-danger" id="usernameError"></span>
+                </div>
+
+                <div class="wrap-input100 validate-input">
+                    <span class="label-input100">Password</span>
+                    <input id="password" name="password" type="password" class="input100" placeholder="Type your password" />
+                    <span class="text-danger" id="passwordError"></span>
+                </div>
+
+                <div class="pt-4 text-center">
+                    <p class="text-danger" id="generalError">@TempData["error"]</p>
+
+                </div>
+
+                <div class="container-login100-form-btn pt-4">
+                    <div class="wrap-login100-form-btn">
+                        <div class="login100-form-bgbtn"></div>
+                        <button id="loginButton" class="login100-form-btn" type="button">Login</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById("loginButton").addEventListener("click", function () {
+        // Lấy giá trị từ các trường input
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        // Lấy các phần tử hiển thị lỗi
+        const usernameError = document.getElementById("usernameError");
+        const passwordError = document.getElementById("passwordError");
+        const generalError = document.getElementById("generalError");
+
+        // Xóa thông báo lỗi trước đó
+        usernameError.textContent = "";
+        passwordError.textContent = "";
+        generalError.textContent = "";
+
+        let isValid = true;
+
+        // Kiểm tra username
+        if (!username) {
+            usernameError.textContent = "Vui lòng nhập Username";
+            isValid = false;
+        } else if (username.length < 8) {
+            usernameError.textContent = "Username phải tối thiểu 8 ký tự";
+            isValid = false;
+        }
+
+        // Kiểm tra password
+        if (!password) {
+            passwordError.textContent = "Vui lòng nhập Password";
+            isValid = false;
+        }
+
+        // Nếu hợp lệ, gửi form (giả lập gửi dữ liệu)
+        if (isValid) {
+            generalError.textContent = "";
+            document.getElementById("loginForm").submit(); // Gửi form đến server
+        } else {
+            generalError.textContent = "Hãy kiểm tra các lỗi trên!";
+        }
+    });
+
+</script>

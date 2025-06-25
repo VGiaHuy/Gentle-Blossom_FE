@@ -17,32 +17,34 @@ builder.Services.AddAuthentication(option =>
     .AddCookie(option =>
     {
         option.LoginPath = "/Auth/Login"; // Đường dẫn khi user chưa đăng nhập
+    })
+    .AddCookie("AdminCookie", options =>
+    {
+        options.LoginPath = "/admin/Account/Login"; // Đường dẫn khi admin chưa đăng nhập
+        //options.AccessDeniedPath = "/admin/phanquyen/LoiPhanQuyen"; // Đường dẫn khi admin không có quyền truy cập
+        options.Cookie.Name = "AdminAuthCookie"; // Tên của cookie dành cho admin
     });
-    //.AddGoogle(GoogleDefaults.AuthenticationScheme, option =>
-    //{
-    //    option.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
-    //    option.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
-    //});
+
 
 // Cấu hình Authorization với Roles
 builder.Services.AddAuthorization(options =>
-{
-    // Policy cho User
-    options.AddPolicy("UserPolicy", policy =>
-        policy.RequireRole("User"));
+    {
+        // Policy cho User
+        options.AddPolicy("UserPolicy", policy =>
+            policy.RequireRole("User"));
 
-    // Policy cho Expert
-    options.AddPolicy("ExpertPolicy", policy =>
-        policy.RequireRole("Expert"));
+        // Policy cho Expert
+        options.AddPolicy("ExpertPolicy", policy =>
+            policy.RequireRole("Expert"));
 
-    // Policy cho Admin
-    options.AddPolicy("AdminPolicy", policy =>
-        policy.RequireRole("Admin"));
+        //// Policy cho Admin
+        //options.AddPolicy("AdminPolicy", policy =>
+        //    policy.RequireRole("Admin"));
 
-    // Policy yêu cầu User hoặc Expert
-    options.AddPolicy("UserOrExpertPolicy", policy =>
-        policy.RequireRole("User", "Expert"));
-});
+        // Policy yêu cầu User hoặc Expert
+        options.AddPolicy("UserOrExpertPolicy", policy =>
+            policy.RequireRole("User", "Expert"));
+    });
 
 builder.Services.AddSignalR();
 
