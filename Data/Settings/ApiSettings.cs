@@ -4,6 +4,7 @@
     {
         public string UserApiBaseUrl { get; set; }
         public string AdminApiBaseUrl { get; set; }
+        public string SignalRBaseUrl { get; set; }
     }
 
 }

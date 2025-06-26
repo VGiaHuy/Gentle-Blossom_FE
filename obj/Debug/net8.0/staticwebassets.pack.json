@@ -8857,6 +8857,10 @@
       "PackagePath": "staticwebassets\\css\\bootstrap.min.css"
     },
     {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\css\\chat.css",
+      "PackagePath": "staticwebassets\\css\\chat.css"
+    },
+    {
       "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },

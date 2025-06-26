@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "YgNa5BDuFzg/xrshxBkDT4Hq/yS9QPJvksTq3q68itQ=",
+  "Hash": "yrQeuiPaMhOoCQsfBwydCyjHXgs+YQ2aHiK8RJxK1zo=",
   "Source": "Gentle-Blossom_FE",
   "BasePath": "_content/Gentle-Blossom_FE",
   "Mode": "Default",
@@ -42100,6 +42100,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\bootstrap.min.css"
+    },
+    {
+      "Identity": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\css\\chat.css",
+      "SourceId": "Gentle-Blossom_FE",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\",
+      "BasePath": "_content/Gentle-Blossom_FE",
+      "RelativePath": "css/chat.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\chat.css"
     },
     {
       "Identity": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\css\\site.css",

@@ -49,6 +49,7 @@ namespace Gentle_Blossom_FE.Controllers
             var roomsResult = JsonConvert.DeserializeObject<API_Response<List<ChatRoomDTO>>>(rawJson);
 
             model.ChatRooms = roomsResult?.Success == true ? roomsResult.Data ?? new() : new();
+            ViewData["ApiSettings"] = _apiSettings; // Truyền ApiSettings vào View
 
             // Nếu có chatRoomId, lấy thông tin phòng và tin nhắn
             if (chatRoomId.HasValue)
@@ -246,6 +247,30 @@ namespace Gentle_Blossom_FE.Controllers
             var result = await response.Content.ReadFromJsonAsync<API_Response<object>>();
 
             return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUsersInChatRoom([FromQuery] int chatRoomId)
+        {
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var roomResponse = await client.GetAsync($"{_apiSettings.UserApiBaseUrl}/Chat/GetUsersInChatRoom?chatRoomId={chatRoomId}");
+
+            if (roomResponse.IsSuccessStatusCode)
+            {
+                var roomResult = await roomResponse.Content.ReadFromJsonAsync<API_Response<List<UsersInChatRoomDTO>>>();
+
+                return Json(new { success = true, message = "Lấy dữ liệu thành công!", data = roomResult.Data });
+            }
+            return Json(new { success = false, message = "Lấy dữ liệu không thành công!" });
         }
     }
 }

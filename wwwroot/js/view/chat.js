@@ -1,17 +1,128 @@
-﻿let connection = null;
+﻿let chatConnection = null;
+let videoCallConnection = null;
 let userId = document.getElementById('userId')?.value;
+let localStream;
+let peerConnections = {}; // Lưu trữ kết nối peer-to-peer cho từng người dùng
+const localVideo = document.getElementById("localVideo");
+const remoteVideo = document.getElementById("remoteVideo");
+const videoCallContainer = document.getElementById("videoCallContainer");
+
+// Cấu hình WebRTC với STUN server miễn phí
+const configuration = {
+    iceServers: [
+        { urls: "stun:stun.l.google.com:19302" } // STUN server miễn phí của Google
+    ]
+};
 
 if (typeof signalR === "undefined") {
     showErrorModal("Lỗi: Không tải được SignalR! Vui lòng kiểm tra kết nối mạng hoặc CDN.");
 } else {
-    // Khởi tạo SignalR connection
-    connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:7111/chatHub", { withCredentials: true })
+    // Kiểm tra window.apiSettings
+    if (!window.apiSettings || !window.apiSettings.signalRBaseUrl) {
+        console.error("apiSettings or signalRBaseUrl is not defined");
+        throw new Error("SignalR configuration is missing");
+    }
+
+    // Khởi tạo SignalR connection cho chat
+    chatConnection = new signalR.HubConnectionBuilder()
+        .withUrl(`${window.apiSettings.signalRBaseUrl}/chatHub`, { withCredentials: true })
         .withAutomaticReconnect()
         .build();
 
+    // Khởi tạo SignalR connection cho video call
+    videoCallConnection = new signalR.HubConnectionBuilder()
+        .withUrl(`${window.apiSettings.signalRBaseUrl}/videoCallHub`, { withCredentials: true })
+        .withAutomaticReconnect()
+        .build();
+
+    // Xử lý khi nhận Offer từ người gọi
+    videoCallConnection.on("ReceiveOffer", async (callerId, offer) => {
+        if (callerId === videoCallConnection.connectionId) {
+            console.log("Ignored self Offer");
+            return;
+        }
+
+        console.log(`Received Offer from caller ${callerId}`);
+        peerConnections[callerId] = new RTCPeerConnection(configuration);
+        console.log(`Created peer connection for caller ${callerId}`);
+
+        const remoteVideo = document.createElement('video');
+        remoteVideo.autoplay = true;
+        remoteVideo.id = `remoteVideo-${callerId}`;
+        remoteVideo.style.width = '300px';
+        remoteVideo.style.margin = '5px';
+        document.getElementById('remoteVideosContainer').appendChild(remoteVideo);
+        console.log(`Added remote video element for caller ${callerId}`);
+
+        peerConnections[callerId].onicecandidate = (event) => {
+            if (event.candidate) {
+                videoCallConnection.invoke("SendIceCandidate", callerId, JSON.stringify(event.candidate));
+                console.log(`Sent ICE candidate to caller ${callerId}`);
+            }
+        };
+
+        peerConnections[callerId].ontrack = (event) => {
+            console.log(`Received remote stream from caller ${callerId}`);
+            remoteVideo.srcObject = event.streams[0];
+        };
+
+        peerConnections[callerId].onconnectionstatechange = () => {
+            console.log(`Peer connection state for ${callerId}: ${peerConnections[callerId].connectionState}`);
+        };
+
+        try {
+            await peerConnections[callerId].setRemoteDescription(new RTCSessionDescription(JSON.parse(offer)));
+            console.log(`Set remote description for caller ${callerId}`);
+
+            localStream.getTracks().forEach(track => peerConnections[callerId].addTrack(track, localStream));
+            console.log(`Added local stream tracks to peer connection for caller ${callerId}`);
+
+            const answer = await peerConnections[callerId].createAnswer();
+            await peerConnections[callerId].setLocalDescription(answer);
+            await videoCallConnection.invoke("SendAnswer", callerId, JSON.stringify(peerConnections[callerId].localDescription));
+            console.log(`Sent Answer to caller ${callerId}`);
+        } catch (error) {
+            console.error(`Error handling Offer from ${callerId}:`, error);
+        }
+    });
+
+    // Xử lý khi nhận Answer từ người nhận
+    videoCallConnection.on("ReceiveAnswer", async (callerId, answer) => {
+        try {
+            console.log(`Received Answer from ${callerId}`);
+            if (peerConnections[callerId]) {
+                await peerConnections[callerId].setRemoteDescription(new RTCSessionDescription(JSON.parse(answer)));
+                console.log(`Set remote description for Answer from ${callerId}`);
+            } else {
+                console.error(`No peer connection found for ${callerId}`);
+            }
+        } catch (error) {
+            console.error(`Error handling Answer from ${callerId}:`, error);
+        }
+    });
+
+    // Xử lý khi nhận ICE Candidate
+    videoCallConnection.on("ReceiveIceCandidate", async (callerId, candidate) => {
+        try {
+            console.log(`Received ICE candidate from ${callerId}`);
+            if (peerConnections[callerId]) {
+                await peerConnections[callerId].addIceCandidate(new RTCIceCandidate(JSON.parse(candidate)));
+                console.log(`Added ICE candidate from ${callerId}`);
+            } else {
+                console.error(`No peer connection found for ${callerId}`);
+            }
+        } catch (error) {
+            console.error(`Error adding ICE candidate from ${callerId}:`, error);
+        }
+    });
+
+    // Xử lý khi có người tham gia phòng
+    videoCallConnection.on("UserJoined", (userId) => {
+        console.log(`User ${userId} joined the room`);
+    });
+
     // Nhận tin nhắn mới
-    connection.on("ReceiveMessage", (messageId, senderId, content, mediaList, sentAt, senderAvatarUrl, senderName) => {
+    chatConnection.on("ReceiveMessage", (messageId, senderId, content, mediaList, sentAt, senderAvatarUrl, senderName) => {
         const chatRoomId = parseInt($("input[name='chatRoomId']").val());
         const isOutgoing = senderId == userId;
 
@@ -81,27 +192,27 @@ if (typeof signalR === "undefined") {
     });
 
     // Nhận thông báo xóa tin nhắn
-    connection.on("MessageDeleted", (messageId) => {
+    chatConnection.on("MessageDeleted", (messageId) => {
         $(`.message-content[data-message-id="${messageId}"]`).closest(".message").remove();
     });
 
     // Nhận thông báo thành viên mới
-    connection.on("UserJoined", (userId) => {
+    chatConnection.on("UserJoined", (userId) => {
         showInfoModal(`Người dùng ${userId} đã tham gia phòng chat.`);
     });
 
     // Nhận thông báo thành viên rời phòng
-    connection.on("UserLeft", (userId) => {
+    chatConnection.on("UserLeft", (userId) => {
         showInfoModal(`Người dùng ${userId} đã rời phòng chat.`);
     });
 
     // Khởi động SignalR
-    connection.start().catch(err => {
+    chatConnection.start().catch(err => {
         showErrorModal("Lỗi kết nối SignalR: " + err.message);
     });
 
     // Xử lý ngắt kết nối
-    connection.onclose((error) => {
+    chatConnection.onclose((error) => {
         showInfoModal("Kết nối SignalR bị đóng!");
     });
 }
@@ -315,6 +426,29 @@ function extractFileId(url) {
     return '';
 }
 
+// Hàm ngắt kết nối video call
+function hangUp() {
+    // Dừng stream local
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+    }
+
+    // Đóng tất cả peer connections
+    Object.values(peerConnections).forEach(pc => pc.close());
+    peerConnections = {};
+
+    // Xóa tất cả video từ xa
+    const remoteVideosContainer = document.getElementById('remoteVideosContainer');
+    if (remoteVideosContainer) {
+        remoteVideosContainer.innerHTML = '';
+    }
+
+    // Ẩn giao diện video call
+    videoCallContainer.style.display = "none";
+    localVideo.srcObject = null;
+}
+
 // Hàm xử lý cuộn xuống cuối
 function scrollToBottom() {
     const chatMessages = document.getElementById('chatMessages');
@@ -338,20 +472,20 @@ jQuery(document).ready(function ($) {
         }
 
         // Kiểm tra trạng thái connection
-        if (connection && connection.state === signalR.HubConnectionState.Connected) {
+        if (chatConnection && chatConnection.state === signalR.HubConnectionState.Connected) {
             // Lấy phòng hiện tại
             const currentRoomId = parseInt($("input[name='chatRoomId']").val());
 
             // Gọi LeaveRoom nếu đang ở trong một phòng
             if (currentRoomId && !isNaN(currentRoomId)) {
-                connection.invoke("LeaveRoom", currentRoomId, parseInt(userId)).catch(err => {
+                chatConnection.invoke("LeaveRoom", currentRoomId, parseInt(userId)).catch(err => {
                     console.error("SignalR LeaveRoom error:", err);
                     showErrorModal("Lỗi khi rời phòng chat: " + err.message);
                 });
             }
 
             // Tham gia phòng mới
-            connection.invoke("JoinRoom", parseInt(roomId), parseInt(userId)).catch(err => {
+            chatConnection.invoke("JoinRoom", parseInt(roomId), parseInt(userId)).catch(err => {
                 console.error("SignalR JoinRoom error:", err);
                 showErrorModal("Lỗi khi tham gia phòng chat: " + err.message);
             });
@@ -377,6 +511,96 @@ jQuery(document).ready(function ($) {
                 showErrorModal("Lỗi khi tải phòng chat: " + error);
             }
         });
+    });
+
+    // Hàm khởi tạo video call
+    $(document).on("click", "#startVideoCall", async function (e) {
+        e.preventDefault();
+
+        const chatRoomId = $(this).data('chatroom-id');
+        if (!chatRoomId) {
+            console.error("chatRoomId không được định nghĩa");
+            return;
+        }
+
+        videoCallContainer.style.display = "block";
+        console.log(`Starting video call for room ${chatRoomId} with userId ${userId}`);
+
+        try {
+            await videoCallConnection.start();
+            console.log("Video call SignalR connection started");
+
+            // Tham gia phòng chat, gửi cả userId
+            await videoCallConnection.invoke("JoinRoom", chatRoomId.toString(), userId);
+            console.log(`Joined room ${chatRoomId} with userId ${userId}`);
+
+            // Đợi một chút để đảm bảo RoomParticipants được cập nhật
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            localVideo.srcObject = localStream;
+            console.log("Local stream acquired and set to localVideo");
+
+            const response = await fetch(`/Chat/GetUsersInChatRoom?chatRoomId=${chatRoomId}`);
+            const result = await response.json();
+            if (!result.success) {
+                console.error("Lấy danh sách người tham gia thất bại:", result.message);
+                return;
+            }
+            const participants = result.data;
+            console.log("Participants:", JSON.stringify(participants, null, 2));
+
+            for (const participant of participants) {
+                const participantConnectionId = participant.connectionId;
+                if (!participantConnectionId) {
+                    console.warn(`Skipped participant ${participant.id} due to null connectionId`);
+                    continue;
+                }
+                if (participantConnectionId === videoCallConnection.connectionId) {
+                    console.log(`Skipped self (connectionId ${videoCallConnection.connectionId})`);
+                    continue;
+                }
+
+                peerConnections[participantConnectionId] = new RTCPeerConnection(configuration);
+                console.log(`Created peer connection for participant ${participantConnectionId}`);
+
+                const remoteVideo = document.createElement('video');
+                remoteVideo.autoplay = true;
+                remoteVideo.id = `remoteVideo-${participantConnectionId}`;
+                remoteVideo.style.width = '300px';
+                remoteVideo.style.margin = '5px';
+                document.getElementById('remoteVideosContainer').appendChild(remoteVideo);
+                console.log(`Added remote video element for participant ${participantConnectionId}`);
+
+                peerConnections[participantConnectionId].onicecandidate = (event) => {
+                    if (event.candidate) {
+                        videoCallConnection.invoke("SendIceCandidate", participantConnectionId, JSON.stringify(event.candidate))
+                            .catch(error => console.error(`Failed to send ICE candidate to ${participantConnectionId}:`, error));
+                        console.log(`Sent ICE candidate to participant ${participantConnectionId}`);
+                    }
+                };
+
+                peerConnections[participantConnectionId].ontrack = (event) => {
+                    console.log(`Received remote stream from participant ${participantConnectionId}`);
+                    remoteVideo.srcObject = event.streams[0];
+                };
+
+                peerConnections[participantConnectionId].onconnectionstatechange = () => {
+                    console.log(`Peer connection state for ${participantConnectionId}: ${peerConnections[participantConnectionId].connectionState}`);
+                };
+
+                localStream.getTracks().forEach(track => peerConnections[participantConnectionId].addTrack(track, localStream));
+                console.log(`Added local stream tracks to peer connection for participant ${participantConnectionId}`);
+
+                const offer = await peerConnections[participantConnectionId].createOffer();
+                await peerConnections[participantConnectionId].setLocalDescription(offer);
+                await videoCallConnection.invoke("SendOffer", participantConnectionId, JSON.stringify(peerConnections[participantConnectionId].localDescription))
+                    .catch(error => console.error(`Failed to send Offer to ${participantConnectionId}:`, error));
+                console.log(`Sent Offer to participant ${participantConnectionId}`);
+            }
+        } catch (error) {
+            console.error("Lỗi khi bắt đầu video call:", error);
+        }
     });
 
     // Gửi tin nhắn qua SignalR
@@ -478,15 +702,6 @@ jQuery(document).ready(function ($) {
             }
         });
     });
-
-    // Tìm kiếm phòng chat
-    //$("#searchRooms").on("input", function () {
-    //    const searchText = $(this).val().toLowerCase();
-    //    $(".chat-room-item").each(function () {
-    //        const roomName = $(this).find("strong").text().toLowerCase();
-    //        $(this).toggle(roomName.includes(searchText));
-    //    });
-    //});
 
     // Xử lý modal hiển thị hình ảnh/video
     $(document).on('show.bs.modal', '#mediaModal', function (event) {
