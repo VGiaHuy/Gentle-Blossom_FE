@@ -35,91 +35,128 @@ if (typeof signalR === "undefined") {
         .withAutomaticReconnect()
         .build();
 
-    // Xử lý khi nhận Offer từ người gọi
-    videoCallConnection.on("ReceiveOffer", async (callerId, offer) => {
-        if (callerId === videoCallConnection.connectionId) {
-            console.log("Ignored self Offer");
-            return;
-        }
-
-        console.log(`Received Offer from caller ${callerId}`);
-        peerConnections[callerId] = new RTCPeerConnection(configuration);
-        console.log(`Created peer connection for caller ${callerId}`);
-
-        const remoteVideo = document.createElement('video');
-        remoteVideo.autoplay = true;
-        remoteVideo.id = `remoteVideo-${callerId}`;
-        remoteVideo.style.width = '300px';
-        remoteVideo.style.margin = '5px';
-        document.getElementById('remoteVideosContainer').appendChild(remoteVideo);
-        console.log(`Added remote video element for caller ${callerId}`);
-
-        peerConnections[callerId].onicecandidate = (event) => {
-            if (event.candidate) {
-                videoCallConnection.invoke("SendIceCandidate", callerId, JSON.stringify(event.candidate));
-                console.log(`Sent ICE candidate to caller ${callerId}`);
+    function registerSignalREvents() {
+        // Xử lý khi nhận Offer từ người gọi
+        videoCallConnection.on("ReceiveOffer", async (callerId, offer) => {
+            if (callerId === videoCallConnection.connectionId) {
+                console.log("Ignored self Offer");
+                return;
             }
-        };
 
-        peerConnections[callerId].ontrack = (event) => {
-            console.log(`Received remote stream from caller ${callerId}`);
-            remoteVideo.srcObject = event.streams[0];
-        };
+            console.log(`Received Offer from caller ${callerId}`);
+            peerConnections[callerId] = new RTCPeerConnection(configuration);
+            console.log(`Created peer connection for caller ${callerId}`);
 
-        peerConnections[callerId].onconnectionstatechange = () => {
-            console.log(`Peer connection state for ${callerId}: ${peerConnections[callerId].connectionState}`);
-        };
-
-        try {
-            await peerConnections[callerId].setRemoteDescription(new RTCSessionDescription(JSON.parse(offer)));
-            console.log(`Set remote description for caller ${callerId}`);
-
-            localStream.getTracks().forEach(track => peerConnections[callerId].addTrack(track, localStream));
-            console.log(`Added local stream tracks to peer connection for caller ${callerId}`);
-
-            const answer = await peerConnections[callerId].createAnswer();
-            await peerConnections[callerId].setLocalDescription(answer);
-            await videoCallConnection.invoke("SendAnswer", callerId, JSON.stringify(peerConnections[callerId].localDescription));
-            console.log(`Sent Answer to caller ${callerId}`);
-        } catch (error) {
-            console.error(`Error handling Offer from ${callerId}:`, error);
-        }
-    });
-
-    // Xử lý khi nhận Answer từ người nhận
-    videoCallConnection.on("ReceiveAnswer", async (callerId, answer) => {
-        try {
-            console.log(`Received Answer from ${callerId}`);
-            if (peerConnections[callerId]) {
-                await peerConnections[callerId].setRemoteDescription(new RTCSessionDescription(JSON.parse(answer)));
-                console.log(`Set remote description for Answer from ${callerId}`);
-            } else {
-                console.error(`No peer connection found for ${callerId}`);
+            const remoteVideosContainer = document.getElementById('remoteVideosContainer');
+            if (!remoteVideosContainer) {
+                console.error("remoteVideosContainer not found in DOM");
+                return;
             }
-        } catch (error) {
-            console.error(`Error handling Answer from ${callerId}:`, error);
-        }
-    });
 
-    // Xử lý khi nhận ICE Candidate
-    videoCallConnection.on("ReceiveIceCandidate", async (callerId, candidate) => {
-        try {
-            console.log(`Received ICE candidate from ${callerId}`);
-            if (peerConnections[callerId]) {
-                await peerConnections[callerId].addIceCandidate(new RTCIceCandidate(JSON.parse(candidate)));
-                console.log(`Added ICE candidate from ${callerId}`);
-            } else {
-                console.error(`No peer connection found for ${callerId}`);
+            const remoteVideo = document.createElement('video');
+            remoteVideo.autoplay = true;
+            remoteVideo.id = `remoteVideo-${callerId}`;
+            remoteVideo.style.width = '280px';
+            remoteVideo.style.margin = '5px';
+            remoteVideo.style.border = '2px solid #28a745';
+            remoteVideo.style.borderRadius = '8px';
+            remoteVideosContainer.appendChild(remoteVideo);
+            console.log(`Added remote video element for caller ${callerId}`);
+
+            peerConnections[callerId].onicecandidate = (event) => {
+                if (event.candidate) {
+                    videoCallConnection.invoke("SendIceCandidate", callerId, JSON.stringify(event.candidate));
+                    console.log(`Sent ICE candidate to caller ${callerId}`);
+                }
+            };
+
+            peerConnections[callerId].ontrack = (event) => {
+                console.log(`Received remote stream from caller ${callerId}`);
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            peerConnections[callerId].onconnectionstatechange = () => {
+                console.log(`Peer connection state for ${callerId}: ${peerConnections[callerId].connectionState}`);
+                if (peerConnections[callerId].connectionState === 'disconnected' ||
+                    peerConnections[callerId].connectionState === 'failed') {
+                    if (remoteVideo) {
+                        remoteVideo.remove();
+                        console.log(`Removed video element for disconnected caller ${callerId}`);
+                    }
+                    delete peerConnections[callerId];
+                }
+            };
+
+            try {
+                await peerConnections[callerId].setRemoteDescription(new RTCSessionDescription(JSON.parse(offer)));
+                console.log(`Set remote description for caller ${callerId}`);
+
+                if (localStream) {
+                    localStream.getTracks().forEach(track => peerConnections[callerId].addTrack(track, localStream));
+                    console.log(`Added local stream tracks to peer connection for caller ${callerId}`);
+                } else {
+                    console.error("localStream is not available");
+                    return;
+                }
+
+                const answer = await peerConnections[callerId].createAnswer();
+                await peerConnections[callerId].setLocalDescription(answer);
+                await videoCallConnection.invoke("SendAnswer", callerId, JSON.stringify(peerConnections[callerId].localDescription));
+                console.log(`Sent Answer to caller ${callerId}`);
+            } catch (error) {
+                console.error(`Error handling Offer from ${callerId}:`, error);
             }
-        } catch (error) {
-            console.error(`Error adding ICE candidate from ${callerId}:`, error);
-        }
-    });
+        });
 
-    // Xử lý khi có người tham gia phòng
-    videoCallConnection.on("UserJoined", (userId) => {
-        console.log(`User ${userId} joined the room`);
-    });
+        // Xử lý khi nhận Answer từ người nhận
+        videoCallConnection.on("ReceiveAnswer", async (callerId, answer) => {
+            try {
+                console.log(`Received Answer from ${callerId}`);
+                if (peerConnections[callerId]) {
+                    await peerConnections[callerId].setRemoteDescription(new RTCSessionDescription(JSON.parse(answer)));
+                    console.log(`Set remote description for Answer from ${callerId}`);
+                } else {
+                    console.error(`No peer connection found for ${callerId}`);
+                }
+            } catch (error) {
+                console.error(`Error handling Answer from ${callerId}:`, error);
+            }
+        });
+
+        // Xử lý khi nhận ICE Candidate
+        videoCallConnection.on("ReceiveIceCandidate", async (callerId, candidate) => {
+            try {
+                console.log(`Received ICE candidate from ${callerId}`);
+                if (peerConnections[callerId]) {
+                    await peerConnections[callerId].addIceCandidate(new RTCIceCandidate(JSON.parse(candidate)));
+                    console.log(`Added ICE candidate from ${callerId}`);
+                } else {
+                    console.error(`No peer connection found for ${callerId}`);
+                }
+            } catch (error) {
+                console.error(`Error adding ICE candidate from ${callerId}:`, error);
+            }
+        });
+
+        // Xử lý khi có người tham gia phòng
+        videoCallConnection.on("UserJoined", (userId) => {
+            console.log(`User ${userId} joined the room`);
+        });
+
+        // Xử lý khi có người rời phòng
+        videoCallConnection.on("UserLeft", (userId) => {
+            console.log(`User ${userId} left the room`);
+            if (peerConnections[userId]) {
+                peerConnections[userId].close();
+                delete peerConnections[userId];
+            }
+            const remoteVideo = document.getElementById(`remoteVideo-${userId}`);
+            if (remoteVideo) {
+                remoteVideo.remove();
+                console.log(`Removed video element for user ${userId}`);
+            }
+        });
+    }
 
     // Nhận tin nhắn mới
     chatConnection.on("ReceiveMessage", (messageId, senderId, content, mediaList, sentAt, senderAvatarUrl, senderName) => {
@@ -442,11 +479,34 @@ function hangUp() {
     const remoteVideosContainer = document.getElementById('remoteVideosContainer');
     if (remoteVideosContainer) {
         remoteVideosContainer.innerHTML = '';
+    } else {
+        console.error("remoteVideosContainer not found in DOM");
     }
 
-    // Ẩn giao diện video call
-    videoCallContainer.style.display = "none";
-    localVideo.srcObject = null;
+    // Xóa nguồn video local
+    if (localVideo) {
+        localVideo.srcObject = null;
+    } else {
+        console.error("localVideo element not found in DOM");
+    }
+
+    // Ngắt kết nối SignalR
+    if (videoCallConnection) {
+        videoCallConnection.stop().then(() => {
+            console.log("SignalR connection stopped");
+            // Reset các sự kiện SignalR để tránh xử lý từ phiên cũ
+            videoCallConnection.off("ReceiveOffer");
+            videoCallConnection.off("ReceiveAnswer");
+            videoCallConnection.off("ReceiveIceCandidate");
+            videoCallConnection.off("UserJoined");
+            videoCallConnection.off("UserLeft");
+        }).catch(error => {
+            console.error("Error stopping SignalR connection:", error);
+        });
+    }
+
+    // Ẩn modal video call
+    $("#videoCallModal").modal("hide");
 }
 
 // Hàm xử lý cuộn xuống cuối
@@ -523,23 +583,64 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        videoCallContainer.style.display = "block";
+        // Làm sạch trạng thái trước khi bắt đầu
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+        Object.values(peerConnections).forEach(pc => pc.close());
+        peerConnections = {};
+        const remoteVideosContainer = document.getElementById('remoteVideosContainer');
+        if (remoteVideosContainer) {
+            remoteVideosContainer.innerHTML = '';
+        } else {
+            console.error("remoteVideosContainer not found in DOM");
+            return;
+        }
+        if (localVideo) {
+            localVideo.srcObject = null;
+        } else {
+            console.error("localVideo element not found in DOM");
+            return;
+        }
+
+        // Hiển thị modal video call
+        $("#videoCallModal").modal("show");
+        // Kích hoạt Draggable cho modal
+        $("#videoCallModal .modal-dialog").draggable({
+            handle: ".modal-header",
+            containment: "window",
+            scroll: false
+        });
         console.log(`Starting video call for room ${chatRoomId} with userId ${userId}`);
 
         try {
-            await videoCallConnection.start();
-            console.log("Video call SignalR connection started");
+            // Kiểm tra trạng thái kết nối SignalR
+            if (videoCallConnection.state === signalR.HubConnectionState.Connected) {
+                console.log("SignalR connection already active, skipping start()");
+            } else if (videoCallConnection.state === signalR.HubConnectionState.Disconnected) {
+                // Đăng ký lại các sự kiện SignalR
+                registerSignalREvents();
+                await videoCallConnection.start();
+                console.log("Video call SignalR connection started");
+            } else {
+                console.warn("SignalR connection in unexpected state:", videoCallConnection.state);
+                return;
+            }
 
-            // Tham gia phòng chat, gửi cả userId
             await videoCallConnection.invoke("JoinRoom", chatRoomId.toString(), userId);
             console.log(`Joined room ${chatRoomId} with userId ${userId}`);
 
-            // Đợi một chút để đảm bảo RoomParticipants được cập nhật
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            localVideo.srcObject = localStream;
-            console.log("Local stream acquired and set to localVideo");
+            if (localVideo) {
+                localVideo.srcObject = localStream;
+                console.log("Local stream acquired and set to localVideo");
+            } else {
+                console.error("localVideo element not found in DOM");
+                return;
+            }
 
             const response = await fetch(`/Chat/GetUsersInChatRoom?chatRoomId=${chatRoomId}`);
             const result = await response.json();
@@ -550,16 +651,21 @@ jQuery(document).ready(function ($) {
             const participants = result.data;
             console.log("Participants:", JSON.stringify(participants, null, 2));
 
-            for (const participant of participants) {
+            // Kiểm tra và lọc participants hợp lệ
+            const validParticipants = participants.filter(participant =>
+                participant.connectionId &&
+                participant.connectionId !== videoCallConnection.connectionId
+            );
+
+            if (validParticipants.length === 0) {
+                console.log("No valid participants found in the room");
+                alert("Không có người dùng nào khác trong phòng để gọi.");
+                return;
+            }
+
+            for (const participant of validParticipants) {
                 const participantConnectionId = participant.connectionId;
-                if (!participantConnectionId) {
-                    console.warn(`Skipped participant ${participant.id} due to null connectionId`);
-                    continue;
-                }
-                if (participantConnectionId === videoCallConnection.connectionId) {
-                    console.log(`Skipped self (connectionId ${videoCallConnection.connectionId})`);
-                    continue;
-                }
+                console.log(`Processing participant ${participantConnectionId}`);
 
                 peerConnections[participantConnectionId] = new RTCPeerConnection(configuration);
                 console.log(`Created peer connection for participant ${participantConnectionId}`);
@@ -567,9 +673,11 @@ jQuery(document).ready(function ($) {
                 const remoteVideo = document.createElement('video');
                 remoteVideo.autoplay = true;
                 remoteVideo.id = `remoteVideo-${participantConnectionId}`;
-                remoteVideo.style.width = '300px';
+                remoteVideo.style.width = '280px';
                 remoteVideo.style.margin = '5px';
-                document.getElementById('remoteVideosContainer').appendChild(remoteVideo);
+                remoteVideo.style.border = '2px solid #28a745';
+                remoteVideo.style.borderRadius = '8px';
+                remoteVideosContainer.appendChild(remoteVideo);
                 console.log(`Added remote video element for participant ${participantConnectionId}`);
 
                 peerConnections[participantConnectionId].onicecandidate = (event) => {
@@ -587,6 +695,14 @@ jQuery(document).ready(function ($) {
 
                 peerConnections[participantConnectionId].onconnectionstatechange = () => {
                     console.log(`Peer connection state for ${participantConnectionId}: ${peerConnections[participantConnectionId].connectionState}`);
+                    if (peerConnections[participantConnectionId].connectionState === 'disconnected' ||
+                        peerConnections[participantConnectionId].connectionState === 'failed') {
+                        if (remoteVideo) {
+                            remoteVideo.remove();
+                            console.log(`Removed video element for disconnected participant ${participantConnectionId}`);
+                        }
+                        delete peerConnections[participantConnectionId];
+                    }
                 };
 
                 localStream.getTracks().forEach(track => peerConnections[participantConnectionId].addTrack(track, localStream));
@@ -600,6 +716,18 @@ jQuery(document).ready(function ($) {
             }
         } catch (error) {
             console.error("Lỗi khi bắt đầu video call:", error);
+            alert("Không thể bắt đầu video call: " + error.message);
+            hangUp();
+        }
+    });
+
+    // Gắn sự kiện cho nút ngắt kết nối
+    $(document).on("click", "#hangUpButton, #hangUpButtonFooter", function () {
+        if (typeof hangUp === "function") {
+            hangUp();
+            console.log("Video call disconnected and modal closed");
+        } else {
+            console.error("Hàm hangUp chưa được định nghĩa");
         }
     });
 

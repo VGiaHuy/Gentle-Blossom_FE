@@ -80,11 +80,25 @@
     </div>
 </div>
 
-<!-- Giao diện video call -->
-<div id="videoCallContainer" style="display: none;">
-    <video id="localVideo" autoplay muted style="width: 300px;"></video>
-    <div id="remoteVideosContainer"></div>
-    <button onclick="hangUp()">Hang Up</button>
+<!-- Modal Video Call -->
+<div class="modal fade" id="videoCallModal" tabindex="-1" aria-labelledby="videoCallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoCallModalLabel">Video Call</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="hangUpButton"></button>
+            </div>
+            <div class="modal-body">
+                <div class="video-container d-flex flex-wrap justify-content-center">
+                    <video id="localVideo" autoplay muted style="width: 280px; margin: 5px; border: 2px solid #007bff; border-radius: 8px;"></video>
+                    <div id="remoteVideosContainer" class="d-flex flex-wrap justify-content-center"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="hangUpButtonFooter">Ngắt kết nối</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <link href="~/css/chat.css" rel="stylesheet"></link>

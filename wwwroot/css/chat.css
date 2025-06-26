@@ -161,3 +161,29 @@
         border: 1px solid #ccc;
         border-radius: 5px;
     }
+
+.modal-header {
+    background-color: #007bff;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.video-container {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+video {
+    background-color: #000;
+    object-fit: cover;
+}
+
+.modal-dialog {
+    transition: all 0.3s ease;
+}
