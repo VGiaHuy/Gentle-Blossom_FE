@@ -659,7 +659,7 @@ jQuery(document).ready(function ($) {
 
             if (validParticipants.length === 0) {
                 console.log("No valid participants found in the room");
-                alert("Không có người dùng nào khác trong phòng để gọi.");
+                showInfoModal("Không có người dùng nào khác trong phòng để gọi.");
                 return;
             }
 
