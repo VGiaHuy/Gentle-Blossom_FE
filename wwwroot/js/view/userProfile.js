@@ -1,5 +1,15 @@
 ﻿$(document).ready(function () {
     initProfileView();
+
+    // Nút Thêm hồ sơ thai kỳ
+    $('#addPeriodicHealth').on('click', function () {
+        $('#addNewPeriodicHealthModal').modal('show');
+    });
+
+    // Nút Thêm nhật ký tâm lý
+    $('#addPsychologyDiary').on('click', function () {
+        $('#addNewPsychologyDiaryModal').modal('show');
+    });
 });
 
 let currentPage = 1;
@@ -395,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 li.setAttribute('data-bs-toggle', 'modal');
                 li.setAttribute('data-bs-target', '#periodicHealthDetailsModal');
                 li.innerHTML = `
-                    <strong>Hành trình ${journey.treatmentName || 'Thai sản'} của <span style="color:#d63384">${fullName}</span></strong>
+                    <strong>Hành trình <span style="color:#198754">${journey.journeyName}</span> của <span style="color:#d63384">${fullName}</span></strong>
                     <p class="mb-0">Mã hành trình: ${journey.journeyId}</p>
                     <p class="mb-0">Ngày bắt đầu: ${journey.startDate ? new Date(journey.startDate).toLocaleDateString('vi-VN') : 'Không xác định'}</p>
                     <p class="mb-0">Ngày dự sinh: ${journey.dueDate ? new Date(journey.dueDate).toLocaleDateString('vi-VN') : 'Không xác định'}</p>
@@ -441,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 li.setAttribute('data-bs-toggle', 'modal');
                 li.setAttribute('data-bs-target', '#psychologyDiaryDetailsModal');
                 li.innerHTML = `
-                    <strong>Hành trình ${journey.treatmentName || 'Tâm lý'} của <span style="color:#d63384">${fullName}</span></strong>
+                    <strong>Hành trình <span style="color:#198754">${journey.journeyName}</span> của <span style="color:#d63384">${fullName}</span></strong>
                     <p class="mb-0">Mã hành trình: ${journey.journeyId}</p>
                     <p class="mb-0">Ngày bắt đầu: ${journey.startDate ? new Date(journey.startDate).toLocaleDateString('vi-VN') : 'Không xác định'}</p>
                     <p class="mb-0">Ngày kết thúc: ${journey.endDate ? new Date(journey.endDate).toLocaleDateString('vi-VN') : 'Chưa cập nhật'}</p>
@@ -674,3 +684,57 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+document.getElementById('saveNewPeriodicHealth').addEventListener('click', function () {
+    const form = document.getElementById('addNewPeriodicHealthForm');
+    const formData = new FormData(form);
+    formData.append('treatmentId', 2);
+
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
+
+    $.ajax({
+        url: '/PregnancyCare/CreateNewJourneyWithData',
+        type: 'POST',
+        data: formData,
+        processData: false,       // Bắt buộc khi dùng FormData
+        contentType: false,       // Bắt buộc khi dùng FormData
+        success: function (response) {
+            showSuccessModal('Thêm hồ sơ thành công!');
+            $('#addNewPeriodicHealth').modal('hide');
+            form.reset();
+        },
+        error: function (xhr) {
+            showErrorModal('Lỗi khi lưu hồ sơ: ' + xhr.responseText);
+        }
+    });
+});
+
+
+document.getElementById('saveNewPsychologyDiary').addEventListener('click', function () {
+    const form = document.getElementById('addNewPsychologyDiaryForm');
+    const formData = new FormData(form);
+    formData.append('treatmentId', 1);
+
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
+
+    $.ajax({
+        url: '/PregnancyCare/CreateNewJourneyWithData',
+        type: 'POST',
+        data: formData,
+        processData: false,       // Bắt buộc khi dùng FormData
+        contentType: false,       // Bắt buộc khi dùng FormData
+        success: function (response) {
+            showSuccessModal('Thêm nhật ký thành công!');
+            $('#addNewPsychologyDiary').modal('hide');
+        },
+        error: function (xhr) {
+            showErrorModal('Lỗi khi lưu nhật ký: ' + xhr.responseText);
+        }
+    });
+});
+
+

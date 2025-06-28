@@ -48,9 +48,15 @@
             <div class="card border-0 shadow-lg rounded-4">
                 @if (Model.UserProfile.UserTypeId == UserTypeName.User)
                 {
-                    <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
-                        <i class="bi bi-heart-pulse me-2"></i>Sức khỏe thai sản
+                    <div class="card-header bg-primary text-white rounded-top-4 fw-bold d-flex justify-content-between align-items-center" style="background-color: #0dcaf0; font-size: 1.2rem;">
+                        <div>
+                            <i class="bi bi-heart-pulse me-2"></i>Sức khỏe thai sản
+                        </div>
+                        <button id="addPeriodicHealth" class="btn btn-light btn-sm fw-semibold rounded-4">
+                            <i class="bi bi-plus-circle me-1"></i>
+                        </button>
                     </div>
+
                     <div class="card-body p-4">
                         @if (Model.HealthJourneys.Any(j => j.TreatmentId == 2))
                         {
@@ -65,7 +71,7 @@
                                     data-treatment-id="@firstJourney.TreatmentId"
                                     data-bs-toggle="modal"
                                     data-bs-target="#periodicHealthDetailsModal">
-                                    <strong>Hành trình @firstJourney.TreatmentName của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
+                                    <strong>Hành trình <span style="color:#198754">@firstJourney.JourneyName</span> của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
                                     <p class="mb-0">Mã hành trình: @firstJourney.JourneyId</p>
                                     <p class="mb-0">Ngày bắt đầu: @firstJourney.StartDate.ToString("dd/MM/yyyy")</p>
                                     <p class="mb-0">Ngày dự sinh: @(firstJourney.DueDate?.ToString("dd/MM/yyyy") ?? "Không xác định")</p>
@@ -126,9 +132,15 @@
             <div class="card border-0 shadow-lg rounded-4">
                 @if (Model.UserProfile.UserTypeId == UserTypeName.User)
                 {
-                    <div class="card-header bg-primary text-white rounded-top-4 fw-bold" style="background-color: #0dcaf0; font-size: 1.2rem;">
-                        <i class="bi bi-journal-text me-2"></i>Nhật ký tâm lý
+                    <div class="card-header bg-primary text-white rounded-top-4 fw-bold d-flex justify-content-between align-items-center" style="background-color: #0dcaf0; font-size: 1.2rem;">
+                        <div>
+                            <i class="bi bi-journal-text me-2"></i>Nhật ký tâm lý
+                        </div>
+                        <button id="addPsychologyDiary" class="btn btn-light btn-sm fw-semibold rounded-4">
+                            <i class="bi bi-plus-circle me-1"></i>
+                        </button>
                     </div>
+
                     <div class="card-body p-4">
                         @if (Model.HealthJourneys.Any(j => j.TreatmentId == 1))
                         {
@@ -143,7 +155,7 @@
                                     data-treatment-id="@firstJourney.TreatmentId"
                                     data-bs-toggle="modal"
                                     data-bs-target="#psychologyDiaryDetailsModal">
-                                    <strong>Hành trình @firstJourney.TreatmentName của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
+                                    <strong>Hành trình <span style="color:#198754">@firstJourney.JourneyName</span> của <span style="color:#d63384">@Model.UserProfile.FullName</span></strong>
                                     <p class="mb-0">Mã hành trình: @firstJourney.JourneyId</p>
                                     <p class="mb-0">Ngày bắt đầu: @firstJourney.StartDate.ToString("dd/MM/yyyy")</p>
                                     <p class="mb-0">Ngày kết thúc: @(firstJourney.EndDate?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</p>
@@ -370,6 +382,103 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" id="savePsychologyDiary">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cho Thêm hồ sơ theo dõi thai kỳ mới -->
+<div class="modal fade" id="addNewPeriodicHealthModal" tabindex="-1" aria-labelledby="addNewPeriodicHealthLabelmodal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addNewPeriodicHealthLabelModal">
+                    <i class="bi bi-plus-circle me-2"></i>Thêm hồ sơ theo dõi thai kỳ
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addNewPeriodicHealthForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="journeyName" class="form-label fw-medium">Tên hồ sơ</label>
+                            <input type="text" class="form-control rounded-3" id="journeyName" name="JourneyName" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="dueDate" class="form-label fw-medium">Ngày dự sinh</label>
+                            <input type="date" class="form-control rounded-3" id="dueDate" name="DueDate" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="weeksPregnant" class="form-label fw-medium">Tuần thai</label>
+                            <input type="number" class="form-control rounded-3" id="weeksPregnant" name="WeeksPregnant" min="1" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bloodPressure" class="form-label fw-medium">Huyết áp</label>
+                            <input type="number" class="form-control rounded-3" id="bloodPressure" name="BloodPressure" min="0" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="waistCircumference" class="form-label fw-medium">Vòng bụng (cm)</label>
+                            <input type="number" class="form-control rounded-3" id="waistCircumference" name="WaistCircumference" min="0" step="0.1" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="weight" class="form-label fw-medium">Cân nặng (kg)</label>
+                            <input type="number" class="form-control rounded-3" id="weight" name="Weight" min="0" step="0.1" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="moodPeriodicHealth" class="form-label fw-medium">Tâm trạng</label>
+                            <input type="text" class="form-control rounded-3" id="moodPeriodicHealth" name="MoodPeriodicHealth" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="genderBaby" class="form-label fw-medium">Giới tính bé</label>
+                            <select class="form-select rounded-3" id="genderBaby" name="GenderBaby">
+                                <option value="">Chưa xác định</option>
+                                <option value="true">Bé trai</option>
+                                <option value="false">Bé gái</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="healthNote" class="form-label fw-medium">Ghi chú</label>
+                            <textarea class="form-control rounded-3" id="healthNote" name="Notes" rows="4"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveNewPeriodicHealth">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addNewPsychologyDiaryModal" tabindex="-1" aria-labelledby="addNewPsychologyDiaryLabelModal" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addNewPsychologyDiaryLabelModal">
+                    <i class="bi bi-pen me-2"></i>Thêm hồ sơ nhật ký
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addNewPsychologyDiaryForm">
+                    <div class="col-md-6 mb-3">
+                        <label for="journeyName" class="form-label fw-medium">Tên hồ sơ</label>
+                        <input type="text" class="form-control rounded-3" id="journeyName" name="JourneyName" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="moodPsychologyDiary" class="form-label fw-medium">Tâm trạng</label>
+                        <input type="text" class="form-control rounded-3" id="moodPsychologyDiary" name="MoodPsychologyDiary" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="diaryContent" class="form-label fw-medium">Nội dung</label>
+                        <textarea class="form-control rounded-3" id="diaryContent" name="Content" rows="8" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveNewPsychologyDiary">Lưu</button>
             </div>
         </div>
     </div>

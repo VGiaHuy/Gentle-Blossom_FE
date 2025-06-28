@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\js\chatWindow.js" />
     <Content Remove="wwwroot\js\notifications.js" />
   </ItemGroup>
 
@@ -21,7 +20,6 @@
     <None Include="Areas\Admin\Views\Shared\_Layout.cshtml" />
     <None Include="Areas\Admin\Views\Shared\_LayoutLogin.cshtml" />
     <None Include="Areas\Admin\Views\Shared\_PartialSideBar.cshtml" />
-    <None Include="wwwroot\js\chatWindow.js" />
     <None Include="wwwroot\js\notifications.js" />
   </ItemGroup>
 

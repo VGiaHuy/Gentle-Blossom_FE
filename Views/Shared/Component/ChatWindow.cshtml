@@ -248,6 +248,10 @@
             <div class="modal-body">
                 <form id="createJourneyForm">
                     <div class="mb-3">
+                        <label for="journeyName" class="form-label fw-medium">Tên hồ sơ</label>
+                        <input type="text" class="form-control rounded-3" id="journeyName" name="JourneyName" required />
+                    </div>
+                    <div class="mb-3">
                         <label for="treatmentId" class="form-label">Loại điều trị</label>
                         <select class="form-select" id="treatmentId" name="treatmentId" required>
                             <option value="2">Thai sản</option>
@@ -348,6 +352,7 @@
                 e.preventDefault();
                 const formData = {
                     TreatmentId: $('#treatmentId').val(),
+                    JourneyName: $('#journeyName').val(),
                     DueDate: $('#dueDate').val(),
                     MonitoringStatus: $('#monitoringStatus').val(),
                     MonitoringNote: $('#journeyNotes').val() || null,

@@ -277,5 +277,28 @@ namespace Gentle_Blossom_FE.Controllers
             var error = await response.Content.ReadAsStringAsync();
             return Json(new { success = false, message = "Thực hiện không thành công! Lỗi: " + error });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateNewJourneyWithData(CreateNewJourneyWithDataDTO request)
+        {
+            int userId = 0;
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out userId);
+            request.UserId = userId;
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/PregnancyCare/CreateNewJourneyWithData", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+                return Json(new { success = true, message = jsonData.Message });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Thêm mới không thành công! Lỗi: " + error });
+        }
+
     }
 }

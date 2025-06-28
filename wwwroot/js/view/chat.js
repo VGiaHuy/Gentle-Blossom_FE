@@ -15,7 +15,7 @@ const configuration = {
 };
 
 if (typeof signalR === "undefined") {
-    showErrorModal("Lỗi: Không tải được SignalR! Vui lòng kiểm tra kết nối mạng hoặc CDN.");
+    console.log("Lỗi: Không tải được SignalR! Vui lòng kiểm tra kết nối mạng hoặc CDN.");
 } else {
     // Kiểm tra window.apiSettings
     if (!window.apiSettings || !window.apiSettings.signalRBaseUrl) {

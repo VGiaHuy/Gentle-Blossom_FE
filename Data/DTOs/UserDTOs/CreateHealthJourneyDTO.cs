@@ -4,6 +4,8 @@
     {
         public int TreatmentId { get; set; }
 
+        public string? JourneyName { get; set; }
+
         public DateOnly? DueDate { get; set; }
 
         public byte MonitoringStatus { get; set; }

@@ -6,6 +6,8 @@
 
         public int TreatmentId { get; set; }
 
+        public string? JourneyName { get; set; }
+
         public string? TreatmentName { get; set; }
 
         public DateOnly StartDate { get; set; }

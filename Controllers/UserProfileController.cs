@@ -47,8 +47,6 @@ namespace Gentle_Blossom_FE.Controllers
 
                 var viewModal = new UserProfileViewModel();
                 viewModal.UserProfile = userProfile.Data.UserProfile;
-                //viewModal.PsychologyDiaries = userProfile.Data.PsychologyDiaries!.OrderByDescending(a => a.DiaryId).ToList();
-                //viewModal.PeriodicHealths = userProfile.Data.PeriodicHealths!.OrderByDescending(a => a.HealthId).ToList();
                 viewModal.HealthJourneys = userProfile.Data.HealthJourneys;
 
                 return View(viewModal);
