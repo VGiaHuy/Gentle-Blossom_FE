@@ -25,9 +25,14 @@
                 <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Home/Index" data-view="Home" title="Trang chủ">
                     <i class="bi bi-house-heart fs-5 text-primary"></i>
                 </a>
-                <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
-                    <i class="bi bi-person-hearts fs-5 text-success"></i>
-                </a>
+
+                @if (User.IsInRole("User"))
+                {
+                    <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
+                        <i class="bi bi-person-hearts fs-5 text-success"></i>
+                    </a>
+                }
+
 @*                 @if (User.IsInRole("User"))
                 {
                     <div class="dropdown">

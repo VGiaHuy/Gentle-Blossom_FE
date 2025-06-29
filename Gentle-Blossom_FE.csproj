@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\js\notifications.js" />
+    <Content Remove="wwwroot\js\view\friends.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
     <None Include="Areas\Admin\Views\Shared\_LayoutLogin.cshtml" />
     <None Include="Areas\Admin\Views\Shared\_PartialSideBar.cshtml" />
     <None Include="wwwroot\js\notifications.js" />
+    <None Include="wwwroot\js\view\friends.js" />
   </ItemGroup>
 
   <ItemGroup>
