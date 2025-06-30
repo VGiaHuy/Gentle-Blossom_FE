@@ -1,0 +1,179 @@
+﻿<div class="modal fade" id="editPostModal" tabindex="-1" aria-labelledby="editPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered mt-3">
+        <div class="modal-content rounded-4 shadow-lg border-0">
+            <div class="modal-header bg-warning text-dark rounded-top-4">
+                <h5 class="modal-title fw-bold" id="editPostModalLabel">
+                    <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa bài viết
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-4 position-relative">
+                <form id="editPostForm" enctype="multipart/form-data">
+                    <div id="editLoadingSpinner" class="d-none position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                         style="background: rgba(255, 255, 255, 0.8); z-index: 10;">
+                        <div class="spinner-border text-warning" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                    </div>
+
+                    <div id="editPostEditor" class="form-control mb-3" style="min-height: 200px; border-color: #ffc107; border-radius: 8px;"></div>
+
+                    <input type="hidden" name="PostId" id="editPostId" />
+                    <input type="hidden" name="Content" id="editPostContent" />
+
+                    <div class="mb-3">
+                        <label for="editMediaFiles" class="btn btn-outline-warning rounded-3">
+                            <i class="bi bi-image me-1"></i>Thêm Hình ảnh/Video
+                        </label>
+                        <input type="file" name="NewMedias" id="editMediaFiles" multiple accept="image/*,video/*" class="form-control d-none" />
+                    </div>
+
+                    <div id="existingMedia" class="row g-2 mb-3"></div>
+                    <div id="newMediaPreview" class="row g-2 mb-3"></div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Hủy
+                        </button>
+                        <button type="submit" class="btn btn-warning rounded-3 text-white">
+                            <i class="bi bi-save2 me-2"></i>Lưu bài viết
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let currentEditingPost = null;
+    let removedMediaUrls = [];
+    let quillEdit;
+
+    function initEditPostModal() {
+        if (!quillEdit && document.getElementById('editPostEditor')) {
+            quillEdit = new Quill('#editPostEditor', {
+                theme: 'snow',
+                placeholder: 'Chỉnh sửa nội dung bài viết...',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ]
+                }
+            });
+        }
+
+        // Preview media mới
+        document.getElementById('editMediaFiles').addEventListener('change', function () {
+            const preview = document.getElementById('newMediaPreview');
+            preview.innerHTML = '';
+            for (let file of this.files) {
+                const url = URL.createObjectURL(file);
+                const type = file.type.split('/')[0];
+                const col = document.createElement('div');
+                col.className = 'col-4 position-relative';
+
+                const media = type === 'image'
+                    ? `<img src="${url}" class="img-fluid rounded-3" style="max-height: 120px;">`
+                    : `<video src="${url}" controls class="img-fluid rounded-3" style="max-height: 120px;"></video>`;
+                col.innerHTML = media + `<button class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0" onclick="this.parentNode.remove()"><i class="bi bi-x"></i></button>`;
+                preview.appendChild(col);
+            }
+        });
+
+        // Submit form
+        document.getElementById("editPostForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            saveEditedPost();
+        });
+    }
+
+    function editPost(post) {
+        console.log(post);
+
+        currentEditingPost = post;
+        removedMediaUrls = [];
+
+        // Gán dữ liệu vào form
+        document.getElementById("editPostId").value = post.postId;
+        quillEdit.root.innerHTML = post.content;
+        document.getElementById("existingMedia").innerHTML = "";
+        document.getElementById("newMediaPreview").innerHTML = "";
+        document.getElementById("editMediaFiles").value = "";
+
+        if (post.mediaList && post.mediaList.length > 0) {
+            post.mediaList.forEach((media, index) => {
+                const mediaId = `media-${index}`;
+                const mediaHtml = `
+                    <div class="col-6 col-md-4" id="${mediaId}">
+                        ${media.mediaType.toLowerCase() === "image"
+                        ? `<img src="/Post/ProxyImage?url=${encodeURIComponent(media.mediaUrl)}"
+                                   class="img-fluid rounded" style="max-height: 200px;">`
+                        : `<video controls class="img-fluid rounded" style="max-height: 200px;">
+                                   <source src="${media.mediaUrl}">
+                               </video>`}
+                        <button class="btn btn-sm btn-danger mt-1" onclick="removeExistingMedia(${index}, '${mediaId}')">Xóa</button>
+                    </div>`;
+                document.getElementById("existingMedia").insertAdjacentHTML("beforeend", mediaHtml);
+            });
+        }
+
+        // Hiển thị modal
+        const modal = new bootstrap.Modal(document.getElementById("editPostModal"));
+        modal.show();
+    }
+
+    function removeExistingMedia(index, elementId) {
+        const removed = currentEditingPost.mediaList.splice(index, 1)[0];
+        removedMediaUrls.push(removed.mediaUrl);
+        document.getElementById(elementId)?.remove();
+    }
+
+    function saveEditedPost() {
+        const content = quillEdit.root.innerHTML;
+        document.getElementById("editPostContent").value = content;
+        const newFiles = document.getElementById("editMediaFiles").files;
+
+        const formData = new FormData();
+        formData.append("PostId", currentEditingPost.postId);
+        formData.append("Content", content);
+
+        // Gửi danh sách media bị xóa (chỉ khi nhấn Lưu)
+        removedMediaUrls.forEach(url => {
+            formData.append("RemovedMediaUrls", url);
+        });
+
+        // Gửi các media mới
+        for (let i = 0; i < newFiles.length; i++) {
+            formData.append("NewMedias", newFiles[i]);
+        }
+
+        // Gửi tới Controller để cập nhật bài viết
+        fetch('/Post/UpdatePost', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessModal("Cập nhật thành công!");
+
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showErrorModal("Lỗi: " + data.message);
+                }
+            })
+            .catch(err => {
+                showErrorModal("Đã xảy ra lỗi khi cập nhật bài viết.");
+                console.error(err);
+            });
+    }
+
+    // Khởi tạo khi tải xong DOM
+    document.addEventListener('DOMContentLoaded', initEditPostModal);
+</script>

@@ -8,14 +8,14 @@
             <a class="nav-link-custom fw-bold text-primary mb-0 me-4" href="/" style="font-size: 1.5rem; text-decoration: none; color: #0dcaf0;" data-view="Home">
                 <i class="bi bi-flower1 me-2"></i>Gentle Blossom
             </a>
-@*             <form class="d-none d-md-block">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="border-color: #0dcaf0;">
-                        <i class="bi bi-search text-primary"></i>
-                    </span>
-                    <input class="form-control border-start-0 rounded-end-pill" type="search" placeholder="Tìm kiếm..."
-                           aria-label="Search" style="min-width: 200px; border-color: #0dcaf0;">
-                </div>
+            @*             <form class="d-none d-md-block">
+            <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 rounded-start-pill" style="border-color: #0dcaf0;">
+            <i class="bi bi-search text-primary"></i>
+            </span>
+            <input class="form-control border-start-0 rounded-end-pill" type="search" placeholder="Tìm kiếm..."
+            aria-label="Search" style="min-width: 200px; border-color: #0dcaf0;">
+            </div>
             </form> *@
         </div>
 
@@ -26,33 +26,30 @@
                     <i class="bi bi-house-heart fs-5 text-primary"></i>
                 </a>
 
-                @if (User.IsInRole("User"))
-                {
-                    <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
-                        <i class="bi bi-person-hearts fs-5 text-success"></i>
-                    </a>
-                }
+                <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Friends/Index" data-view="Friends" title="Kết nối">
+                    <i class="bi bi-person-hearts fs-5 text-success"></i>
+                </a>
 
-@*                 @if (User.IsInRole("User"))
-                {
-                    <div class="dropdown">
-                        <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Chăm sóc sức khỏe">
-                            <i class="bi bi-heart-pulse fs-5 text-danger"></i>
-                        </a>
-                        <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
-                            <li>
-                                <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/HealthJourney" data-view="PregnancyCare/HealthJourney">
-                                    <i class="bi bi-hospital fs-5 text-primary me-2"></i> Sức khỏe thai sản
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/PsychologyDiary" data-view="PregnancyCare/PsychologyDiary">
-                                    <i class="bi bi-emoji-smile fs-5 text-success me-2"></i> Tâm lý thai sản
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                } *@
+                @*                 @if (User.IsInRole("User"))
+            {
+            <div class="dropdown">
+            <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Chăm sóc sức khỏe">
+            <i class="bi bi-heart-pulse fs-5 text-danger"></i>
+            </a>
+            <ul class="dropdown-menu shadow-sm border-0 mt-0 p-2">
+            <li>
+            <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/HealthJourney" data-view="PregnancyCare/HealthJourney">
+            <i class="bi bi-hospital fs-5 text-primary me-2"></i> Sức khỏe thai sản
+            </a>
+            </li>
+            <li>
+            <a class="dropdown-item rounded-1 py-2" href="/PregnancyCare/PsychologyDiary" data-view="PregnancyCare/PsychologyDiary">
+            <i class="bi bi-emoji-smile fs-5 text-success me-2"></i> Tâm lý thai sản
+            </a>
+            </li>
+            </ul>
+            </div>
+            } *@
 
                 <a class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark" href="/Chat/Index" data-view="Chat" title="Trò chuyện">
                     <i class="bi bi-chat-heart fs-5 text-info"></i>
@@ -111,20 +108,20 @@
     </div>
 </nav>
 
-    <script src="~/js/notifications.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Add hover effects for nav links
-            const navLinks = document.querySelectorAll('.nav-link-custom');
-            navLinks.forEach(link => {
-                link.addEventListener('mouseenter', function () {
-                    this.style.transform = 'scale(1.1)';
-                    this.style.opacity = '0.8';
-                });
-                link.addEventListener('mouseleave', function () {
-                    this.style.transform = 'scale(1)';
-                    this.style.opacity = '1';
-                });
+<script src="~/js/notifications.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add hover effects for nav links
+        const navLinks = document.querySelectorAll('.nav-link-custom');
+        navLinks.forEach(link => {
+            link.addEventListener('mouseenter', function () {
+                this.style.transform = 'scale(1.1)';
+                this.style.opacity = '0.8';
+            });
+            link.addEventListener('mouseleave', function () {
+                this.style.transform = 'scale(1)';
+                this.style.opacity = '1';
             });
         });
-    </script>
+    });
+</script>

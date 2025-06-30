@@ -32,7 +32,6 @@ function initProfileView() {
 
 // Hàm xóa bài viết
 function deletePost(postId) {
-    console.log("Xóa bài viết: ", postId);
     const id = parseInt(postId);
 
     fetch(`/Post/DeletePost?postId=${id}`, {
@@ -736,5 +735,3 @@ document.getElementById('saveNewPsychologyDiary').addEventListener('click', func
         }
     });
 });
-
-

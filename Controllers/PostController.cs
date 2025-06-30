@@ -299,5 +299,72 @@ namespace Gentle_Blossom_FE.Controllers
 
             return Json(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePost([FromForm] UpdatePostDTO model)
+        {
+            // Lấy token từ Claims
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (string.IsNullOrEmpty(token))
+            {
+                ViewBag.Error = "Không tìm thấy token. Vui lòng đăng nhập lại.";
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Account");
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // trường hợp có thêm ảnh mới
+            if (model.NewMedias != null)
+            {
+                var form = new MultipartFormDataContent();
+                form.Add(new StringContent(model.PostId.ToString()), "PostId");
+
+                foreach (var file in model.NewMedias)
+                {
+                    var streamContent = new StreamContent(file.OpenReadStream());
+                    streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                    form.Add(streamContent, "MediaFiles", file.FileName);
+                }
+
+                var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/UpdateImagePost", form);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var rawJson = await response.Content.ReadAsStringAsync();
+                    var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = "Sửa bài viết thành công!"
+                    });
+                }
+
+                var errorJson = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync())!;
+                return Json(new { success = false, message = (string)errorJson.Message ?? "Đã xảy ra lỗi!" });
+            }
+            else
+            {
+                // trường hợp xóa ảnh hoặc đổi nội dung
+                var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/Post/UpdatePost", model);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var rawJson = await response.Content.ReadAsStringAsync();
+                    var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = "Sửa bài viết thành công!"
+                    });
+                }
+
+                var errorJson = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync())!;
+                return Json(new { success = false, message = (string)errorJson.Message ?? "Đã xảy ra lỗi!" });
+            }
+        }
     }
 }

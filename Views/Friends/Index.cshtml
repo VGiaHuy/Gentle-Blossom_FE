@@ -35,5 +35,8 @@
 </div>
 
 @section Scripts {
+    <script>
+        window.userRole = @User.IsInRole("User").ToString().ToLower();
+    </script>
     <script src="~/js/view/friends.js"></script>
 }

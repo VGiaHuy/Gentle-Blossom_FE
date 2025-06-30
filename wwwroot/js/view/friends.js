@@ -30,31 +30,37 @@ function createExpertCard(expert) {
     const col = document.createElement("div");
     col.className = "col";
 
+    // Tạo nút nhắn tin nếu user có quyền
+    const messageButtonHtml = window.userRole
+        ? `<button class="btn btn-sm btn-outline-info" onclick="sendMessage(${expert.expertId})">
+                <i class="bi bi-chat-dots me-1"></i>Nhắn tin
+           </button>`
+        : ''; // nếu không có quyền thì chuỗi rỗng
+
     col.innerHTML = `
-            <div class="card shadow border-0 rounded-4 h-100">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div class="d-flex align-items-center mb-3">
-                        <img src="/Post/ProxyImage?url=${encodeURIComponent(expert.avatarUrl)}" class="rounded-circle me-3" style="width: 60px; height: 60px;" alt="Avatar" />
-                        <div>
-                            <h6 class="mb-1 fw-bold text-primary">${expert.fullName}</h6>
-                            <h3 class="small mb-0 text-success">${expert.academicTitle}</h3>
-                            <p class="text-muted small mb-0">${expert.position} - ${expert.specialization}</p>
-                            <p class="small mb-0 fw-bold" style="color:#d6a001 ">${expert.organization}</p>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2 mt-3">
-                        <button class="btn btn-sm btn-outline-info" onclick="sendMessage(${expert.expertId})">
-                            <i class="bi bi-chat-dots me-1"></i>Nhắn tin
-                        </button>
-                        <button class="btn btn-sm btn-outline-success" onclick="viewProfile(${expert.expertId})">
-                            <i class="bi bi-eye me-1"></i>Xem hồ sơ
-                        </button>
+        <div class="card shadow border-0 rounded-4 h-100">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="/Post/ProxyImage?url=${encodeURIComponent(expert.avatarUrl)}" class="rounded-circle me-3" style="width: 60px; height: 60px;" alt="Avatar" />
+                    <div>
+                        <h6 class="mb-1 fw-bold text-primary">${expert.fullName}</h6>
+                        <h3 class="small mb-0 text-success">${expert.academicTitle}</h3>
+                        <p class="text-muted small mb-0">${expert.position} - ${expert.specialization}</p>
+                        <p class="small mb-0 fw-bold" style="color:#d6a001 ">${expert.organization}</p>
                     </div>
                 </div>
+                <div class="d-flex gap-2 mt-3">
+                    ${messageButtonHtml}
+                    <button class="btn btn-sm btn-outline-success" onclick="viewProfile(${expert.expertId})">
+                        <i class="bi bi-eye me-1"></i>Xem hồ sơ
+                    </button>
+                </div>
             </div>
-        `;
+        </div>
+    `;
     return col;
 }
+
 
 function sendMessage(expertId) {
     fetch(`/Friends/SendMessage?expertId=${expertId}`, { method: "POST" })

@@ -22,8 +22,18 @@
                         <i class="bi bi-three-dots"></i>
                     </button>
                     <ul class="dropdown-menu rounded-3">
-                        <li><a class="dropdown-item" href="#" onclick="deletePost(@post.PostId)"><i class="bi bi-trash me-2"></i>Xóa bài viết</a></li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick='editPost(@Html.Raw(Json.Serialize(post)))'>
+                                <i class="bi bi-pencil-square me-2"></i>Sửa bài viết
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="deletePost(@post.PostId)">
+                                <i class="bi bi-trash me-2"></i>Xóa bài viết
+                            </a>
+                        </li>
                     </ul>
+
                 </div>
             }
         </div>
