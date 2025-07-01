@@ -333,6 +333,13 @@ function submitUserForm() {
         formData.append('Avatar', avatarInput.files[0]);
     }
 
+    // Lưu trữ nút gửi và nội dung ban đầu
+    const submitButton = document.getElementById('saveChangeInfo');
+
+    // Thay đổi nút thành trạng thái loading
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="bi bi-arrow-repeat spin me-2"></i>Đang xử lý...';
+
     // Gửi yêu cầu AJAX
     $.ajax({
         url: '/UserProfile/UpdateUserProfile',
