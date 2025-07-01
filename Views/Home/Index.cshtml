@@ -1,39 +1,37 @@
 ﻿<div class="container-fluid my-5">
     <div class="row">
         <!-- Bên trái: Danh sách bác sĩ/chuyên gia -->
-
         <div class="col-lg-3 col-md-4 mb-4">
-            @if (User.IsInRole("User"))
-            {
-                <div class="card border-0 shadow-lg rounded-4">
-                    <div class="card-header bg-primary text-white fw-bold py-3 rounded-top-4">
-                        <i class="bi bi-person-heart me-2"></i>Kết nối với chuyên gia
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-
-                            <li class="list-group-item d-flex align-items-center py-3">
-                                @* <img src="" alt="Avatar" class="rounded-circle me-3" style="width: 50px; height: 50px;"> *@
-                                <div>
-                                    <strong class="d-block">Bs. Nguyễn Thị Lan</strong>
-                                    <p class="text-muted mb-1 small">Sản khoa, 10 năm kinh nghiệm</p>
-                                    <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3"
-                                       data-view="Message" data-expert-id="1" style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
-                                        <i class="bi bi-chat-dots me-1"></i>Nhắn tin
-                                    </a>
-                                </div>
-                            </li>
-
-                        </ul>
-                        <div class="card-footer text-center py-3">
-                            <a href="javascript:void(0)" class="btn btn-outline-soft w-100 rounded-3"
-                               data-view="Experts" style="--btn-color: #198754; --btn-hover: #d1e7dd;">
-                                <i class="bi bi-arrow-right-circle me-2"></i>Xem tất cả
-                            </a>
+            <div style="position: sticky; top: 100px;">
+                @if (User.IsInRole("User"))
+                {
+                    <div class="card border-0 shadow-lg rounded-4">
+                        <div class="card-header bg-primary text-white fw-bold py-3 rounded-top-4">
+                            <i class="bi bi-person-heart me-2"></i>Kết nối với chuyên gia
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex align-items-center py-3">
+                                    <div>
+                                        <strong class="d-block">Bs. Nguyễn Thị Lan</strong>
+                                        <p class="text-muted mb-1 small">Sản khoa, 10 năm kinh nghiệm</p>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="card-footer text-center py-3">
+                                <a href="/Friends/Index" class="btn btn-outline-soft w-100 rounded-3"
+                                   data-view="Experts"
+                                   style="--btn-color: #198754; --btn-hover: #d1e7dd;">
+                                    <i class="bi bi-arrow-right-circle me-2"></i>Xem tất cả
+                                </a>
+                            </div>
                         </div>
                     </div>
+                }
+                <div class="card border-0 shadow-lg rounded-4 mt-4">
+                    <img src="~/image/lop-hoc-tien-san-so-25-agenda.jpg" />
                 </div>
-            }
+            </div>
         </div>
 
         <!-- Ở giữa: Danh sách bài viết từ chuyên gia -->
@@ -68,22 +66,20 @@
 
         <!-- Bên phải: Quảng cáo -->
         <div class="col-lg-3 col-md-12 mb-4">
-            <div class="card border-0 shadow-lg rounded-4">
-                <div class="card-header bg-info text-white fw-bold py-3 rounded-top-4">
-                    <i class="bi bi-info-circle-fill me-2"></i>Thông tin hữu ích
-                </div>
-                <div class="card-body p-0">
-
-                    <div class="p-4">
-                        @* <img src="" alt="Ad Image" class="img-fluid rounded-3 mb-3"> *@
-                        <h6 class="fw-bold text-primary">Khóa học tiền sản miễn phí</h6>
+            <div style="position: sticky; top: 100px;">
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-header bg-info text-white fw-bold py-3 rounded-top-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>Thông tin hữu ích
+                    </div>
+                    <div class="card border-0 p-2 rounded-4 pb-2">
+                        <img src="~/image/banner-lhts-28062025-sb.jpg" />
+                        <h6 class="fw-bold text-primary mt-4">Khóa học tiền sản miễn phí</h6>
                         <p class="text-muted small mb-3">Tham gia ngay để chuẩn bị tốt nhất cho hành trình làm mẹ!</p>
-                        <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3 w-100"
+                        <a href="javascript:void(0)" class="btn btn-sm btn-outline-soft rounded-3 w-60"
                            style="--btn-color: #ffc107; --btn-hover: #fff8e3;">
                             <i class="bi bi-arrow-right-circle me-1"></i>Tìm hiểu thêm
                         </a>
                     </div>
-
                 </div>
             </div>
         </div>

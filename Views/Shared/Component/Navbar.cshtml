@@ -61,12 +61,18 @@
             @if (User.Identity.IsAuthenticated)
             {
                 <div>
-                    <button class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark p-1" id="notifications" title="Thông báo" type="button" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                    <button class="nav-link nav-link-custom d-flex align-items-center justify-content-center text-dark p-1 position-relative"
+                            id="notifications"
+                            title="Thông báo"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#notificationModal">
                         <i class="bi bi-bell-fill fs-5 text-warning"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             <span id="notification-count">0</span>
                         </span>
                     </button>
+
                     <!-- Modal thông báo -->
                     <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" data-bs-backdrop="false" data-bs-keyboard="true">
                         <div class="modal-dialog" style="position: absolute; top: 100%; right: 0; margin: 0;">

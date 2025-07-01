@@ -8873,6 +8873,14 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\image\\banner-lhts-28062025-sb.jpg",
+      "PackagePath": "staticwebassets\\image\\banner-lhts-28062025-sb.jpg"
+    },
+    {
+      "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\image\\lop-hoc-tien-san-so-25-agenda.jpg",
+      "PackagePath": "staticwebassets\\image\\lop-hoc-tien-san-so-25-agenda.jpg"
+    },
+    {
       "Id": "D:\\Code\\.NET\\GentleBlossom\\Gentle-Blossom_FE\\wwwroot\\js\\app.js",
       "PackagePath": "staticwebassets\\js\\app.js"
     },

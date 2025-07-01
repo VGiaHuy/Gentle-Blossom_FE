@@ -110,6 +110,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudFxEZXRhaWxQb3N0TW9kYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Code/.NET/GentleBlossom/Gentle-Blossom_FE/Views/Shared/Component/EditPostModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudFxFZGl0UG9zdE1vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Code/.NET/GentleBlossom/Gentle-Blossom_FE/Views/Shared/Component/Modal.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudFxNb2RhbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

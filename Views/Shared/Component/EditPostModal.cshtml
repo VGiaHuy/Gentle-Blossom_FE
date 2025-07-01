@@ -1,7 +1,7 @@
 ﻿<div class="modal fade" id="editPostModal" tabindex="-1" aria-labelledby="editPostModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered mt-3">
         <div class="modal-content rounded-4 shadow-lg border-0">
-            <div class="modal-header bg-warning text-dark rounded-top-4">
+            <div class="modal-header bg-info text-dark rounded-top-4">
                 <h5 class="modal-title fw-bold" id="editPostModalLabel">
                     <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa bài viết
                 </h5>
@@ -16,13 +16,13 @@
                         </div>
                     </div>
 
-                    <div id="editPostEditor" class="form-control mb-3" style="min-height: 200px; border-color: #ffc107; border-radius: 8px;"></div>
+                    <div id="editPostEditor" class="form-control mb-3" style="min-height: 200px; border-radius: 8px;"></div>
 
                     <input type="hidden" name="PostId" id="editPostId" />
                     <input type="hidden" name="Content" id="editPostContent" />
 
                     <div class="mb-3">
-                        <label for="editMediaFiles" class="btn btn-outline-warning rounded-3">
+                        <label for="editMediaFiles" class="btn btn-outline-info rounded-3">
                             <i class="bi bi-image me-1"></i>Thêm Hình ảnh/Video
                         </label>
                         <input type="file" name="NewMedias" id="editMediaFiles" multiple accept="image/*,video/*" class="form-control d-none" />
@@ -35,7 +35,7 @@
                         <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle me-1"></i>Hủy
                         </button>
-                        <button type="submit" class="btn btn-warning rounded-3 text-white">
+                        <button type="submit" class="btn btn-info rounded-3 text-white">
                             <i class="bi bi-save2 me-2"></i>Lưu bài viết
                         </button>
                     </div>

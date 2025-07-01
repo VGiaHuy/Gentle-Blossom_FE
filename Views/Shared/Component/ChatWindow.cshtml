@@ -16,7 +16,9 @@
         <div>
             @if (User.IsInRole("Expert") && !Model.SelectedRoom.IsGroup)
             {
-                <button id="createTracking" class="btn btn-primary btn-sm" type="button">Chăm sóc sức khỏe</button>
+                <button id="createTracking" class="btn btn-outline-primary btn-sm" type="button">
+                    <i class="bi bi-heart-pulse me-1"></i>
+                </button>
             }
             <button id="startVideoCall" data-chatroom-id="@Model.SelectedRoom.ChatRoomId" class="btn btn-outline-primary btn-sm me-2" title="Gọi video"><i class="bi bi-camera-video-fill"></i></button>
             <button id="detailInfoChatRoom" class="btn btn-outline-primary btn-sm" title="Chi tiết"><i class="bi bi-info-circle"></i></button>

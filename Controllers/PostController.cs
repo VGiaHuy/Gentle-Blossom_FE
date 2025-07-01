@@ -107,7 +107,7 @@ namespace Gentle_Blossom_FE.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                return Json(new {success = true, message = "Đăng bài viết thành công!"});
+                return Json(new { success = true, message = "Đăng bài viết thành công!" });
             }
 
             // Nếu lỗi
@@ -129,7 +129,7 @@ namespace Gentle_Blossom_FE.Controllers
 
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            
+
             using var formData = new MultipartFormDataContent();
 
             formData.Add(new StringContent(model.PostId.ToString()), "PostId");
@@ -315,7 +315,6 @@ namespace Gentle_Blossom_FE.Controllers
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            // trường hợp có thêm ảnh mới
             if (model.NewMedias != null)
             {
                 var form = new MultipartFormDataContent();
@@ -328,43 +327,33 @@ namespace Gentle_Blossom_FE.Controllers
                     form.Add(streamContent, "MediaFiles", file.FileName);
                 }
 
-                var response = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/UpdateImagePost", form);
+                var response_image = await client.PostAsync($"{_apiSettings.UserApiBaseUrl}/Post/UpdateImagePost", form);
 
-                if (response.IsSuccessStatusCode)
+                if (!response_image.IsSuccessStatusCode)
                 {
-                    var rawJson = await response.Content.ReadAsStringAsync();
-                    var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
-
-                    return Json(new
-                    {
-                        success = true,
-                        message = "Sửa bài viết thành công!"
-                    });
+                    var errorJson_image = JsonConvert.DeserializeObject<dynamic>(await response_image.Content.ReadAsStringAsync())!;
+                    return Json(new { success = false, message = (string)errorJson_image.Message ?? "Đã xảy ra lỗi!" });
                 }
-
-                var errorJson = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync())!;
-                return Json(new { success = false, message = (string)errorJson.Message ?? "Đã xảy ra lỗi!" });
             }
-            else
+
+            model.NewMedias = null;
+            // trường hợp xóa ảnh hoặc đổi nội dung
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/Post/UpdatePost", model);
+
+            if (response.IsSuccessStatusCode)
             {
-                // trường hợp xóa ảnh hoặc đổi nội dung
-                var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/Post/UpdatePost", model);
+                var rawJson = await response.Content.ReadAsStringAsync();
+                var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
 
-                if (response.IsSuccessStatusCode)
+                return Json(new
                 {
-                    var rawJson = await response.Content.ReadAsStringAsync();
-                    var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
-
-                    return Json(new
-                    {
-                        success = true,
-                        message = "Sửa bài viết thành công!"
-                    });
-                }
-
-                var errorJson = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync())!;
-                return Json(new { success = false, message = (string)errorJson.Message ?? "Đã xảy ra lỗi!" });
+                    success = true,
+                    message = "Sửa bài viết thành công!"
+                });
             }
+
+            var errorJson = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync())!;
+            return Json(new { success = false, message = (string)errorJson.Message ?? "Đã xảy ra lỗi!" });
         }
     }
 }
