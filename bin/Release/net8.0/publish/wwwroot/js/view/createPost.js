@@ -124,6 +124,15 @@
     document.getElementById('postForm').addEventListener('submit', function (e) {
         e.preventDefault();
 
+        // Lấy nội dung từ Quill editor
+        const contentHTML = quill.root.innerHTML.trim();
+
+        // Kiểm tra nếu nội dung rỗng hoặc chỉ là thẻ <p><br></p> (quill mặc định khi rỗng)
+        if (contentHTML === '' || contentHTML === '<p><br></p>') {
+            showErrorModal('Vui lòng điền nội dung bài viết!', 3000);
+            return;
+        }
+
         const formData = new FormData(this);
         const createPostModal = document.getElementById('createPostModal');
         const loadingSpinner = document.getElementById('loadingSpinner');

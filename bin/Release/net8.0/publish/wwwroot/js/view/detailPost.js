@@ -419,6 +419,16 @@
             console.error('Quill editor không được khởi tạo, không thể gửi bình luận');
             return;
         }
+
+        // Lấy nội dung từ Quill editor
+        const contentHTML = quill.root.innerHTML.trim();
+
+        // Kiểm tra nếu nội dung rỗng hoặc chỉ là thẻ <p><br></p> (quill mặc định khi rỗng)
+        if (contentHTML === '' || contentHTML === '<p><br></p>') {
+            showErrorModal('Vui lòng điền nội dung bài viết!', 3000);
+            return;
+        }
+
         const content = quill.root.innerHTML;
         if (content.trim() === '<p><br></p>' && !commentImage) {
             console.warn('Nội dung bình luận trống và không có ảnh.');

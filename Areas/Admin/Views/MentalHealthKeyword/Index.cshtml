@@ -4,7 +4,7 @@
 }
 
 <div class="container">
-    <h2 class="mt-4 mb-4">Danh sách từ khóa sức khỏe tâm lý</h2>
+    <h2 class="mt-4 mb-4 d-flex justify-content-center fw-bold">Danh sách từ khóa sức khỏe tâm lý</h2>
     <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#keywordModal" onclick="openAddModal()">Thêm từ khóa</button>
 
     <div class="table-responsive">
@@ -254,7 +254,6 @@
                     if (response.success) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('keywordModal'));
                         modal.hide();
-                        // Xóa backdrop thủ công
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open');
                         loadKeywords(currentPage);
@@ -280,6 +279,7 @@
                         if (response.success) {
                             loadKeywords(currentPage);
                             showSuccessModal(response.message);
+                            window.location.reload();
                         } else {
                             showErrorModal('Lỗi: ' + response.message);
                         }

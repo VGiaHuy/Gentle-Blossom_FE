@@ -1,6 +1,25 @@
-﻿<div class="container">
-    <h2 class="mt-4 mb-4">Danh sách chuyên gia</h2>
-    <button class="btn btn-success mb-3" onclick="importExcel()">Import từ Excel</button>
+﻿@{
+    ViewBag.Title = "keyword";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2 class="mt-4 mb-4 d-flex justify-content-center fw-bold">Danh sách chuyên gia</h2>
+
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-6">
+            <div class="d-flex justify-content-center align-items-center">
+                <input type="file"
+                       id="fileExcel"
+                       accept=".xlsx, .xls"
+                       class="form-control w-75">
+                <button class="btn btn-secondary ms-3"
+                        onclick="uploadExcel()">
+                    <i class="fas fa-upload me-1"></i>Tải lên
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
@@ -126,6 +145,7 @@
                         if (response.success) {
                             loadExperts(currentPage);
                             showSuccessModal(response.message);
+                            window.location.reload();
                         } else {
                             showErrorModal('Lỗi: ' + response.message);
                         }
@@ -138,37 +158,39 @@
         }
 
         // Import từ Excel
-        function importExcel() {
-            // Mở modal hoặc xử lý upload file Excel
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.xlsx, .xls';
-            input.onchange = function (event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    $.ajax({
-                        url: '@Url.Action("ImportExpertsFromExcel", "Expert")',
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function (response) {
-                            if (response.success) {
-                                loadExperts(currentPage);
-                                showSuccessModal('Import chuyên gia thành công!');
-                            } else {
-                                showErrorModal('Lỗi: ' + response.message);
-                            }
-                        },
-                        error: function () {
-                            showErrorModal('Lỗi khi import file Excel.');
-                        }
-                    });
+        async function uploadExcel() {
+            const fileInput = document.getElementById('fileExcel');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showErrorModal("Vui lòng chọn file  Excel");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            $.ajax({
+                url: '@Url.Action("ImportExcel", "Expert")',
+                type: 'POST',
+                data: formData,
+                processData: false, // Ngăn jQuery xử lý FormData
+                contentType: false, // Để trình duyệt tự đặt Content-Type
+                success: function (response) {
+                    if (data.errorRecords.length > 0) {
+                        // Hiển thị modal thông báo lỗi với danh sách lỗi
+                        showErrorModal(data.errorRecords + "Đã xảy ra lỗi trong quá trình nhập. Vui lòng kiểm tra lại file!");
+                    } else if (data.successfulRecords.length > 0) {
+                        window.location.reload();
+                    } else {
+                        $("#notificationMessage").text("Không có dữ liệu hợp lệ hoặc lỗi!");
+                        $("#notificationModal").modal("show");
+                    }
+                },
+                error: function () {
+                    showErrorModal('Lỗi khi xóa chuyên gia.');
                 }
-            };
-            input.click();
+            });
         }
 
         // Tải danh sách khi trang được load

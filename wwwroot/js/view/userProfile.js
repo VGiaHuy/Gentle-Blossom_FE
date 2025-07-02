@@ -723,10 +723,6 @@ document.getElementById('saveNewPsychologyDiary').addEventListener('click', func
     const formData = new FormData(form);
     formData.append('treatmentId', 1);
 
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-    }
-
     $.ajax({
         url: '/PregnancyCare/CreateNewJourneyWithData',
         type: 'POST',

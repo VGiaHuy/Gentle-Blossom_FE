@@ -56,7 +56,7 @@ if (typeof signalR === "undefined") {
             const remoteVideo = document.createElement('video');
             remoteVideo.autoplay = true;
             remoteVideo.id = `remoteVideo-${callerId}`;
-            remoteVideo.style.width = '280px';
+            remoteVideo.style.width = '380px';
             remoteVideo.style.margin = '5px';
             remoteVideo.style.border = '2px solid #28a745';
             remoteVideo.style.borderRadius = '8px';
@@ -739,6 +739,11 @@ jQuery(document).ready(function ($) {
         const content = formData.get("content");
         const attachments = formData.getAll("attachment");
         const senderId = parseInt(userId);
+
+        // Kiểm tra nếu nội dung rỗng
+        if (content.trim() === '') {
+            return;
+        }
 
         // Kiểm tra giá trị hợp lệ
         if (!chatRoomId || isNaN(chatRoomId)) {
