@@ -174,17 +174,13 @@
                 url: '@Url.Action("ImportExcel", "Expert")',
                 type: 'POST',
                 data: formData,
-                processData: false, // Ngăn jQuery xử lý FormData
-                contentType: false, // Để trình duyệt tự đặt Content-Type
+                processData: false,
+                contentType: false,
                 success: function (response) {
-                    if (data.errorRecords.length > 0) {
-                        // Hiển thị modal thông báo lỗi với danh sách lỗi
+                    if (!response.success) {
                         showErrorModal(data.errorRecords + "Đã xảy ra lỗi trong quá trình nhập. Vui lòng kiểm tra lại file!");
-                    } else if (data.successfulRecords.length > 0) {
-                        window.location.reload();
                     } else {
-                        $("#notificationMessage").text("Không có dữ liệu hợp lệ hoặc lỗi!");
-                        $("#notificationModal").modal("show");
+                        window.location.reload();
                     }
                 },
                 error: function () {
