@@ -28,6 +28,11 @@ namespace Gentle_Blossom_FE.Controllers
 
         public IActionResult Login()
         {
+            if (User.Identity!.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             return View();
         }
 
@@ -93,6 +98,11 @@ namespace Gentle_Blossom_FE.Controllers
 
         public IActionResult Register()
         {
+            if (User.Identity!.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             return View("Register");
         }
 
