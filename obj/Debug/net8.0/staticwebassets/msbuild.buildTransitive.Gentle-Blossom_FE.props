@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\Gentle-Blossom_FE.props" />
-</Project>
