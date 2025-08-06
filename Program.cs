@@ -1,4 +1,5 @@
 ﻿using Gentle_Blossom_FE.Data.Settings;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,18 @@ builder.Services.AddAuthentication(option =>
         options.LoginPath = "/admin/Account/Login"; // Đường dẫn khi admin chưa đăng nhập
         //options.AccessDeniedPath = "/admin/phanquyen/LoiPhanQuyen"; // Đường dẫn khi admin không có quyền truy cập
         options.Cookie.Name = "AdminAuthCookie"; // Tên của cookie dành cho admin
+    })
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.CallbackPath = "/signin-google";
+
+        // Thêm các scope cần thiết
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+        options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
+        options.ClaimActions.MapJsonKey("picture", "picture");
     });
 
 

@@ -48,6 +48,11 @@
                                     style="--btn-color: #0dcaf0; --btn-hover: #e0f7fb;">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
                             </button>
+                            <div class="d-grid mb-3 mt-3 d-flex justify-content-center">
+                                <a href="/Auth/GoogleLogin" class="btn btn-outline-danger btn-lg rounded-3 py-2">
+                                    <i class="bi bi-google me-2"></i>Đăng nhập với Google
+                                </a>
+                            </div>
                         </div>
                         <div class="text-center">
                             <p class="mb-0">
@@ -63,8 +68,6 @@
         </div>
     </div>
 </div>
-
-@await Html.PartialAsync("~/Views/Shared/Component/Modal.cshtml")
 
 @section Scripts {
     <script>
@@ -110,9 +113,6 @@
                     .catch(err => showErrorModal(err, 3000));
             });
         });
-
     </script>
-
-
 }
 

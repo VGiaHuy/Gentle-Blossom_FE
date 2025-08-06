@@ -1,0 +1,78 @@
+﻿@{
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Hoàn thiện thông tin cá nhân</h2>
+    <form id="profileForm" method="post">
+        <div class="mb-3">
+            <label class="form-label">Ngày sinh</label>
+            <input id="DateOfBirth" type="date" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Số điện thoại</label>
+            <input id="PhoneNumber" type="tel" class="form-control" placeholder="Nhập số điện thoại" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Lưu thông tin</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#profileForm').on('submit', function (e) {
+                e.preventDefault();
+
+                // Lấy giá trị từ form
+                var dateOfBirth = $('#DateOfBirth').val();
+                var phoneNumber = $('#PhoneNumber').val();
+
+                // Validation
+                var isValid = true;
+
+                // Kiểm tra ngày sinh
+                if (!dateOfBirth) {
+                    showErrorModal('Vui lòng chọn ngày sinh.');
+                    isValid = false;
+                }
+
+                // Kiểm tra số điện thoại
+                var phoneRegex = /^[0-9]{10}$/;
+                if (!phoneNumber) {
+                    showErrorModal('Vui lòng nhập số điện thoại.');
+                    isValid = false;
+                } else if (!phoneRegex.test(phoneNumber)) {
+                    showErrorModal('Số điện thoại không đúng định dạng');
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    console.log("oke");
+                    $.ajax({
+                        url: '@Url.Action("CompleteProfile", "Auth")',
+                        type: 'POST',
+                        data: 
+                        {
+                            dateOfBirth: dateOfBirth,
+                            phoneNumber: phoneNumber
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showSuccessModal("Đăng ký thành công!");
+                                setTimeout(function () {
+                                    window.location.href = "/Home";
+                                }, 2000);
+                            } else {
+                                (response.messages != null) ? showErrorModal(response.messages) : showErrorModal("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                            }
+                        },
+                        error: function () {
+                            showErrorModal("Đã có lỗi xảy ra. Vui lòng thử lại: ");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
