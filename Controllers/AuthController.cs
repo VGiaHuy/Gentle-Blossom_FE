@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Newtonsoft.Json;
+using System.Reflection;
 using System.Security.Claims;
 
 namespace Gentle_Blossom_FE.Controllers
@@ -254,6 +256,88 @@ namespace Gentle_Blossom_FE.Controllers
             }
 
             return Json(new { success = false, message = "Đăng ký không thành công!" + jsonData.Message });
+        }
+
+        public IActionResult ForgotPassword()
+        {
+            if (User.Identity!.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPasswordRequest([FromBody] ForgotPasswordRequest request)
+        {
+            ForgotPasswordRequest data = new ForgotPasswordRequest
+            {
+                Username = request.Username
+            };
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/UserAuth/ForgotPassword", request);
+
+            var rawJson = await response.Content.ReadAsStringAsync();
+            var jsonData = JsonConvert.DeserializeObject<API_Response<ForgotPasswordResponse>>(rawJson);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // lưu thông tin vào tempdata
+                TempData["OtpToken"] = jsonData.Data.OtpToken;
+                TempData["Email"] = jsonData.Data.Email;
+
+                return Json(new { success = true, message = jsonData!.Message });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Xác thực không thành công! Lỗi: " + error });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyOTP(string otp)
+        {
+            VerifyOtpRequest data = new VerifyOtpRequest
+            {
+                Otp = otp,
+                Email = TempData["Email"]?.ToString(),
+                OtpToken = TempData["OtpToken"]?.ToString(),
+            };
+
+            var client = _httpClientFactory.CreateClient();
+                var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/UserAuth/VerifyOtp", data);
+
+            var rawJson = await response.Content.ReadAsStringAsync();
+            var jsonData = JsonConvert.DeserializeObject<API_Response<string>>(rawJson);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Json(new { success = true, message = jsonData!.Message, data = jsonData.Data });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Xác thực không thành công! Lỗi: " + error });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(string password, string email)
+        {
+            ChangePasswordRequest request = new ChangePasswordRequest { Password = password, Email = email };
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync($"{_apiSettings.UserApiBaseUrl}/UserAuth/ChangePassword", request);
+
+            var rawJson = await response.Content.ReadAsStringAsync();
+            var jsonData = JsonConvert.DeserializeObject<API_Response<object>>(rawJson);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Json(new { success = true, message = jsonData!.Message });
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = "Đổi mật khẩu không thành công! Lỗi: " + error });
         }
 
         [Authorize]
