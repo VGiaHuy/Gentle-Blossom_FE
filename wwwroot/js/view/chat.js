@@ -551,7 +551,7 @@ jQuery(document).ready(function ($) {
             });
         } else {
             console.error("SignalR is not connected or not loaded");
-            showErrorModal("Lỗi: SignalR chưa kết nối!");
+            showInfoModal("Đường truyền đang kết nối...");
         }
 
         // Tải khung Chat Window

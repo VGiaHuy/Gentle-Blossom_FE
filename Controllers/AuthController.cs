@@ -317,7 +317,7 @@ namespace Gentle_Blossom_FE.Controllers
             }
 
             var error = await response.Content.ReadAsStringAsync();
-            return Json(new { success = false, message = "Xác thực không thành công! Lỗi: " + error });
+            return Json(new { success = false, message = error });
         }
 
         [HttpPost]
